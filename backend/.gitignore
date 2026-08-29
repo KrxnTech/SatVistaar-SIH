@@ -10,6 +10,9 @@ uploads/*
 .env.local
 .env.*.local
 
+# temporary/local storage of uploaded imagery
+uploads
+
 # Logs
 logs/
 *.log
