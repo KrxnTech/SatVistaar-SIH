@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GitCompare, Eye, EyeOff, Calendar, ArrowRight, Clock } from 'lucide-react';
+import { GitCompare, Eye, EyeOff, Calendar, ArrowRight, Clock, Target, Layers } from 'lucide-react';
 import { formatDisplayDate, calculateTemporalDelta } from '../utils/dateGenerator.js';
 
 export function ChangeVisualizer({
@@ -10,6 +10,7 @@ export function ChangeVisualizer({
   grounding
 }) {
   const [showAnnotations, setShowAnnotations] = useState(true);
+  const [hoveredIdx, setHoveredIdx] = useState(null);
 
   const regions = grounding?.regions || [];
   const hasRegions = regions.length > 0;
@@ -24,11 +25,12 @@ export function ChangeVisualizer({
     <div className="gov-change-visualizer">
       <div className="visualizer-header">
         <div className="header-title-group">
-          <GitCompare size={15} className="header-icon" />
+          <GitCompare size={16} className="header-icon" />
           <span className="visualizer-title font-mono">BI-TEMPORAL VISUAL COMPARISON</span>
           {hasRegions && (
             <span className="region-count-badge font-mono">
-              {regions.length} CHANGE REGION{regions.length > 1 ? 'S' : ''}
+              <Target size={11} />
+              {regions.length} DETECTED CHANGE REGION{regions.length > 1 ? 'S' : ''}
             </span>
           )}
         </div>
@@ -40,7 +42,7 @@ export function ChangeVisualizer({
             onClick={() => setShowAnnotations(!showAnnotations)}
           >
             {showAnnotations ? <Eye size={12} /> : <EyeOff size={12} />}
-            <span>{showAnnotations ? 'ANNOTATIONS ON' : 'ORIGINAL'}</span>
+            <span>{showAnnotations ? 'HIGHLIGHT BOXES ON' : 'HIDE BOXES'}</span>
           </button>
         )}
       </div>
@@ -66,7 +68,10 @@ export function ChangeVisualizer({
         {/* Image A Slot */}
         <div className="comparison-slot gov-card slot-old">
           <div className="slot-header">
-            <div className="slot-badge old font-mono">IMAGE A: Reference (T1)</div>
+            <div className="slot-badge old font-mono">
+              <span className="slot-dot old" />
+              IMAGE A: Reference Baseline (T1)
+            </div>
             <div className="date-badge old font-mono">
               <Calendar size={11} />
               <span>{displayA}</span>
@@ -87,16 +92,23 @@ export function ChangeVisualizer({
                     {regions.map((reg, idx) => (
                       <div
                         key={idx}
-                        className="change-box-ref"
+                        className={`change-box-ref ${hoveredIdx === idx ? 'hovered' : ''}`}
                         style={{
                           left: `${reg.x * 100}%`,
                           top: `${reg.y * 100}%`,
                           width: `${reg.width * 100}%`,
                           height: `${reg.height * 100}%`
                         }}
+                        onMouseEnter={() => setHoveredIdx(idx)}
+                        onMouseLeave={() => setHoveredIdx(null)}
                       >
+                        <div className="corner-tick top-left" />
+                        <div className="corner-tick top-right" />
+                        <div className="corner-tick bottom-left" />
+                        <div className="corner-tick bottom-right" />
+
                         <div className="change-tag-ref font-mono">
-                          <span>[A] {reg.label || `Change #${idx + 1}`}</span>
+                          <span>[T1 BASELINE] #{idx + 1}</span>
                         </div>
                       </div>
                     ))}
@@ -112,7 +124,10 @@ export function ChangeVisualizer({
         {/* Image B Slot */}
         <div className="comparison-slot gov-card slot-new">
           <div className="slot-header">
-            <div className="slot-badge new font-mono">IMAGE B: Comparison (T2)</div>
+            <div className="slot-badge new font-mono">
+              <span className="slot-dot new" />
+              IMAGE B: Comparison Target (T2)
+            </div>
             <div className="date-badge new font-mono">
               <Calendar size={11} />
               <span>{displayB}</span>
@@ -133,16 +148,24 @@ export function ChangeVisualizer({
                     {regions.map((reg, idx) => (
                       <div
                         key={idx}
-                        className="change-box-comp"
+                        className={`change-box-comp ${hoveredIdx === idx ? 'hovered' : ''}`}
                         style={{
                           left: `${reg.x * 100}%`,
                           top: `${reg.y * 100}%`,
                           width: `${reg.width * 100}%`,
                           height: `${reg.height * 100}%`
                         }}
+                        onMouseEnter={() => setHoveredIdx(idx)}
+                        onMouseLeave={() => setHoveredIdx(null)}
                       >
+                        <div className="corner-tick top-left orange" />
+                        <div className="corner-tick top-right orange" />
+                        <div className="corner-tick bottom-left orange" />
+                        <div className="corner-tick bottom-right orange" />
+
                         <div className="change-tag-comp font-mono">
-                          <span>[B] {reg.label || `Change #${idx + 1}`}</span>
+                          <span className="pulse-dot" />
+                          <span>[T2 UPDATED REGION] {reg.label || `Change #${idx + 1}`}</span>
                         </div>
                       </div>
                     ))}
@@ -156,11 +179,46 @@ export function ChangeVisualizer({
         </div>
       </div>
 
+      {/* Change Region Legend */}
+      {hasRegions && showAnnotations && (
+        <div className="change-legend-panel">
+          <div className="legend-head font-mono">
+            <Layers size={13} />
+            <span>IDENTIFIED CHANGE REGIONS &amp; SPATIAL BOUNDS</span>
+          </div>
+          <div className="legend-items">
+            {regions.map((reg, idx) => (
+              <div
+                key={idx}
+                className={`legend-item ${hoveredIdx === idx ? 'active' : ''}`}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              >
+                <div className="legend-left">
+                  <span className="legend-num font-mono">0{idx + 1}</span>
+                  <span className="legend-name">{reg.label || `Region #${idx + 1}`}</span>
+                </div>
+                <div className="legend-meta font-mono">
+                  <span className="legend-bounds">
+                    [{Math.round(reg.x * 100)}%, {Math.round(reg.y * 100)}% • {Math.round(reg.width * 100)}%×{Math.round(reg.height * 100)}%]
+                  </span>
+                  {reg.confidence && (
+                    <span className="legend-conf">
+                      {Math.round(reg.confidence * 100)}% CONF
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <style>{`
         .gov-change-visualizer {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.85rem;
           margin-top: 1rem;
           padding-top: 1rem;
           border-top: 1px solid var(--border-subtle);
@@ -169,46 +227,54 @@ export function ChangeVisualizer({
           display: flex;
           align-items: center;
           justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 0.5rem;
         }
         .header-title-group {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          flex-wrap: wrap;
         }
         .header-icon {
-          color: var(--status-red-text);
+          color: var(--accent-orange);
         }
         .visualizer-title {
-          font-size: 0.8rem;
-          font-weight: 700;
+          font-size: 0.82rem;
+          font-weight: 800;
+          letter-spacing: 0.05em;
           color: #ffffff;
         }
         .region-count-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
           font-size: 0.65rem;
           font-weight: 700;
-          color: var(--status-red-text);
-          background: rgba(239, 68, 68, 0.12);
-          border: 1px solid rgba(239, 68, 68, 0.35);
-          padding: 0.1rem 0.45rem;
+          color: var(--accent-orange-text);
+          background: rgba(249, 115, 22, 0.12);
+          border: 1px solid rgba(249, 115, 22, 0.4);
+          padding: 0.15rem 0.5rem;
           border-radius: 4px;
         }
         .annotation-toggle-btn {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.2rem 0.55rem;
+          padding: 0.25rem 0.65rem;
           border-radius: var(--radius-sm);
           font-size: 0.7rem;
           font-weight: 700;
           background: #141722;
           border: 1px solid var(--border-subtle);
           color: var(--text-secondary);
-          min-height: auto;
+          cursor: pointer;
+          transition: all 0.15s ease;
         }
         .annotation-toggle-btn.active {
-          background: rgba(239, 68, 68, 0.15);
-          border-color: var(--status-red);
-          color: var(--status-red-text);
+          background: rgba(249, 115, 22, 0.15);
+          border-color: var(--accent-orange);
+          color: var(--accent-orange-text);
         }
         .temporal-baseline-bar {
           display: flex;
@@ -220,6 +286,7 @@ export function ChangeVisualizer({
           padding: 0.45rem 0.75rem;
           font-size: 0.75rem;
           gap: 0.5rem;
+          flex-wrap: wrap;
         }
         .baseline-left {
           display: flex;
@@ -250,7 +317,7 @@ export function ChangeVisualizer({
         .dual-comparison-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.75rem;
+          gap: 0.85rem;
         }
         @media (max-width: 768px) {
           .dual-comparison-grid { grid-template-columns: 1fr; }
@@ -258,6 +325,7 @@ export function ChangeVisualizer({
         .comparison-slot {
           background: #0d0e15;
           border: 1px solid var(--border-subtle);
+          border-radius: 6px;
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -266,22 +334,32 @@ export function ChangeVisualizer({
           border-top: 3px solid var(--accent-blue);
         }
         .comparison-slot.slot-new {
-          border-top: 3px solid var(--status-green);
+          border-top: 3px solid var(--accent-orange);
         }
         .slot-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.5rem 0.75rem;
+          padding: 0.55rem 0.75rem;
           background: #141722;
           border-bottom: 1px solid var(--border-subtle);
         }
         .slot-badge {
-          font-size: 0.7rem;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.72rem;
           font-weight: 700;
         }
         .slot-badge.old { color: var(--accent-blue-text); }
-        .slot-badge.new { color: var(--status-green-text); }
+        .slot-badge.new { color: var(--accent-orange-text); }
+        .slot-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+        .slot-dot.old { background: var(--accent-blue); }
+        .slot-dot.new { background: var(--accent-orange); }
         .date-badge {
           display: flex;
           align-items: center;
@@ -300,9 +378,7 @@ export function ChangeVisualizer({
         .image-relative-container {
           position: relative;
           width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: block;
           line-height: 0;
         }
         .comparison-img {
@@ -319,46 +395,183 @@ export function ChangeVisualizer({
         }
         .change-box-ref {
           position: absolute;
-          border: 2px solid var(--accent-blue);
-          background: rgba(59, 130, 246, 0.2);
+          border: 2px dashed #38bdf8;
+          background: rgba(56, 189, 248, 0.16);
           box-sizing: border-box;
+          pointer-events: auto;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+        .change-box-ref.hovered {
+          border-color: #60a5fa;
+          background: rgba(56, 189, 248, 0.3);
+          box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
         }
         .change-box-comp {
           position: absolute;
-          border: 2px solid var(--status-red);
-          background: rgba(239, 68, 68, 0.2);
+          border: 2.5px solid #f97316;
+          background: rgba(249, 115, 22, 0.24);
           box-sizing: border-box;
+          pointer-events: auto;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 0 16px rgba(249, 115, 22, 0.45);
+          animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+        .change-box-comp.hovered {
+          border-color: #fb923c;
+          background: rgba(249, 115, 22, 0.38);
+          box-shadow: 0 0 24px rgba(249, 115, 22, 0.75);
+        }
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 12px rgba(249, 115, 22, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 22px rgba(249, 115, 22, 0.65);
+          }
+        }
+        .corner-tick {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-color: #38bdf8;
+        }
+        .corner-tick.orange {
+          border-color: #ffffff;
+        }
+        .corner-tick.top-left {
+          top: -2px; left: -2px;
+          border-top: 2px solid currentColor;
+          border-left: 2px solid currentColor;
+        }
+        .corner-tick.top-right {
+          top: -2px; right: -2px;
+          border-top: 2px solid currentColor;
+          border-right: 2px solid currentColor;
+        }
+        .corner-tick.bottom-left {
+          bottom: -2px; left: -2px;
+          border-bottom: 2px solid currentColor;
+          border-left: 2px solid currentColor;
+        }
+        .corner-tick.bottom-right {
+          bottom: -2px; right: -2px;
+          border-bottom: 2px solid currentColor;
+          border-right: 2px solid currentColor;
         }
         .change-tag-ref {
           position: absolute;
-          top: -20px;
+          top: -22px;
           left: -2px;
           background: #08090d;
           color: var(--accent-blue-text);
           border: 1px solid var(--accent-blue);
-          padding: 0.05rem 0.35rem;
-          font-size: 0.6rem;
+          padding: 0.1rem 0.4rem;
+          font-size: 0.62rem;
           font-weight: 700;
-          border-radius: 2px;
+          border-radius: 3px;
           white-space: nowrap;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .change-tag-comp {
           position: absolute;
-          top: -20px;
+          top: -24px;
           left: -2px;
           background: #08090d;
-          color: var(--status-red-text);
-          border: 1px solid var(--status-red);
-          padding: 0.05rem 0.35rem;
-          font-size: 0.6rem;
-          font-weight: 700;
-          border-radius: 2px;
+          color: #ffffff;
+          border: 1px solid #f97316;
+          padding: 0.12rem 0.45rem;
+          font-size: 0.64rem;
+          font-weight: 800;
+          border-radius: 3px;
           white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+        .pulse-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #f97316;
+          box-shadow: 0 0 6px #f97316;
+          display: inline-block;
         }
         .no-image-placeholder {
-          padding: 2rem;
+          padding: 2.5rem;
           font-size: 0.75rem;
           color: var(--text-dim);
+        }
+        .change-legend-panel {
+          background: #0d0e15;
+          border: 1px solid var(--border-subtle);
+          border-radius: 6px;
+          padding: 0.65rem 0.85rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .legend-head {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.68rem;
+          font-weight: 700;
+          color: var(--accent-orange-text);
+        }
+        .legend-items {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+        }
+        .legend-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #12151f;
+          border: 1px solid var(--border-subtle);
+          padding: 0.4rem 0.65rem;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .legend-item:hover, .legend-item.active {
+          border-color: var(--accent-orange);
+          background: rgba(249, 115, 22, 0.08);
+        }
+        .legend-left {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .legend-num {
+          font-size: 0.62rem;
+          font-weight: 700;
+          color: var(--accent-orange-text);
+        }
+        .legend-name {
+          font-size: 0.75rem;
+          color: #ffffff;
+          font-weight: 600;
+        }
+        .legend-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-size: 0.65rem;
+        }
+        .legend-bounds {
+          color: var(--text-dim);
+        }
+        .legend-conf {
+          color: var(--status-green-text);
+          font-weight: 700;
+          background: rgba(16, 185, 129, 0.1);
+          padding: 0.1rem 0.35rem;
+          border-radius: 3px;
         }
       `}</style>
     </div>
