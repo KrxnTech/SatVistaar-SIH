@@ -7,6 +7,7 @@
 [![Preprocessing Service](https://img.shields.io/badge/Preprocessing-Python%20%7C%20Rasterio%20%7C%20Flask-yellow.svg)](backend/services/preprocessing)
 [![Authentication](https://img.shields.io/badge/Auth-JWT%20%7C%20HTTP--Only%20Cookies%20%7C%20Bcrypt-purple.svg)](backend/src/auth)
 [![VLM Providers](https://img.shields.io/badge/VLM%20Engines-Groq%20%7C%20Ollama%20%7C%20Mock-orange.svg)](backend/src/providers)
+[![Tests Passing](https://img.shields.io/badge/Tests-21%2F21%20Auth%20%7C%2028%2F30%20Regression-brightgreen.svg)](backend/tests)
 
 ---
 
@@ -60,43 +61,45 @@ Satellite imagery from platforms such as Sentinel, Landsat, and ISRO missions co
 
 ## 🏛️ System Architecture
 
+### High-Level Topology
+
 ```mermaid
 flowchart TD
-    subgraph Client [Frontend - React 19 + Vite]
-        UI[SatVistaar Mission Control UI]
-        AuthUI[Login / Register Views]
-        AC[AuthContext - HTTP-only Session]
-        PR[ProtectedRoute Guard]
-        Viz[Visual Grounding & Change Comparators]
+    subgraph Client ["Frontend — React 19 + Vite"]
+        UI["Mission Control Dashboard"]
+        AuthUI["Login / Register Views"]
+        AC["AuthContext (HTTP-Only Session)"]
+        PR["ProtectedRoute Guard"]
+        Viz["Visual Grounding & Change Comparators"]
     end
 
-    subgraph API Gateway [Express.js Backend - Port 5000]
-        CORS[CORS & Cookie Parser]
-        AuthMW[authenticateUser Middleware]
-        HealthEP[/api/v1/health - Public]
-        AuthEP[/api/v1/auth - Public]
-        UploadEP[/api/v1/uploads - Protected]
-        AnalysisEP[/api/v1/analysis - Protected]
+    subgraph Gateway ["Express API Gateway (Port 5000)"]
+        CORS["CORS & Cookie Parser"]
+        AuthMW["authenticateUser Middleware"]
+        HealthEP["GET /api/v1/health (Public)"]
+        AuthEP["POST /api/v1/auth/* (Public)"]
+        UploadEP["POST /api/v1/uploads (Protected)"]
+        AnalysisEP["POST /api/v1/analysis (Protected)"]
     end
 
-    subgraph Preprocessing [Python Flask Microservice - Port 5001]
-        PyService[Metadata Extractor]
-        Rasterio[rasterio / PIL Engine]
+    subgraph Preprocessing ["Geospatial Service (Port 5001)"]
+        PyFlask["Flask API"]
+        RasterEngine["rasterio + PIL Metadata Parser"]
     end
 
-    subgraph Agentic Pipeline [VLM Orchestration Layer]
-        Intent[Intent & Task Classifier]
-        Compat[Compatibility Engine]
-        Router[Model Router]
-        PromptBuilder[Specialist Tool Prompt Builders]
-        Trace[Execution Trace Logger]
-        Normalizer[Response Normalizer & Think Sanitizer]
+    subgraph AgentPipeline ["Agentic VLM Pipeline"]
+        Intent["Intent Classifier"]
+        Compat["Compatibility Engine"]
+        Router["Model Router"]
+        PromptBuilder["Specialist Tool Prompts"]
+        Normalizer["Response Normalizer"]
+        Trace["Execution Trace Logger"]
     end
 
-    subgraph Model Providers [Vision-Language Model Engines]
-        Groq[Groq VLM API - Primary / High Speed]
-        Ollama[Ollama Local Daemon - Fallback]
-        Mock[Mock Provider - Offline Testing]
+    subgraph VLMProviders ["Model Providers"]
+        Groq["Groq Cloud VLM (Primary)"]
+        Ollama["Ollama Local VLM (Fallback)"]
+        Mock["Deterministic Mock Engine"]
     end
 
     UI --> PR
@@ -107,20 +110,22 @@ flowchart TD
     CORS --> HealthEP
     CORS --> AuthEP
     CORS --> AuthMW
+
     AuthMW -->|req.user| UploadEP
     AuthMW -->|req.user| AnalysisEP
 
-    UploadEP --> PyService
-    PyService --> Rasterio
+    UploadEP --> PyFlask
+    PyFlask --> RasterEngine
 
     AnalysisEP --> Intent
     Intent --> Compat
     Compat -->|READY| Router
     Compat -->|ABSTAIN / UNKNOWN| Normalizer
+
     Router --> Groq
     Router --> Ollama
     Router --> Mock
-    Groq -->|On Failure| Ollama
+    Groq -.->|Fallback on Fail| Ollama
 
     Groq --> PromptBuilder
     Ollama --> PromptBuilder
@@ -128,6 +133,69 @@ flowchart TD
     Normalizer --> Trace
     Trace --> AnalysisEP
     AnalysisEP --> Viz
+```
+
+---
+
+## 🔄 End-to-End Analysis Flowchart
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Analyst
+    participant React as React Frontend
+    participant Express as Express Gateway
+    participant Preproc as Python Preprocessor (5001)
+    participant Agent as Agentic Pipeline
+    participant Groq as Groq Vision API
+    participant Ollama as Ollama Fallback
+
+    User->>React: Select task, upload image(s) & enter query
+    React->>Express: POST /api/v1/uploads (with HTTP-only cookie)
+    Express->>Preproc: POST /metadata (filePath)
+    Preproc-->>Express: Return CRS, dimensions, resolution, bands
+    Express-->>React: 200 OK (fileIds & metadata)
+
+    User->>React: Click "Run Autonomous Analysis"
+    React->>Express: POST /api/v1/analysis (query, fileIds, requestedTask)
+    Note over Express: authenticateUser validates JWT cookie
+
+    Express->>Agent: processAnalysisRequest(body)
+    Agent->>Agent: Classify Intent (VQA / Caption / Grounding / Change)
+    Agent->>Agent: Check Input Compatibility (min/max images)
+    
+    alt Input is Incompatible
+        Agent-->>Express: Return ABSTAIN status with reason
+    else Input is Compatible
+        Agent->>Agent: ModelRouter selects primary provider
+        
+        alt Primary (Groq Vision) Succeeds
+            Agent->>Groq: Dispatch prompt & base64 image
+            Groq-->>Agent: Raw VLM text response
+        else Groq Fails / Times out
+            Agent->>Ollama: Dispatch to local fallback model
+            Ollama-->>Agent: Fallback response + warning attached
+        end
+
+        Agent->>Agent: Strip <think> blocks & normalize ToolResult
+        Agent->>Agent: Record step latencies in ExecutionTrace
+        Agent-->>Express: Normalized analysisResult payload
+    end
+
+    Express-->>React: 200 OK JSON Contract
+    React->>User: Render real AI answerText, spatial visualizer, & trace inspector
+```
+
+---
+
+## 📊 Task & Model Distribution
+
+```mermaid
+pie title Task Capabilities in Current MVP
+    "Visual Question Answering (VQA)" : 30
+    "Scene Description & Captioning" : 25
+    "Visual Grounding & Identification" : 25
+    "Bi-Temporal Change Analysis" : 20
 ```
 
 ---
@@ -300,16 +368,20 @@ flowchart TD
 
 ## 🛠️ Technology Stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Frontend Framework** | React 19 + Vite 8 | High-performance reactive UI with hot module reloading |
-| **Icons & Design** | Lucide React + Vanilla CSS | Futuristic dark-mode glassmorphic theme and micro-animations |
-| **Backend API** | Node.js + Express 5.2.1 (ESM) | Asynchronous API gateway and agent orchestration |
-| **Security & Auth** | JWT + Bcryptjs + Cookie-Parser | Hashed credentials, HTTP-only cookie session handling, CORS whitelist |
-| **Image Handling** | Multer | Multi-file remote-sensing image upload pipeline |
-| **Preprocessing Engine** | Python 3 + Flask + Rasterio + PIL | Geospatial raster inspection, CRS & bounding box parsing |
-| **Cloud VLM Provider** | Groq Cloud SDK | Fast vision-language inference with retry backoff |
-| **Local VLM Provider** | Ollama HTTP Client | Local, self-hosted multimodal model adapter |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            SATVISTAAR TECH STACK                            │
+├───────────────────┬─────────────────────────────────────────────────────────┤
+│ Frontend          │ React 19 • Vite 8 • Lucide Icons • Vanilla Modern CSS   │
+│ Backend Gateway   │ Node.js • Express 5.2.1 (ES Modules) • Helmet • Morgan  │
+│ Security & Auth   │ JWT • Bcryptjs (10 Rounds) • HTTP-Only Cookies • CORS   │
+│ Preprocessing     │ Python 3.10+ • Flask • Rasterio • GDAL / PIL • NumPy    │
+│ Cloud VLM         │ Groq Cloud API • Qwen3.8-27B Vision • Llama-3.2-11B     │
+│ Local Fallback    │ Ollama Daemon • Qwen2-VL Multimodal                     │
+│ Storage / Data    │ Atomic JSON Repository Pattern (Swappable with DB)      │
+│ Testing           │ Node Native Assertion • Live Regression Test Harnesses  │
+└───────────────────┴─────────────────────────────────────────────────────────┘
+```
 
 ---
 
