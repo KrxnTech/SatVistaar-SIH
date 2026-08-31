@@ -9,6 +9,8 @@
 [![VLM Providers](https://img.shields.io/badge/VLM%20Engines-Groq%20%7C%20Ollama%20%7C%20Mock-orange.svg)](backend/src/providers)
 [![Tests Passing](https://img.shields.io/badge/Tests-21%2F21%20Auth%20%7C%2028%2F30%20Regression-brightgreen.svg)](backend/tests)
 
+> **Image(s) + Question → Intent → Mission → Model → Vision Analysis → Structured Result → Visual Dashboard**
+
 ---
 
 ## 📌 Overview
@@ -27,6 +29,21 @@ The system features an autonomous **Agentic Pipeline** combining:
 
 ---
 
+## 💡 What Makes SatVistaar Different?
+
+Traditional remote-sensing tools require analysts to manually choose tools, write scripts, or configure complex GIS layers. SatVistaar takes an **intent-driven, agentic approach**:
+
+- **Natural Language Driven**: Ask direct questions in plain English without writing GIS scripts.
+- **Unified Multi-Mission Architecture**: Seamlessly handles VQA, Scene Description, Visual Grounding, and Bi-Temporal Change within a single interface.
+- **Automatic Intent Classification**: Automatically categorizes user questions into the optimal analysis mission.
+- **Compatibility Validation Before Execution**: Evaluates image count, dimensions, and format before invoking VLM inference, preventing wasteful API calls.
+- **Provider-Agnostic Model Routing**: Dynamically routes inference to Groq Cloud VLM (primary high-speed) or local Ollama (offline fallback).
+- **Graceful Provider Fallback**: If the primary cloud VLM times out or fails, requests fall back deterministically to local models.
+- **Structured JSON Contracts**: Returns normalized JSON output alongside sanitized reasoning and timing traces for UI rendering.
+- **Interactive Evidence Rendering**: Accompanies natural language answers with visual quadrant bounding and side-by-side swipe comparisons.
+
+---
+
 ## ⚠️ Problem Statement
 
 Satellite imagery from platforms such as Sentinel, Landsat, and ISRO missions contains immense amounts of strategic and environmental intelligence. However:
@@ -38,7 +55,147 @@ Satellite imagery from platforms such as Sentinel, Landsat, and ISRO missions co
 
 ---
 
-## 🚀 Current MVP Capabilities
+## 🛰️ SatVistaar Intelligence Pipeline
+
+```mermaid
+flowchart TD
+    User(["User / Analyst"]) --> Input["Satellite Image(s) + Natural Language Query"]
+    Input --> Preproc["Input Processing & Metadata Validation"]
+    Preproc --> Intent["AI Intent Understanding"]
+    
+    Intent --> Mission{"Analysis Mission Selection"}
+    Mission -->|Query about Image| VQA["Visual Question Answering (VQA)"]
+    Mission -->|Locate Objects| Ground["Visual Grounding / Feature Identification"]
+    Mission -->|Overview Scene| Caption["Scene Description & Captioning"]
+    Mission -->|2 Images Compare| Change["Bi-Temporal Change Analysis"]
+
+    VQA --> Compat["Compatibility & Constraint Check"]
+    Ground --> Compat
+    Caption --> Compat
+    Change --> Compat
+
+    Compat --> Router["Model Router (Rule-Based Selection)"]
+    
+    Router --> Primary["Primary Provider (Groq Vision)"]
+    Primary -.->|On Failure / Timeout| Fallback["Fallback Provider (Ollama Local)"]
+
+    Primary --> VLM["Vision-Language Inference"]
+    Fallback --> VLM
+
+    VLM --> Normalizer["Response Normalization & Trace Logging"]
+    Normalizer --> Result["Structured JSON Result"]
+    Result --> Dashboard(["SatVistaar Mission Control Dashboard"])
+```
+
+---
+
+## 🧠 From Question to Intelligence
+
+```mermaid
+flowchart TD
+    A["User / Analyst"] --> B["Image(s) + Natural Language Question"]
+    B --> C["Query Understanding Engine"]
+    C --> D{"What does the user want?"}
+
+    D -->|Question about image content| E["VQA: Answer specific query about features, infrastructure, water"]
+    D -->|Locate features / structures| F["GROUNDING: Identify approximate spatial quadrants & boundaries"]
+    D -->|General scene overview| G["DESCRIPTION: Generate comprehensive land-cover & terrain summary"]
+    D -->|2 Images provided| H["BI-TEMPORAL CHANGE: Compare baseline (Image A) vs comparison (Image B)"]
+
+    E --> I["Model Router"]
+    F --> I
+    G --> I
+    H --> I
+
+    I --> J["Vision-Language Model (VLM) Execution"]
+    J --> K["Structured Answer + Visual Evidence"]
+    K --> L["Interactive User Dashboard"]
+```
+
+---
+
+## 🤖 AI Decision Architecture
+
+```mermaid
+flowchart TD
+    subgraph InputLayer ["1. Input & Ingestion"]
+        Query["User Query"]
+        Images["1 or 2 Satellite Images"]
+    end
+
+    subgraph AgentLayer ["2. Intent & Compatibility"]
+        IntentClassifier["Intent Classifier (Pattern & Keyword Analysis)"]
+        CompatEngine{"Compatibility Engine"}
+        AbstainHandler["Return ABSTAIN (Incompatible input count/modality)"]
+    end
+
+    subgraph RoutingLayer ["3. Model Router & Providers"]
+        ModelRouter["Model Router (Config & Provider Priority)"]
+        GroqVision["Groq Cloud VLM (Qwen3.8-27B Vision / Llama-3.2-11B)"]
+        OllamaVision["Ollama Local VLM (Qwen2-VL Multimodal)"]
+    end
+
+    subgraph OutputLayer ["4. Normalization & Presentation"]
+        ThinkSanitizer["Reasoning Sanitizer (Strips raw think tags)"]
+        TraceLogger["Execution Trace Logger (Per-step latency & tokens)"]
+        FinalJSON["Normalized JSON Contract"]
+        FrontendUI["SatVistaar UI Visualizers"]
+    end
+
+    Query & Images --> IntentClassifier
+    IntentClassifier --> CompatEngine
+    CompatEngine -->|Failed Constraints| AbstainHandler
+    CompatEngine -->|READY| ModelRouter
+
+    ModelRouter --> GroqVision
+    GroqVision -.->|Rate Limit / Timeout / Error| OllamaVision
+
+    GroqVision --> ThinkSanitizer
+    OllamaVision --> ThinkSanitizer
+    AbstainHandler --> FinalJSON
+
+    ThinkSanitizer --> TraceLogger
+    TraceLogger --> FinalJSON
+    FinalJSON --> FrontendUI
+```
+
+---
+
+## 🎯 Four Analysis Missions
+
+```mermaid
+flowchart TD
+    Root["SatVistaar Intelligence System"] --> Input["Image(s) + Natural Language Query"]
+    Input --> Router["Intent & Task Router"]
+
+    Router --> M1["1. VQA"]
+    Router --> M2["2. Visual Grounding"]
+    Router --> M3["3. Scene Description"]
+    Router --> M4["4. Bi-Temporal Change"]
+
+    M1 --> VLM["VLM Specialist Inference"]
+    M2 --> VLM
+    M3 --> VLM
+    M4 --> VLM
+
+    VLM --> Output["Normalized Result & Visual Overlay"]
+```
+
+### 1. Visual Question Answering (VQA)
+Ask open-ended natural-language questions regarding visible features in optical or multispectral satellite images (*e.g., "Is there an airport runway visible?", "Are there road transportation networks near the river?"*).
+
+### 2. Visual Grounding / Feature Identification
+Locate requested geographic and man-made features (buildings, water bodies, agricultural parcels) and receive approximate spatial quadrants and relative bounding coordinates for visual overlay.
+
+### 3. Scene Description & Captioning
+Generate high-level spatial overviews and comprehensive land-cover distribution summaries (*e.g., "Describe this satellite image in detail with dominant terrain and land cover"*).
+
+### 4. Bi-Temporal Change Analysis
+Compare two co-registered satellite images acquired at different timestamps (Image A Baseline vs Image B Comparison) to describe qualitative visual changes, urban growth, deforestation, or water-body shifts.
+
+---
+
+## 🚀 Current MVP Capabilities Matrix
 
 | Capability | Input | Current Implementation | Status |
 |---|---|---|---|
@@ -59,171 +216,53 @@ Satellite imagery from platforms such as Sentinel, Landsat, and ISRO missions co
 
 ---
 
-## 🏛️ System Architecture
-
-### High-Level Topology
-
-```mermaid
-flowchart TD
-    subgraph Client ["Frontend — React 19 + Vite"]
-        UI["Mission Control Dashboard"]
-        AuthUI["Login / Register Views"]
-        AC["AuthContext (HTTP-Only Session)"]
-        PR["ProtectedRoute Guard"]
-        Viz["Visual Grounding & Change Comparators"]
-    end
-
-    subgraph Gateway ["Express API Gateway (Port 5000)"]
-        CORS["CORS & Cookie Parser"]
-        AuthMW["authenticateUser Middleware"]
-        HealthEP["GET /api/v1/health (Public)"]
-        AuthEP["POST /api/v1/auth/* (Public)"]
-        UploadEP["POST /api/v1/uploads (Protected)"]
-        AnalysisEP["POST /api/v1/analysis (Protected)"]
-    end
-
-    subgraph Preprocessing ["Geospatial Service (Port 5001)"]
-        PyFlask["Flask API"]
-        RasterEngine["rasterio + PIL Metadata Parser"]
-    end
-
-    subgraph AgentPipeline ["Agentic VLM Pipeline"]
-        Intent["Intent Classifier"]
-        Compat["Compatibility Engine"]
-        Router["Model Router"]
-        PromptBuilder["Specialist Tool Prompts"]
-        Normalizer["Response Normalizer"]
-        Trace["Execution Trace Logger"]
-    end
-
-    subgraph VLMProviders ["Model Providers"]
-        Groq["Groq Cloud VLM (Primary)"]
-        Ollama["Ollama Local VLM (Fallback)"]
-        Mock["Deterministic Mock Engine"]
-    end
-
-    UI --> PR
-    PR -->|Unauthenticated| AuthUI
-    PR -->|Authenticated| AC
-    AC -->|credentials: include| CORS
-
-    CORS --> HealthEP
-    CORS --> AuthEP
-    CORS --> AuthMW
-
-    AuthMW -->|req.user| UploadEP
-    AuthMW -->|req.user| AnalysisEP
-
-    UploadEP --> PyFlask
-    PyFlask --> RasterEngine
-
-    AnalysisEP --> Intent
-    Intent --> Compat
-    Compat -->|READY| Router
-    Compat -->|ABSTAIN / UNKNOWN| Normalizer
-
-    Router --> Groq
-    Router --> Ollama
-    Router --> Mock
-    Groq -.->|Fallback on Fail| Ollama
-
-    Groq --> PromptBuilder
-    Ollama --> PromptBuilder
-    PromptBuilder --> Normalizer
-    Normalizer --> Trace
-    Trace --> AnalysisEP
-    AnalysisEP --> Viz
-```
-
----
-
-## 🔄 End-to-End Analysis Flowchart
+## 🔧 Technical Request Flow (Developer Architecture)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as User / Analyst
-    participant React as React Frontend
-    participant Express as Express Gateway
+    actor Analyst as Analyst / Client
+    participant Frontend as React 19 Frontend
+    participant Gateway as Express Gateway (5000)
     participant Preproc as Python Preprocessor (5001)
-    participant Agent as Agentic Pipeline
+    participant Agent as Agentic Analysis Pipeline
     participant Groq as Groq Vision API
     participant Ollama as Ollama Fallback
 
-    User->>React: Select task, upload image(s) & enter query
-    React->>Express: POST /api/v1/uploads (with HTTP-only cookie)
-    Express->>Preproc: POST /metadata (filePath)
-    Preproc-->>Express: Return CRS, dimensions, resolution, bands
-    Express-->>React: 200 OK (fileIds & metadata)
+    Analyst->>Frontend: Upload image(s) & submit prompt
+    Frontend->>Gateway: POST /api/v1/uploads (multipart/form-data)
+    Gateway->>Preproc: POST /metadata (filePath)
+    Preproc-->>Gateway: Return CRS, dimensions, resolution, bands
+    Gateway-->>Frontend: 200 OK (fileIds & metadata)
 
-    User->>React: Click "Run Autonomous Analysis"
-    React->>Express: POST /api/v1/analysis (query, fileIds, requestedTask)
-    Note over Express: authenticateUser validates JWT cookie
+    Analyst->>Frontend: Click "Run Autonomous Analysis"
+    Frontend->>Gateway: POST /api/v1/analysis (query, fileIds, requestedTask)
+    Note over Gateway: authenticateUser validates HTTP-only JWT
 
-    Express->>Agent: processAnalysisRequest(body)
-    Agent->>Agent: Classify Intent (VQA / Caption / Grounding / Change)
-    Agent->>Agent: Check Input Compatibility (min/max images)
-    
-    alt Input is Incompatible
-        Agent-->>Express: Return ABSTAIN status with reason
-    else Input is Compatible
-        Agent->>Agent: ModelRouter selects primary provider
+    Gateway->>Agent: processAnalysisRequest(body)
+    Agent->>Agent: detectIntent(query, requestedTask)
+    Agent->>Agent: validateCompatibility(intent, fileIds)
+
+    alt Compatibility Fails
+        Agent-->>Gateway: Return ABSTAIN status with reason
+    else Compatibility Passes (READY)
+        Agent->>Agent: routeModel(intent, providerMode)
         
-        alt Primary (Groq Vision) Succeeds
+        alt Primary Provider (Groq) Succeeds
             Agent->>Groq: Dispatch prompt & base64 image
             Groq-->>Agent: Raw VLM text response
-        else Groq Fails / Times out
+        else Groq Times out or Fails
             Agent->>Ollama: Dispatch to local fallback model
             Ollama-->>Agent: Fallback response + warning attached
         end
 
-        Agent->>Agent: Strip <think> blocks & normalize ToolResult
-        Agent->>Agent: Record step latencies in ExecutionTrace
-        Agent-->>Express: Normalized analysisResult payload
+        Agent->>Agent: sanitizeReasoningBlocks() & aggregateToolResult()
+        Agent->>Agent: Log step timings into ExecutionTrace
+        Agent-->>Gateway: Structured analysisResult
     end
 
-    Express-->>React: 200 OK JSON Contract
-    React->>User: Render real AI answerText, spatial visualizer, & trace inspector
-```
-
----
-
-## 📊 Task & Model Distribution
-
-```mermaid
-pie title Task Capabilities in Current MVP
-    "Visual Question Answering (VQA)" : 30
-    "Scene Description & Captioning" : 25
-    "Visual Grounding & Identification" : 25
-    "Bi-Temporal Change Analysis" : 20
-```
-
----
-
-## 🔬 Pipeline Workflow
-
-```
-1. USER REQUEST ──► Natural Language Query + Uploaded Image(s)
-                           │
-2. AUTHENTICATION ◄────────┴────────► Session verified via HTTP-only JWT Cookie
-                           │
-3. PREPROCESSING ──────────► Python / Rasterio extracts CRS, resolution, dimensions, bands
-                           │
-4. INTENT DETECTION ───────► Query analyzed: VQA | CAPTIONING | FEATURE_IDENTIFICATION | CHANGE_ANALYSIS
-                           │
-5. COMPATIBILITY CHECK ────► Evaluates input constraints (e.g., Change Analysis requires exactly 2 images)
-                           ├── Status = ABSTAIN (Incompatible input count/modality)
-                           └── Status = READY (Proceed to Model Router)
-                           │
-6. MODEL ROUTER ───────────► Evaluates available providers: Groq (Primary) ──► Ollama (Fallback)
-                           │
-7. VLM SPECIALIST TOOL ────► Formats task prompt & visual payload
-                           │
-8. INFERENCE & RETRY ──────► Executes VLM call (with 429 rate-limit backoff)
-                           │
-9. NORMALIZATION ──────────► Sanitizes <think> blocks, formats ToolResult, records ExecutionTrace
-                           │
-10. FRONTEND RENDER ───────► Real AI answerText, approximate bounding boxes, change viewer, trace log
+    Gateway-->>Frontend: 200 OK JSON Contract
+    Frontend->>Analyst: Render real AI answerText, spatial visualizer & trace log
 ```
 
 ---
@@ -515,9 +554,9 @@ npm run build
 
 ---
 
-## 🗺️ Roadmap & Future Scope
+## 🚀 Evolution Toward Remote-Sensing Intelligence
 
-The following capabilities represent future engineering milestones beyond the current MVP:
+The following capabilities represent future engineering milestones beyond the current MVP and are designated as **Planned / Future**:
 
 - [ ] **Pixel-Level Semantic Segmentation**: Integration of specialized foundation segmentation models (SAM-Geo / SegFormer) for calibrated raster land-cover masks.
 - [ ] **Physical Optical-SAR Tensor Fusion**: Deep multimodal feature fusion combining phase and amplitude data from SAR sensors with optical multispectral bands.
