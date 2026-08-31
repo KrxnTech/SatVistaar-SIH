@@ -405,21 +405,56 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Complete Technology Stack
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            SATVISTAAR TECH STACK                            │
-├───────────────────┬─────────────────────────────────────────────────────────┤
-│ Frontend          │ React 19 • Vite 8 • Lucide Icons • Vanilla Modern CSS   │
-│ Backend Gateway   │ Node.js • Express 5.2.1 (ES Modules) • Helmet • Morgan  │
-│ Security & Auth   │ JWT • Bcryptjs (10 Rounds) • HTTP-Only Cookies • CORS   │
-│ Preprocessing     │ Python 3.10+ • Flask • Rasterio • GDAL / PIL • NumPy    │
-│ Cloud VLM         │ Groq Cloud API • Qwen3.8-27B Vision • Llama-3.2-11B     │
-│ Local Fallback    │ Ollama Daemon • Qwen2-VL Multimodal                     │
-│ Storage / Data    │ Atomic JSON Repository Pattern (Swappable with DB)      │
-│ Testing           │ Node Native Assertion • Live Regression Test Harnesses  │
-└───────────────────┴─────────────────────────────────────────────────────────┘
+### 1. Technology Matrix & Frameworks
+
+| Layer | Technologies & Badges | Purpose & Responsibilities |
+|---|---|---|
+| **Frontend Client** | [![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/) [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/) [![Lucide](https://img.shields.io/badge/Lucide-React%20Icons-F56565?logo=lucide&logoColor=white)](https://lucide.dev/) [![CSS3](https://img.shields.io/badge/CSS3-Modern%20Glassmorphism-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS) | Single-page reactive mission control UI, real-time dual-image temporal upload slots, bounding quadrant overlays, side-by-side swipe comparator, and live execution trace viewer. |
+| **Backend API Gateway** | [![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/) [![Express](https://img.shields.io/badge/Express-5.2.1-000000?logo=express&logoColor=white)](https://expressjs.com/) [![Multer](https://img.shields.io/badge/Multer-Uploads-FF6F00)](https://github.com/expressjs/multer) [![Helmet](https://img.shields.io/badge/Helmet-Security-FF6600)](https://helmetjs.github.io/) | Asynchronous ES-module API gateway, multipart upload pipeline (up to 50MB per file), request validation, and orchestrator lifecycle management. |
+| **Authentication & Security** | [![JWT](https://img.shields.io/badge/JWT-Tokens-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/) [![Bcrypt](https://img.shields.io/badge/Bcrypt.js-10%20Rounds-4A154B)](https://www.npmjs.com/package/bcryptjs) [![Cookies](https://img.shields.io/badge/Cookie--Parser-HTTP--Only-green)](https://www.npmjs.com/package/cookie-parser) [![CORS](https://img.shields.io/badge/CORS-Credentialed-blue)](https://www.npmjs.com/package/cors) | Salted password hashing (Bcrypt 10 rounds), signed JSON Web Tokens issued via secure HTTP-only cookies (`satvistaar_token`), SameSite protection, and granular middleware guards. |
+| **Geospatial Preprocessing** | [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org/) [![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/) [![Rasterio](https://img.shields.io/badge/Rasterio-Geospatial-239120)](https://rasterio.readthedocs.io/) [![Pillow](https://img.shields.io/badge/Pillow-PIL-blue)](https://python-pillow.org/) [![NumPy](https://img.shields.io/badge/NumPy-Arrays-013243?logo=numpy&logoColor=white)](https://numpy.org/) | Independent microservice parsing GeoTIFF, TIFF, PNG, and JPEG metadata, extracting spatial resolution, CRS, bounding boxes, affine transforms, and band configurations. |
+| **Vision-Language Inference** | [![Groq](https://img.shields.io/badge/Groq-Cloud%20VLM-F55036)](https://groq.com/) [![Qwen](https://img.shields.io/badge/Qwen-3.8--27B%20Vision-purple)](https://huggingface.co/Qwen) [![Llama](https://img.shields.io/badge/Llama-3.2--11B%20Vision-0467DF?logo=meta&logoColor=white)](https://ai.meta.com/llama/) [![Ollama](https://img.shields.io/badge/Ollama-Local%20Daemon-black)](https://ollama.ai/) | High-speed cloud Vision-Language Models with automatic 429 rate-limit backoff, coupled with local self-hosted multimodal Ollama daemon for offline fallback. |
+| **Data & Resilience Layer** | [![Data](https://img.shields.io/badge/Pattern-Atomic%20Repository-brightgreen)](#) [![Tests](https://img.shields.io/badge/Tests-Node%20Native%20Harness-yellow)](#) | File-backed atomic JSON storage (`backend/data/users.json`) with in-memory caching (seamlessly swappable with MongoDB/PostgreSQL) and automated regression test harnesses. |
+
+---
+
+### 2. Architecture & Layer Integration
+
+```mermaid
+flowchart LR
+    subgraph UI_Layer ["1. UI & Visual Layer"]
+        R19["React 19 (Hooks & Context)"]
+        Vite["Vite 8 Build Engine"]
+        Lucide["Lucide React Icons"]
+        GlassCSS["Modern Glassmorphism CSS"]
+    end
+
+    subgraph Server_Layer ["2. Gateway & Security"]
+        Exp["Express 5.2.1 (ESM)"]
+        JWT["jsonwebtoken + HttpOnly Cookies"]
+        Bcrypt["bcryptjs (10 Salt Rounds)"]
+        Multer["Multer (50MB GeoTIFF Buffer)"]
+    end
+
+    subgraph Preproc_Layer ["3. Geospatial Microservice"]
+        Flask["Flask 3.0 Microservice"]
+        Raster["rasterio (CRS, GeoTIFF, Transform)"]
+        PIL["Pillow / PIL Image Reader"]
+        NumPy["NumPy Multi-Band Arrays"]
+    end
+
+    subgraph AI_Layer ["4. Agentic VLM Routing"]
+        IntentClass["Regex / Keyword Intent Classifier"]
+        CompEngine["Multi-Input Compatibility Engine"]
+        GroqAPI["Groq Cloud VLM Adapter"]
+        OllamaLocal["Ollama Local Adapter"]
+    end
+
+    UI_Layer --> Server_Layer
+    Server_Layer --> Preproc_Layer
+    Server_Layer --> AI_Layer
 ```
 
 ---
