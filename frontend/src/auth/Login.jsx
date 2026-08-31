@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext.jsx';
-import { Satellite, Mail, Lock, Eye, EyeOff, LogIn, AlertCircle, Sparkles } from 'lucide-react';
+import { Satellite, Mail, Lock, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 
 export function Login({ onNavigateToRegister, onSuccess }) {
   const { login, error: contextError, clearError } = useAuth();
@@ -42,36 +42,35 @@ export function Login({ onNavigateToRegister, onSuccess }) {
   };
 
   return (
-    <div className="auth-page-container">
-      <div className="auth-card glass-panel">
+    <div className="gov-auth-container">
+      <div className="gov-auth-card gov-card">
         <div className="auth-header">
           <div className="auth-badge-icon">
-            <Satellite size={28} className="auth-satellite" />
-            <div className="badge-ring" />
+            <Satellite size={22} />
           </div>
-          <h2 className="auth-title">Welcome to SatVistaar</h2>
-          <p className="auth-subtitle">Sign in to access the Autonomous Geospatial Platform</p>
+          <h2 className="auth-title">Sign In to SatVistaar</h2>
+          <p className="auth-subtitle">Access the Autonomous Geospatial Analysis Platform</p>
         </div>
 
         {displayError && (
           <div className="auth-alert">
-            <AlertCircle size={18} className="alert-icon" />
+            <AlertCircle size={15} className="alert-icon" />
             <span>{displayError}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
           <div className="form-group">
-            <label className="form-label" htmlFor="login-email">
-              Email Address
+            <label className="form-label font-mono" htmlFor="login-email">
+              EMAIL ADDRESS
             </label>
             <div className="input-wrapper">
-              <Mail size={17} className="field-icon" />
+              <Mail size={15} className="field-icon" />
               <input
                 id="login-email"
                 type="email"
-                className="form-input"
-                placeholder="name@organization.com"
+                className="gov-dark-input"
+                placeholder="analyst@organization.gov.in"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -88,17 +87,15 @@ export function Login({ onNavigateToRegister, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <div className="label-row">
-              <label className="form-label" htmlFor="login-password">
-                Password
-              </label>
-            </div>
+            <label className="form-label font-mono" htmlFor="login-password">
+              PASSWORD
+            </label>
             <div className="input-wrapper">
-              <Lock size={17} className="field-icon" />
+              <Lock size={15} className="field-icon" />
               <input
                 id="login-password"
                 type={showPassword ? 'text' : 'password'}
-                className="form-input"
+                className="gov-dark-input"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => {
@@ -118,14 +115,14 @@ export function Login({ onNavigateToRegister, onSuccess }) {
                 tabIndex={-1}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
             </div>
           </div>
 
           <button
             type="submit"
-            className="auth-submit-btn"
+            className="gov-auth-submit-orange-btn"
             disabled={submitting}
           >
             {submitting ? (
@@ -135,15 +132,15 @@ export function Login({ onNavigateToRegister, onSuccess }) {
               </span>
             ) : (
               <span className="btn-content">
-                <LogIn size={18} />
-                <span>Sign In to SatVistaar</span>
+                <LogIn size={15} />
+                <span>Sign In to Platform</span>
               </span>
             )}
           </button>
         </form>
 
         <div className="auth-footer">
-          <span>Don't have an account yet?</span>{' '}
+          <span>Need access credentials?</span>{' '}
           <button
             type="button"
             className="switch-auth-btn"
@@ -152,103 +149,86 @@ export function Login({ onNavigateToRegister, onSuccess }) {
               if (onNavigateToRegister) onNavigateToRegister();
             }}
           >
-            Register now
+            Register new account
           </button>
         </div>
       </div>
 
       <style>{`
-        .auth-page-container {
-          min-height: calc(100vh - 140px);
+        .gov-auth-container {
+          min-height: calc(100vh - 180px);
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 2rem 1rem;
+          padding: 2.5rem 1rem;
+          background: #08090d;
         }
-        .auth-card {
+        .gov-auth-card {
           width: 100%;
-          max-width: 440px;
+          max-width: 420px;
           padding: 2.25rem;
-          background: rgba(13, 19, 34, 0.9);
-          border: 1px solid var(--border-medium);
-          border-radius: var(--radius-xl);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), var(--shadow-glow);
-          position: relative;
+          background: #141722;
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
         }
         .auth-header {
           text-align: center;
-          margin-bottom: 1.75rem;
+          margin-bottom: 1.5rem;
         }
         .auth-badge-icon {
-          position: relative;
-          width: 58px;
-          height: 58px;
-          margin: 0 auto 1.25rem auto;
+          width: 44px;
+          height: 44px;
+          margin: 0 auto 1rem auto;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #1e293b, #0f172a);
-          border: 1px solid var(--accent-cyan);
-          border-radius: var(--radius-lg);
-          box-shadow: 0 0 20px var(--accent-cyan-glow);
-        }
-        .auth-satellite {
-          color: var(--accent-cyan);
-        }
-        .badge-ring {
-          position: absolute;
-          inset: -4px;
-          border-radius: calc(var(--radius-lg) + 4px);
-          border: 1px dashed rgba(0, 229, 255, 0.35);
-          animation: rotate-slow 20s linear infinite;
+          background: #0d0e15;
+          color: var(--accent-orange);
+          border: 1px solid var(--border-medium);
+          border-radius: var(--radius-sm);
         }
         .auth-title {
-          font-size: 1.45rem;
-          font-weight: 700;
+          font-size: 1.35rem;
+          font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.02em;
-          margin-bottom: 0.35rem;
+          margin-bottom: 0.25rem;
         }
         .auth-subtitle {
-          font-size: 0.825rem;
+          font-size: 0.775rem;
           color: var(--text-muted);
         }
         .auth-alert {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
-          padding: 0.75rem 1rem;
-          background: var(--status-error-bg);
-          border: 1px solid rgba(244, 63, 94, 0.4);
-          border-radius: var(--radius-md);
-          color: #fca5a5;
-          font-size: 0.825rem;
-          margin-bottom: 1.5rem;
-          line-height: 1.4;
+          gap: 0.5rem;
+          padding: 0.65rem 0.85rem;
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(239, 68, 68, 0.35);
+          border-radius: var(--radius-sm);
+          color: var(--status-red-text);
+          font-size: 0.8rem;
+          margin-bottom: 1.25rem;
         }
         .alert-icon {
           flex-shrink: 0;
-          color: var(--status-error);
         }
         .auth-form {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 1.15rem;
         }
         .form-group {
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
-        }
-        .label-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+          gap: 0.35rem;
         }
         .form-label {
-          font-size: 0.8rem;
-          font-weight: 500;
-          color: var(--text-main);
+          font-size: 0.725rem;
+          font-weight: 700;
+          color: var(--text-dim);
+          letter-spacing: 0.05em;
         }
         .input-wrapper {
           position: relative;
@@ -257,101 +237,94 @@ export function Login({ onNavigateToRegister, onSuccess }) {
         }
         .field-icon {
           position: absolute;
-          left: 0.875rem;
+          left: 0.75rem;
           color: var(--text-dim);
           pointer-events: none;
         }
-        .form-input {
+        .gov-dark-input {
           width: 100%;
-          padding: 0.75rem 0.875rem 0.75rem 2.65rem;
-          background: var(--bg-input);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
+          padding: 0.65rem 0.75rem 0.65rem 2.35rem;
+          background: #0a0c12;
+          border: 1px solid var(--border-medium);
+          border-radius: var(--radius-sm);
           font-size: 0.875rem;
           color: #ffffff;
-          transition: all 0.2s ease;
           outline: none;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        .form-input:focus {
-          border-color: var(--accent-cyan);
-          box-shadow: 0 0 12px var(--accent-cyan-glow);
-          background: rgba(10, 15, 29, 0.95);
-        }
-        .form-input::placeholder {
-          color: var(--text-dim);
+        .gov-dark-input:focus {
+          border-color: var(--accent-orange);
+          box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
         }
         .password-toggle {
           position: absolute;
-          right: 0.875rem;
+          right: 0.75rem;
           color: var(--text-dim);
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.25rem;
+          padding: 0.2rem;
+          min-height: auto;
         }
         .password-toggle:hover {
-          color: var(--text-main);
+          color: #ffffff;
         }
-        .auth-submit-btn {
+        .gov-auth-submit-orange-btn {
           width: 100%;
-          padding: 0.875rem 1.25rem;
-          margin-top: 0.5rem;
-          background: linear-gradient(135deg, #00e5ff 0%, #3b82f6 50%, #6366f1 100%);
-          border-radius: var(--radius-md);
-          color: #070a12;
-          font-weight: 600;
+          padding: 0.75rem 1.25rem;
+          margin-top: 0.25rem;
+          background: var(--accent-orange);
+          color: #08090d;
+          border-radius: var(--radius-sm);
+          font-weight: 700;
           font-size: 0.9rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
-          transition: all 0.2s ease;
+          min-height: 42px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
         }
-        .auth-submit-btn:hover:not(:disabled) {
-          box-shadow: 0 6px 22px rgba(0, 229, 255, 0.45);
-          transform: translateY(-1px);
+        .gov-auth-submit-orange-btn:hover:not(:disabled) {
+          background: var(--accent-orange-hover);
         }
-        .auth-submit-btn:disabled {
-          opacity: 0.7;
+        .gov-auth-submit-orange-btn:disabled {
+          background: #1e2230;
+          color: #525f76;
           cursor: not-allowed;
         }
         .btn-content, .btn-loading-state {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
+          gap: 0.45rem;
         }
         .btn-spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(7, 10, 18, 0.3);
-          border-top-color: #070a12;
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(8, 9, 13, 0.3);
+          border-top-color: #08090d;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
-        .auth-footer {
-          margin-top: 1.5rem;
-          text-align: center;
-          font-size: 0.825rem;
-          color: var(--text-muted);
-          border-top: 1px solid var(--border-subtle);
-          padding-top: 1.25rem;
-        }
-        .switch-auth-btn {
-          color: var(--accent-cyan);
-          font-weight: 600;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-        }
-        .switch-auth-btn:hover {
-          color: #67e8f9;
-        }
-        @keyframes rotate-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        .auth-footer {
+          margin-top: 1.25rem;
+          text-align: center;
+          font-size: 0.775rem;
+          color: var(--text-muted);
+          border-top: 1px solid var(--border-subtle);
+          padding-top: 1rem;
+        }
+        .switch-auth-btn {
+          color: var(--accent-orange-text);
+          font-weight: 600;
+          text-decoration: underline;
+          min-height: auto;
+        }
+        .switch-auth-btn:hover {
+          color: var(--accent-orange);
         }
       `}</style>
     </div>

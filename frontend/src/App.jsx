@@ -1,206 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './auth/AuthContext.jsx';
 import { ProtectedRoute } from './auth/ProtectedRoute.jsx';
 import { Login } from './auth/Login.jsx';
 import { Register } from './auth/Register.jsx';
+import { RouterProvider, useRouter } from './context/RouterContext.jsx';
+import { AnalysisProvider } from './context/AnalysisContext.jsx';
 import Navbar from './components/Navbar.jsx';
-import ModeSelector, { ANALYSIS_MODES } from './components/ModeSelector.jsx';
-import ImageUploader from './components/ImageUploader.jsx';
-import QueryInput from './components/QueryInput.jsx';
-import AnalyzeButton from './components/AnalyzeButton.jsx';
-import AnalysisResult from './components/AnalysisResult.jsx';
-import { checkBackendHealth, analyzeSatelliteImages } from './services/api.js';
-import { normalizeAnalysisResponse } from './utils/responseNormalizer.js';
-import { generateBiTemporalDatePair } from './utils/dateGenerator.js';
-
-function MainWorkspace({ backendHealth }) {
-  const [selectedMode, setSelectedMode] = useState('VQA');
-  const [imageA, setImageA] = useState(null);
-  const [imageB, setImageB] = useState(null);
-  const [biTemporalDates, setBiTemporalDates] = useState(() => generateBiTemporalDatePair());
-  const [query, setQuery] = useState('What is visible in this satellite image?');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [analysisResult, setAnalysisResult] = useState(null);
-
-  // When mode changes, update default query if query matches previous default
-  const handleSelectMode = (newMode) => {
-    const currentModeConfig = ANALYSIS_MODES.find(m => m.id === selectedMode);
-    const newModeConfig = ANALYSIS_MODES.find(m => m.id === newMode);
-
-    if (query === currentModeConfig?.defaultQuery || !query.trim()) {
-      setQuery(newModeConfig?.defaultQuery || '');
-    }
-
-    // If switching to CHANGE_ANALYSIS mode and no biTemporal dates yet, regenerate fresh pair
-    if (newMode === 'CHANGE_ANALYSIS' && (!biTemporalDates?.dateA || !biTemporalDates?.dateB)) {
-      setBiTemporalDates(generateBiTemporalDatePair());
-    }
-
-    setSelectedMode(newMode);
-    setError(null);
-  };
-
-  // Run analysis
-  const handleAnalyze = async () => {
-    if (!query.trim()) {
-      setError('Please provide an analysis query.');
-      return;
-    }
-
-    if (!imageA?.fileId) {
-      setError('Please upload the primary satellite image.');
-      return;
-    }
-
-    if (selectedMode === 'CHANGE_ANALYSIS' && !imageB?.fileId) {
-      setError('Bi-Temporal Change Analysis requires two satellite images (Image A & Image B).');
-      return;
-    }
-
-    const isDual = selectedMode === 'CHANGE_ANALYSIS';
-    const fileIds = isDual
-      ? [imageA.fileId, imageB.fileId]
-      : [imageA.fileId];
-
-    const timestamps = isDual
-      ? [
-          imageA?.metadata?.timestamp || biTemporalDates.dateA,
-          imageB?.metadata?.timestamp || biTemporalDates.dateB
-        ]
-      : (imageA?.metadata?.timestamp ? [imageA.metadata.timestamp] : undefined);
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const rawResponse = await analyzeSatelliteImages({
-        query: query.trim(),
-        fileIds,
-        requestedTask: selectedMode,
-        timestamps
-      });
-
-      const normalized = normalizeAnalysisResponse(rawResponse);
-      setAnalysisResult(normalized);
-    } catch (err) {
-      console.error('[App Analysis Error]:', err);
-      setError(err.message || 'Failed to analyze satellite imagery. Please check backend connection.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const isDualMode = selectedMode === 'CHANGE_ANALYSIS';
-  const isAnalyzeDisabled = !imageA?.fileId || (isDualMode && !imageB?.fileId) || !query.trim();
-
-  // Create enriched image objects with timestamps for visualizers
-  const enrichedImageA = imageA ? {
-    ...imageA,
-    metadata: {
-      ...(imageA.metadata || {}),
-      timestamp: imageA.metadata?.timestamp || (isDualMode ? biTemporalDates.dateA : null)
-    }
-  } : null;
-
-  const enrichedImageB = imageB ? {
-    ...imageB,
-    metadata: {
-      ...(imageB.metadata || {}),
-      timestamp: imageB.metadata?.timestamp || (isDualMode ? biTemporalDates.dateB : null)
-    }
-  } : null;
-
-  return (
-    <main className="main-content">
-      <div className="container workspace-layout">
-        {/* Left Column: Mission Controls & Input */}
-        <section className="input-column glass-panel">
-          <ModeSelector
-            selectedMode={selectedMode}
-            onSelectMode={handleSelectMode}
-          />
-
-          <ImageUploader
-            selectedMode={selectedMode}
-            imageA={imageA}
-            setImageA={setImageA}
-            imageB={imageB}
-            setImageB={setImageB}
-            biTemporalDates={biTemporalDates}
-            setBiTemporalDates={setBiTemporalDates}
-          />
-
-          <QueryInput
-            selectedMode={selectedMode}
-            query={query}
-            setQuery={setQuery}
-          />
-
-          <AnalyzeButton
-            loading={loading}
-            onClick={handleAnalyze}
-            disabled={isAnalyzeDisabled}
-            selectedMode={selectedMode}
-          />
-        </section>
-
-        {/* Right Column: AI Analysis Result & Visuals */}
-        <section className="output-column">
-          <AnalysisResult
-            analysisResult={analysisResult}
-            loading={loading}
-            error={error}
-            selectedMode={selectedMode}
-            imageA={enrichedImageA}
-            imageB={enrichedImageB}
-          />
-        </section>
-      </div>
-    </main>
-  );
-}
+import Footer from './components/Footer.jsx';
+import HomePage from './pages/HomePage.jsx';
+import AnalysisPage from './pages/AnalysisPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+import HelpPage from './pages/HelpPage.jsx';
+import { checkBackendHealth } from './services/api.js';
 
 function AppContent() {
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { currentRoute, navigateTo } = useRouter();
   const [backendHealth, setBackendHealth] = useState({ ok: false, status: 'checking' });
-  
-  // Lightweight client-side router state with path sync
-  const getInitialView = () => {
-    const path = window.location.pathname.toLowerCase();
-    if (path.includes('/register')) return 'register';
-    if (path.includes('/login')) return 'login';
-    return 'workspace';
-  };
 
-  const [currentView, setCurrentView] = useState(getInitialView);
-
-  const navigateTo = useCallback((view) => {
-    setCurrentView(view);
-    const path = view === 'register' ? '/register' : view === 'login' ? '/login' : '/';
-    if (window.location.pathname !== path) {
-      window.history.pushState({ view }, '', path);
-    }
-  }, []);
-
-  // Handle browser back/forward buttons
-  useEffect(() => {
-    const handlePopState = (e) => {
-      const path = window.location.pathname.toLowerCase();
-      if (path.includes('/register')) {
-        setCurrentView('register');
-      } else if (path.includes('/login')) {
-        setCurrentView('login');
-      } else {
-        setCurrentView('workspace');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // Check health on mount and periodically every 30s
+  // Periodically check backend health on mount and every 30s
   useEffect(() => {
     let mounted = true;
     const fetchHealth = async () => {
@@ -215,111 +33,84 @@ function AppContent() {
     };
   }, []);
 
-  // If user is authenticated and on login/register view, redirect to workspace
+  // If user is authenticated and lands on login or register, redirect to analysis dashboard
   useEffect(() => {
-    if (isAuthenticated && (currentView === 'login' || currentView === 'register')) {
-      navigateTo('workspace');
+    if (isAuthenticated && (currentRoute === '/login' || currentRoute === '/register')) {
+      navigateTo('/analysis');
     }
-  }, [isAuthenticated, currentView, navigateTo]);
+  }, [isAuthenticated, currentRoute, navigateTo]);
+
+  const renderActivePage = () => {
+    switch (currentRoute) {
+      case '/analysis':
+      case '/results':
+        return (
+          <ProtectedRoute
+            fallback={
+              <Login
+                onNavigateToRegister={() => navigateTo('/register')}
+                onSuccess={() => navigateTo('/analysis')}
+              />
+            }
+          >
+            <AnalysisPage backendHealth={backendHealth} />
+          </ProtectedRoute>
+        );
+
+      case '/about':
+      case '/system':
+        return <AboutPage backendHealth={backendHealth} />;
+
+      case '/help':
+      case '/docs':
+        return <HelpPage backendHealth={backendHealth} />;
+
+      case '/login':
+        return (
+          <Login
+            onNavigateToRegister={() => navigateTo('/register')}
+            onSuccess={() => navigateTo('/analysis')}
+          />
+        );
+
+      case '/register':
+        return (
+          <Register
+            onNavigateToLogin={() => navigateTo('/login')}
+            onSuccess={() => navigateTo('/analysis')}
+          />
+        );
+
+      case '/':
+      default:
+        return <HomePage backendHealth={backendHealth} />;
+    }
+  };
 
   return (
-    <div className="app-root">
-      <Navbar
-        backendHealth={backendHealth}
-        onNavigateToLogin={() => navigateTo('login')}
-        onNavigateToRegister={() => navigateTo('register')}
-      />
+    <div className="gov-app-root">
+      <Navbar backendHealth={backendHealth} />
 
-      {/* Render Authentication Views or Protected Workspace */}
-      {!isAuthenticated && currentView === 'register' ? (
-        <Register
-          onNavigateToLogin={() => navigateTo('login')}
-          onSuccess={() => navigateTo('workspace')}
-        />
-      ) : !isAuthenticated && (currentView === 'login' || !authLoading) ? (
-        <ProtectedRoute
-          fallback={
-            <Login
-              onNavigateToRegister={() => navigateTo('register')}
-              onSuccess={() => navigateTo('workspace')}
-            />
-          }
-        >
-          <MainWorkspace backendHealth={backendHealth} />
-        </ProtectedRoute>
-      ) : (
-        <ProtectedRoute
-          fallback={
-            <Login
-              onNavigateToRegister={() => navigateTo('register')}
-              onSuccess={() => navigateTo('workspace')}
-            />
-          }
-        >
-          <MainWorkspace backendHealth={backendHealth} />
-        </ProtectedRoute>
-      )}
+      <div className="gov-app-main">
+        {renderActivePage()}
+      </div>
 
-      <footer className="app-footer">
-        <div className="container footer-inner">
-          <span>SatVistaar Autonomous Geospatial Platform</span>
-          <span className="footer-dot">•</span>
-          <span>Source of Truth: Real Backend VLM API</span>
-        </div>
-      </footer>
+      <Footer backendHealth={backendHealth} />
 
       <style>{`
-        .app-root {
+        .gov-app-root {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: radial-gradient(circle at 50% 0%, rgba(13, 27, 62, 0.4) 0%, rgba(7, 10, 18, 1) 75%);
+          background: #08090d;
+          position: relative;
         }
-        .main-content {
+        .gov-app-main {
           flex: 1;
-          padding: 1.5rem 0 3rem 0;
-        }
-        .workspace-layout {
-          display: grid;
-          grid-template-columns: minmax(360px, 480px) minmax(0, 1fr);
-          gap: 1.5rem;
-          align-items: start;
-          min-width: 0;
-        }
-        @media (max-width: 1024px) {
-          .workspace-layout {
-            grid-template-columns: 1fr;
-            gap: 1.25rem;
-          }
-        }
-        .input-column {
-          padding: 1.25rem;
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
-          min-width: 0;
-          overflow: hidden;
-        }
-        .output-column {
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-        }
-        .app-footer {
-          border-top: 1px solid var(--border-subtle);
-          background: rgba(13, 19, 34, 0.7);
-          padding: 1rem 0;
-          font-size: 0.725rem;
-          color: var(--text-dim);
-        }
-        .footer-inner {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-        }
-        .footer-dot {
-          color: var(--border-medium);
+          position: relative;
+          z-index: 1;
         }
       `}</style>
     </div>
@@ -329,7 +120,11 @@ function AppContent() {
 export function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <RouterProvider>
+        <AnalysisProvider>
+          <AppContent />
+        </AnalysisProvider>
+      </RouterProvider>
     </AuthProvider>
   );
 }

@@ -17,33 +17,34 @@ export function RawJsonViewer({ rawData }) {
   };
 
   return (
-    <div className="raw-json-viewer-root">
+    <div className="gov-json-viewer">
       <button
         type="button"
-        className="json-toggle-btn"
+        className="json-toggle-header"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
       >
         <div className="btn-left">
           <Code size={14} className="code-icon" />
-          <span>Raw Backend Response (JSON)</span>
+          <span className="font-mono">RAW BACKEND RESPONSE (JSON)</span>
         </div>
         <div className="btn-right">
           {isOpen && (
             <button
               type="button"
-              className="copy-btn"
+              className="copy-json-btn font-mono"
               onClick={handleCopy}
-              title="Copy JSON"
+              title="Copy raw JSON to clipboard"
             >
               {copied ? (
                 <>
-                  <Check size={12} className="copy-ok" />
-                  <span>Copied</span>
+                  <Check size={11} className="copy-ok" />
+                  <span>COPIED</span>
                 </>
               ) : (
                 <>
-                  <Copy size={12} />
-                  <span>Copy</span>
+                  <Copy size={11} />
+                  <span>COPY JSON</span>
                 </>
               )}
             </button>
@@ -53,35 +54,36 @@ export function RawJsonViewer({ rawData }) {
       </button>
 
       {isOpen && (
-        <div className="json-content-box">
-          <pre className="json-pre">
+        <div className="json-pre-box">
+          <pre className="json-pre font-mono">
             <code>{jsonString}</code>
           </pre>
         </div>
       )}
 
       <style>{`
-        .raw-json-viewer-root {
+        .gov-json-viewer {
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          background: var(--bg-panel);
+          border-radius: var(--radius-sm);
+          background: #141722;
           overflow: hidden;
           margin-top: 0.75rem;
         }
-        .json-toggle-btn {
+        .json-toggle-header {
           width: 100%;
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0.6rem 0.85rem;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--text-muted);
-          background: transparent;
+          font-size: 0.725rem;
+          font-weight: 700;
+          color: var(--text-secondary);
+          background: #10121a;
+          min-height: 38px;
         }
-        .json-toggle-btn:hover {
-          background: var(--bg-card);
-          color: var(--text-main);
+        .json-toggle-header:hover {
+          color: #ffffff;
+          background: #181c28;
         }
         .btn-left {
           display: flex;
@@ -89,41 +91,43 @@ export function RawJsonViewer({ rawData }) {
           gap: 0.45rem;
         }
         .code-icon {
-          color: var(--accent-cyan);
+          color: var(--accent-blue-text);
         }
         .btn-right {
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
-        .copy-btn {
-          display: flex;
+        .copy-json-btn {
+          display: inline-flex;
           align-items: center;
           gap: 0.25rem;
           padding: 0.2rem 0.5rem;
-          font-size: 0.675rem;
-          background: var(--bg-card-hover);
-          border: 1px solid var(--border-medium);
-          border-radius: 4px;
-          color: var(--text-muted);
+          font-size: 0.65rem;
+          font-weight: 700;
+          background: #141722;
+          border: 1px solid var(--border-subtle);
+          border-radius: 3px;
+          color: var(--text-secondary);
+          min-height: auto;
         }
-        .copy-btn:hover {
-          color: var(--text-main);
-          border-color: var(--accent-cyan);
+        .copy-json-btn:hover {
+          border-color: var(--accent-orange);
+          color: var(--accent-orange-text);
         }
         .copy-ok {
-          color: var(--status-success);
+          color: var(--status-green-text);
         }
-        .json-content-box {
+        .json-pre-box {
           padding: 0.85rem;
-          background: #050811;
+          background: #08090d;
           border-top: 1px solid var(--border-subtle);
           max-height: 380px;
           overflow-y: auto;
         }
         .json-pre {
           font-size: 0.725rem;
-          color: #a5f3fc;
+          color: var(--accent-blue-text);
           line-height: 1.45;
           margin: 0;
           white-space: pre-wrap;

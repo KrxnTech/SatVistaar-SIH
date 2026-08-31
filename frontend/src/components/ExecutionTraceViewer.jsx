@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ChevronDown, ChevronRight, CheckCircle, Clock } from 'lucide-react';
+import { Activity, ChevronDown, ChevronRight } from 'lucide-react';
 
 export function ExecutionTraceViewer({ trace }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,36 +7,37 @@ export function ExecutionTraceViewer({ trace }) {
   if (!trace || !trace.events || trace.events.length === 0) return null;
 
   return (
-    <div className="trace-viewer-root">
+    <div className="gov-trace-viewer">
       <button
         type="button"
         className="trace-toggle-btn"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
       >
         <div className="btn-left">
           <Activity size={14} className="trace-icon" />
-          <span>Execution Plan & Trace Telemetry ({trace.events.length} Steps)</span>
+          <span className="font-mono">EXECUTION PLAN & TRACE TELEMETRY ({trace.events.length} STEPS)</span>
         </div>
         {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
       </button>
 
       {isOpen && (
-        <div className="trace-content-box">
+        <div className="trace-content-body">
           <div className="timeline-list">
             {trace.events.map((evt, idx) => {
               const date = new Date(evt.timestamp);
               const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
 
               return (
-                <div key={idx} className="timeline-item">
-                  <div className="timeline-point" />
-                  <div className="timeline-body">
-                    <div className="timeline-header">
-                      <span className="event-type">{evt.type}</span>
-                      <span className="event-time">{timeStr}</span>
+                <div key={idx} className="timeline-step-item">
+                  <div className="step-point" />
+                  <div className="step-info-block">
+                    <div className="step-header">
+                      <span className="event-type font-mono">{evt.type}</span>
+                      <span className="event-time font-mono">{timeStr}</span>
                     </div>
                     {Object.keys(evt).filter(k => k !== 'type' && k !== 'timestamp').length > 0 && (
-                      <div className="event-details">
+                      <div className="event-details-box font-mono">
                         {Object.entries(evt)
                           .filter(([k]) => k !== 'type' && k !== 'timestamp')
                           .map(([k, v]) => (
@@ -56,10 +57,10 @@ export function ExecutionTraceViewer({ trace }) {
       )}
 
       <style>{`
-        .trace-viewer-root {
+        .gov-trace-viewer {
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          background: var(--bg-panel);
+          border-radius: var(--radius-sm);
+          background: #141722;
           overflow: hidden;
           margin-top: 0.5rem;
         }
@@ -69,14 +70,15 @@ export function ExecutionTraceViewer({ trace }) {
           align-items: center;
           justify-content: space-between;
           padding: 0.6rem 0.85rem;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--text-muted);
-          background: transparent;
+          font-size: 0.725rem;
+          font-weight: 700;
+          color: var(--text-secondary);
+          background: #10121a;
+          min-height: 38px;
         }
         .trace-toggle-btn:hover {
-          background: var(--bg-card);
-          color: var(--text-main);
+          color: #ffffff;
+          background: #181c28;
         }
         .btn-left {
           display: flex;
@@ -84,11 +86,11 @@ export function ExecutionTraceViewer({ trace }) {
           gap: 0.45rem;
         }
         .trace-icon {
-          color: var(--accent-indigo);
+          color: var(--accent-blue-text);
         }
-        .trace-content-box {
+        .trace-content-body {
           padding: 0.85rem;
-          background: #060a14;
+          background: #0d0e15;
           border-top: 1px solid var(--border-subtle);
         }
         .timeline-list {
@@ -102,33 +104,32 @@ export function ExecutionTraceViewer({ trace }) {
           content: '';
           position: absolute;
           left: 11px;
-          top: 4px;
-          bottom: 4px;
+          top: 6px;
+          bottom: 6px;
           width: 1px;
-          background: var(--border-medium);
+          background: var(--border-subtle);
         }
-        .timeline-item {
+        .timeline-step-item {
           display: flex;
           gap: 0.75rem;
           position: relative;
         }
-        .timeline-point {
-          width: 9px;
-          height: 9px;
+        .step-point {
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
-          background: var(--accent-indigo);
-          box-shadow: 0 0 8px var(--accent-indigo);
+          background: var(--accent-orange);
           margin-top: 4px;
           flex-shrink: 0;
           z-index: 1;
         }
-        .timeline-body {
+        .step-info-block {
           flex: 1;
           display: flex;
           flex-direction: column;
           gap: 0.2rem;
         }
-        .timeline-header {
+        .step-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -136,21 +137,21 @@ export function ExecutionTraceViewer({ trace }) {
         .event-type {
           font-size: 0.725rem;
           font-weight: 700;
-          color: #a5b4fc;
-          font-family: 'JetBrains Mono', monospace;
+          color: #ffffff;
         }
         .event-time {
           font-size: 0.65rem;
           color: var(--text-dim);
         }
-        .event-details {
+        .event-details-box {
           display: flex;
           flex-direction: column;
           gap: 0.15rem;
-          background: var(--bg-card);
+          background: #141722;
+          border: 1px solid var(--border-subtle);
           padding: 0.35rem 0.55rem;
-          border-radius: 4px;
-          font-size: 0.68rem;
+          border-radius: 3px;
+          font-size: 0.675rem;
         }
         .detail-row {
           display: flex;
@@ -160,7 +161,7 @@ export function ExecutionTraceViewer({ trace }) {
           color: var(--text-dim);
         }
         .detail-val {
-          color: var(--text-main);
+          color: var(--accent-blue-text);
           word-break: break-all;
         }
       `}</style>

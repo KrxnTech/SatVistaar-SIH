@@ -1,16 +1,13 @@
 import React, { useRef, useState } from 'react';
 import {
   UploadCloud,
-  Image as ImageIcon,
   X,
   AlertCircle,
   CheckCircle2,
   Calendar,
   Dices,
   ArrowRight,
-  Clock,
-  Sparkles,
-  RefreshCw
+  Clock
 } from 'lucide-react';
 import { uploadImageFile } from '../services/api.js';
 import { formatDisplayDate, calculateTemporalDelta, generateBiTemporalDatePair } from '../utils/dateGenerator.js';
@@ -26,14 +23,12 @@ export function ImageUploader({
 }) {
   const isDualMode = selectedMode === 'CHANGE_ANALYSIS';
 
-  // Handle randomizing bi-temporal dates
   const handleRandomizeDates = (e) => {
     if (e) e.preventDefault();
     const newPair = generateBiTemporalDatePair();
     if (setBiTemporalDates) {
       setBiTemporalDates(newPair);
     }
-    // Update imageA and imageB metadata timestamps if loaded
     if (imageA) {
       setImageA(prev => prev ? {
         ...prev,
@@ -89,85 +84,76 @@ export function ImageUploader({
   const currentDelta = calculateTemporalDelta(dateAValue, dateBValue);
 
   return (
-    <div className="image-uploader-wrapper">
-      <div className="section-header-row">
-        <label className="section-label">
-          <span>2. Upload Satellite Imagery</span>
+    <div className="gov-image-uploader">
+      <div className="uploader-header-row">
+        <label className="uploader-title">
+          2. Upload Satellite Imagery
         </label>
-        <span className="format-hint">PNG, JPG, TIFF (Max 50MB)</span>
+        <span className="uploader-formats-hint font-mono">TIFF, GeoTIFF, PNG, JPG (≤50MB)</span>
       </div>
 
-      {/* Bi-Temporal Acquisition Dates Banner (Only in CHANGE_ANALYSIS Mode) */}
+      {/* Bi-Temporal Acquisition Dates Banner */}
       {isDualMode && (
-        <div className="bitemporal-timeline-bar">
-          <div className="timeline-bar-top">
-            <div className="timeline-title-group">
-              <Clock size={13} className="timeline-icon" />
-              <span className="timeline-title">Bi-Temporal Acquisition Timeline</span>
-              <span className="timeline-delta-badge">Δt: {currentDelta}</span>
+        <div className="bitemporal-banner gov-card">
+          <div className="banner-top-row">
+            <div className="banner-title-group">
+              <Clock size={13} className="banner-icon" />
+              <span className="banner-title">Acquisition Timeline</span>
+              <span className="delta-badge font-mono">Δt: {currentDelta}</span>
             </div>
 
             <button
               type="button"
-              className="randomize-dates-btn"
+              className="randomize-dates-btn font-mono"
               onClick={handleRandomizeDates}
               title="Generate 2 random realistic acquisition dates (Old & New)"
             >
-              <Dices size={13} />
-              <span>Randomize Dates</span>
+              <Dices size={12} />
+              <span>Randomize</span>
             </button>
           </div>
 
-          <div className="timeline-controls-grid">
-            {/* Old Date A Input */}
-            <div className="date-input-group old-date">
-              <div className="date-label-row">
-                <span className="date-role-tag old">Image A (Old / Reference)</span>
-                <span className="date-display-val">{formatDisplayDate(dateAValue)}</span>
+          <div className="timeline-inputs-grid">
+            <div className="timeline-date-box date-old">
+              <div className="date-role-row">
+                <span className="role-tag old font-mono">IMAGE A (T1)</span>
+                <span className="date-val-display font-mono">{formatDisplayDate(dateAValue)}</span>
               </div>
-              <div className="input-with-icon">
-                <Calendar size={13} className="input-icon" />
-                <input
-                  type="date"
-                  className="date-native-input"
-                  value={dateAValue || ''}
-                  onChange={(e) => handleDateAChange(e.target.value)}
-                  title="Reference satellite acquisition date (Old)"
-                />
-              </div>
+              <input
+                type="date"
+                className="gov-dark-date-input"
+                value={dateAValue || ''}
+                onChange={(e) => handleDateAChange(e.target.value)}
+                aria-label="Image A Reference acquisition date"
+              />
             </div>
 
-            {/* Timeline Arrow */}
-            <div className="timeline-arrow-box">
-              <ArrowRight size={16} className="arrow-icon" />
+            <div className="timeline-arrow-sep">
+              <ArrowRight size={14} />
             </div>
 
-            {/* New Date B Input */}
-            <div className="date-input-group new-date">
-              <div className="date-label-row">
-                <span className="date-role-tag new">Image B (New / Comparison)</span>
-                <span className="date-display-val">{formatDisplayDate(dateBValue)}</span>
+            <div className="timeline-date-box date-new">
+              <div className="date-role-row">
+                <span className="role-tag new font-mono">IMAGE B (T2)</span>
+                <span className="date-val-display font-mono">{formatDisplayDate(dateBValue)}</span>
               </div>
-              <div className="input-with-icon">
-                <Calendar size={13} className="input-icon" />
-                <input
-                  type="date"
-                  className="date-native-input"
-                  value={dateBValue || ''}
-                  onChange={(e) => handleDateBChange(e.target.value)}
-                  title="Comparison satellite acquisition date (New)"
-                />
-              </div>
+              <input
+                type="date"
+                className="gov-dark-date-input"
+                value={dateBValue || ''}
+                onChange={(e) => handleDateBChange(e.target.value)}
+                aria-label="Image B Comparison acquisition date"
+              />
             </div>
           </div>
         </div>
       )}
 
       {/* Upload Slots Grid */}
-      <div className={`uploader-grid ${isDualMode ? 'dual' : 'single'}`}>
+      <div className={`uploader-slots-grid ${isDualMode ? 'dual' : 'single'}`}>
         <UploadSlot
           slotName="Image A"
-          roleLabel={isDualMode ? 'Reference (Older Baseline)' : 'Target Satellite Image'}
+          roleLabel={isDualMode ? 'Reference Baseline' : 'Primary Frame'}
           imageState={imageA}
           setImageState={setImageA}
           acquisitionDate={isDualMode ? dateAValue : null}
@@ -178,7 +164,7 @@ export function ImageUploader({
         {isDualMode && (
           <UploadSlot
             slotName="Image B"
-            roleLabel="Comparison (Newer Imagery)"
+            roleLabel="Comparison Later"
             imageState={imageB}
             setImageState={setImageB}
             acquisitionDate={dateBValue}
@@ -189,188 +175,150 @@ export function ImageUploader({
       </div>
 
       <style>{`
-        .image-uploader-wrapper {
+        .gov-image-uploader {
           display: flex;
           flex-direction: column;
           gap: 0.65rem;
         }
-        .section-header-row {
+        .uploader-header-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
-        .section-label {
-          font-size: 0.8rem;
-          font-weight: 600;
+        .uploader-title {
+          font-size: 0.825rem;
+          font-weight: 700;
+          color: #ffffff;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: var(--accent-cyan);
+          letter-spacing: 0.04em;
         }
-        .format-hint {
-          font-size: 0.7rem;
+        .uploader-formats-hint {
+          font-size: 0.675rem;
           color: var(--text-dim);
-          font-weight: 400;
-          text-transform: none;
         }
-        .bitemporal-timeline-bar {
-          background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(22, 33, 62, 0.9));
-          border: 1px solid rgba(0, 229, 255, 0.25);
-          border-radius: var(--radius-md);
-          padding: 0.75rem 0.85rem;
+        .bitemporal-banner {
+          padding: 0.85rem;
+          background: #10121a;
+          border: 1px solid var(--border-subtle);
           display: flex;
           flex-direction: column;
-          gap: 0.6rem;
-          box-shadow: 0 0 15px rgba(0, 229, 255, 0.06);
+          gap: 0.65rem;
         }
-        .timeline-bar-top {
+        .banner-top-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 0.5rem;
         }
-        .timeline-title-group {
+        .banner-title-group {
           display: flex;
           align-items: center;
           gap: 0.45rem;
         }
-        .timeline-icon {
-          color: var(--accent-cyan);
+        .banner-icon {
+          color: var(--accent-orange);
         }
-        .timeline-title {
-          font-size: 0.75rem;
+        .banner-title {
+          font-size: 0.8rem;
           font-weight: 700;
-          color: var(--text-main);
-          letter-spacing: 0.02em;
+          color: #ffffff;
         }
-        .timeline-delta-badge {
-          font-size: 0.65rem;
+        .delta-badge {
+          font-size: 0.7rem;
           font-weight: 700;
-          color: var(--accent-cyan);
-          background: rgba(0, 229, 255, 0.12);
-          border: 1px solid rgba(0, 229, 255, 0.3);
+          background: rgba(249, 115, 22, 0.12);
+          color: var(--accent-orange-text);
           padding: 0.1rem 0.45rem;
-          border-radius: 12px;
+          border-radius: 4px;
+          border: 1px solid rgba(249, 115, 22, 0.35);
         }
         .randomize-dates-btn {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.25rem 0.6rem;
+          padding: 0.2rem 0.55rem;
+          background: #141722;
+          border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           font-size: 0.7rem;
           font-weight: 600;
-          background: rgba(99, 102, 241, 0.18);
-          border: 1px solid rgba(99, 102, 241, 0.4);
-          color: #c7d2fe;
-          cursor: pointer;
-          transition: all 0.2s ease;
+          color: var(--text-secondary);
+          min-height: auto;
         }
         .randomize-dates-btn:hover {
-          background: rgba(99, 102, 241, 0.35);
-          border-color: #818cf8;
-          color: #ffffff;
-          box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-          transform: translateY(-1px);
+          border-color: var(--accent-orange);
+          color: var(--accent-orange-text);
         }
-        .timeline-controls-grid {
+        .timeline-inputs-grid {
           display: grid;
           grid-template-columns: 1fr auto 1fr;
-          gap: 0.5rem;
+          gap: 0.6rem;
           align-items: center;
         }
-        @media (max-width: 540px) {
-          .timeline-controls-grid {
-            grid-template-columns: 1fr;
-            gap: 0.4rem;
-          }
-          .timeline-arrow-box {
-            display: none;
-          }
+        @media (max-width: 580px) {
+          .timeline-inputs-grid { grid-template-columns: 1fr; }
+          .timeline-arrow-sep { display: none; }
         }
-        .date-input-group {
+        .timeline-date-box {
+          background: #0a0c12;
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-sm);
+          padding: 0.45rem 0.65rem;
           display: flex;
           flex-direction: column;
           gap: 0.25rem;
-          background: rgba(7, 10, 18, 0.6);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          padding: 0.4rem 0.6rem;
         }
-        .date-input-group.old-date {
-          border-left: 3px solid #818cf8;
+        .timeline-date-box.date-old {
+          border-left: 3px solid var(--accent-blue);
         }
-        .date-input-group.new-date {
-          border-left: 3px solid #00e5ff;
+        .timeline-date-box.date-new {
+          border-left: 3px solid var(--status-green);
         }
-        .date-label-row {
+        .date-role-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.3rem;
         }
-        .date-role-tag {
-          font-size: 0.625rem;
+        .role-tag {
+          font-size: 0.65rem;
           font-weight: 700;
-          text-transform: uppercase;
         }
-        .date-role-tag.old {
-          color: #a5b4fc;
-        }
-        .date-role-tag.new {
-          color: #67e8f9;
-        }
-        .date-display-val {
-          font-size: 0.675rem;
+        .role-tag.old { color: var(--accent-blue-text); }
+        .role-tag.new { color: var(--status-green-text); }
+        .date-val-display {
+          font-size: 0.7rem;
           color: var(--text-muted);
-          font-weight: 500;
         }
-        .input-with-icon {
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
-          background: rgba(15, 23, 42, 0.8);
+        .gov-dark-date-input {
           border: 1px solid var(--border-subtle);
           border-radius: 4px;
-          padding: 0.15rem 0.35rem;
-        }
-        .input-icon {
-          color: var(--text-dim);
-          flex-shrink: 0;
-        }
-        .date-native-input {
-          background: transparent;
-          border: none;
-          color: var(--text-main);
-          font-size: 0.725rem;
-          font-family: inherit;
-          width: 100%;
+          padding: 0.25rem 0.45rem;
+          font-size: 0.75rem;
+          color: #ffffff;
+          background: #141722;
           outline: none;
-          cursor: pointer;
-          color-scheme: dark;
         }
-        .timeline-arrow-box {
+        .gov-dark-date-input:focus {
+          border-color: var(--accent-orange);
+        }
+        .timeline-arrow-sep {
+          color: var(--text-dim);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--accent-cyan);
-          opacity: 0.8;
         }
-        .uploader-grid {
+        .uploader-slots-grid {
           display: grid;
           gap: 0.65rem;
-          width: 100%;
-          min-width: 0;
         }
-        .uploader-grid.single {
+        .uploader-slots-grid.single {
           grid-template-columns: 1fr;
         }
-        .uploader-grid.dual {
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        .uploader-slots-grid.dual {
+          grid-template-columns: 1fr 1fr;
         }
-        @media (max-width: 540px) {
-          .uploader-grid.dual {
-            grid-template-columns: 1fr;
-          }
+        @media (max-width: 580px) {
+          .uploader-slots-grid.dual { grid-template-columns: 1fr; }
         }
       `}</style>
     </div>
@@ -397,7 +345,6 @@ function UploadSlot({
   const handleFile = async (file) => {
     if (!file) return;
 
-    // Validate size (50MB)
     if (file.size > 50 * 1024 * 1024) {
       setError('File exceeds 50MB limit.');
       return;
@@ -422,7 +369,6 @@ function UploadSlot({
       });
     } catch (err) {
       setError(err.message || 'Upload failed');
-      // Fallback state if preview is available
       setImageState({
         file,
         previewUrl,
@@ -477,7 +423,7 @@ function UploadSlot({
 
   return (
     <div
-      className={`upload-slot ${isDragging ? 'dragging' : ''} ${imageState ? 'has-file' : ''} ${isOld ? 'slot-old' : isNew ? 'slot-new' : ''}`}
+      className={`gov-upload-slot ${isDragging ? 'dragging' : ''} ${imageState ? 'has-file' : ''}`}
       onClick={() => !imageState && fileInputRef.current?.click()}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -491,342 +437,257 @@ function UploadSlot({
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
       />
 
-      <div className="slot-header">
-        <div className="slot-badge-row">
-          <span className={`slot-badge ${isOld ? 'old' : isNew ? 'new' : ''}`}>{slotName}</span>
-          {isOld && <span className="temporal-tag old">OLD</span>}
-          {isNew && <span className="temporal-tag new">NEW</span>}
+      <div className="slot-header-bar">
+        <div className="slot-title-group">
+          <span className="slot-badge font-mono">{slotName}</span>
+          <span className="slot-role-text">{roleLabel}</span>
         </div>
-        <span className="slot-role" title={roleLabel}>{roleLabel}</span>
       </div>
 
       {uploading ? (
-        <div className="upload-loading-state">
-          <div className="spinner" />
-          <span>Uploading & extracting metadata...</span>
+        <div className="upload-progress-state">
+          <div className="progress-spinner" />
+          <span className="font-mono">Extracting raster metadata...</span>
         </div>
       ) : imageState ? (
-        <div className="slot-preview-card">
-          <div className="preview-media-box">
+        <div className="slot-file-preview">
+          <div className="preview-thumb-box">
             <img
               src={imageState.previewUrl}
               alt={imageState.fileName}
-              className="slot-img-preview"
+              className="preview-img"
             />
+            {/* Subtle red remove button */}
             <button
               type="button"
-              className="remove-btn"
+              className="slot-remove-btn"
               onClick={removeImage}
               title="Remove image"
+              aria-label="Remove image"
             >
               <X size={13} />
             </button>
           </div>
 
-          <div className="slot-meta-info">
-            <div className="file-name" title={imageState.fileName}>
+          <div className="preview-details">
+            <div className="preview-filename" title={imageState.fileName}>
               {imageState.fileName}
             </div>
-            <div className="file-submeta">
+            <div className="preview-submeta font-mono">
               <span>{formatBytes(imageState.sizeBytes)}</span>
               {imageState.fileId ? (
-                <span className="file-ready-tag">
-                  <CheckCircle2 size={11} /> Uploaded
+                <span className="status-tag ok">
+                  <CheckCircle2 size={11} /> READY
                 </span>
               ) : (
-                <span className="file-warn-tag">
-                  <AlertCircle size={11} /> Ready
+                <span className="status-tag warn">
+                  <AlertCircle size={11} /> LOCAL
                 </span>
               )}
             </div>
-            <div className="date-info">
-              <Calendar size={11} className="date-icon" />
-              <span>Acquired: <strong>{formatDisplayDate(effectiveTimestamp)}</strong></span>
-            </div>
+            {imageState.fileId && (
+              <div className="preview-id-tag font-mono">
+                ID: {imageState.fileId.slice(0, 14)}...
+              </div>
+            )}
           </div>
         </div>
       ) : (
-        <div className="slot-dropzone">
-          <div className="drop-icon-circle">
-            <UploadCloud size={20} />
+        <div className="slot-empty-dropzone">
+          <UploadCloud size={24} className="dropzone-icon" />
+          <div className="dropzone-text">
+            <strong>Click to upload</strong> or drag frame
           </div>
-          <div className="drop-text">
-            <strong>Click to upload</strong> or drag & drop
-          </div>
-          <div className="drop-subtext">
-            {effectiveTimestamp ? `Acquisition: ${formatDisplayDate(effectiveTimestamp)}` : 'GeoTIFF, TIFF, PNG, or JPEG'}
-          </div>
+          <div className="dropzone-hint font-mono">GeoTIFF, TIFF, PNG, JPG</div>
         </div>
       )}
 
       {error && (
-        <div className="upload-error">
+        <div className="slot-error-msg">
           <AlertCircle size={12} />
           <span>{error}</span>
         </div>
       )}
 
       <style>{`
-        .upload-slot {
-          background: var(--bg-card);
+        .gov-upload-slot {
+          background: #141722;
           border: 1px dashed var(--border-medium);
-          border-radius: var(--radius-md);
-          padding: 0.65rem 0.75rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          position: relative;
-          min-height: 140px;
-          min-width: 0;
-          overflow: hidden;
-          box-sizing: border-box;
+          border-radius: var(--radius-sm);
+          padding: 0.75rem;
           display: flex;
           flex-direction: column;
+          gap: 0.5rem;
+          min-height: 130px;
+          cursor: pointer;
+          transition: all 0.15s ease;
         }
-        .upload-slot:hover {
-          border-color: var(--accent-cyan);
-          background: var(--bg-card-hover);
+        .gov-upload-slot:hover {
+          border-color: var(--accent-blue);
+          background: #181c28;
         }
-        .upload-slot.slot-old:hover {
-          border-color: #818cf8;
-        }
-        .upload-slot.slot-new:hover {
-          border-color: #00e5ff;
-        }
-        .upload-slot.dragging {
-          border-color: var(--accent-cyan);
-          background: rgba(0, 229, 255, 0.05);
-          box-shadow: 0 0 20px var(--accent-cyan-glow);
-        }
-        .upload-slot.has-file {
+        .gov-upload-slot.has-file {
           border-style: solid;
           border-color: var(--border-subtle);
           cursor: default;
         }
-        .slot-header {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-          margin-bottom: 0.5rem;
-          min-width: 0;
+        .gov-upload-slot.dragging {
+          border-color: var(--accent-orange);
+          background: rgba(249, 115, 22, 0.08);
         }
-        .slot-badge-row {
+        .slot-header-bar {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.35rem;
+        }
+        .slot-title-group {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
         }
         .slot-badge {
-          font-size: 0.725rem;
+          font-size: 0.65rem;
           font-weight: 700;
-          letter-spacing: 0.02em;
-          padding: 0.12rem 0.45rem;
-          border-radius: 4px;
-          background: rgba(0, 229, 255, 0.1);
-          color: var(--accent-cyan);
-          border: 1px solid rgba(0, 229, 255, 0.25);
-        }
-        .slot-badge.old {
-          color: #a5b4fc;
-          background: rgba(99, 102, 241, 0.15);
-          border-color: rgba(99, 102, 241, 0.35);
-        }
-        .slot-badge.new {
-          color: #67e8f9;
-          background: rgba(0, 229, 255, 0.15);
-          border-color: rgba(0, 229, 255, 0.35);
-        }
-        .temporal-tag {
-          font-size: 0.6rem;
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          padding: 0.08rem 0.35rem;
+          padding: 0.1rem 0.45rem;
+          background: #0d0e15;
+          border: 1px solid var(--border-subtle);
           border-radius: 3px;
-          text-transform: uppercase;
+          color: #ffffff;
         }
-        .temporal-tag.old {
-          background: rgba(99, 102, 241, 0.25);
-          color: #c7d2fe;
-          border: 1px solid rgba(99, 102, 241, 0.4);
+        .slot-role-text {
+          font-size: 0.7rem;
+          color: var(--text-muted);
         }
-        .temporal-tag.new {
-          background: rgba(0, 229, 255, 0.2);
-          color: #a5f3fc;
-          border: 1px solid rgba(0, 229, 255, 0.4);
-        }
-        .slot-role {
-          font-size: 0.675rem;
-          color: var(--text-dim);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          line-height: 1.2;
-        }
-        .slot-dropzone {
+        .slot-empty-dropzone {
           flex: 1;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.35rem;
+          gap: 0.25rem;
           padding: 0.5rem 0;
-        }
-        .drop-icon-circle {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: var(--bg-panel);
-          border: 1px solid var(--border-subtle);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--text-muted);
-        }
-        .upload-slot:hover .drop-icon-circle {
-          color: var(--accent-cyan);
-          border-color: var(--accent-cyan);
-        }
-        .upload-slot.slot-old:hover .drop-icon-circle {
-          color: #818cf8;
-          border-color: #818cf8;
-        }
-        .drop-text {
-          font-size: 0.725rem;
-          color: var(--text-muted);
           text-align: center;
         }
-        .drop-text strong {
-          color: var(--text-main);
+        .dropzone-icon {
+          color: var(--text-dim);
         }
-        .drop-subtext {
+        .gov-upload-slot:hover .dropzone-icon {
+          color: var(--accent-blue-text);
+        }
+        .dropzone-text {
+          font-size: 0.775rem;
+          color: var(--text-secondary);
+        }
+        .dropzone-text strong {
+          color: var(--accent-orange-text);
+        }
+        .dropzone-hint {
           font-size: 0.65rem;
           color: var(--text-dim);
-          text-align: center;
         }
-        .slot-preview-card {
+        .slot-file-preview {
           display: flex;
-          gap: 0.65rem;
           align-items: center;
+          gap: 0.75rem;
           flex: 1;
-          min-width: 0;
         }
-        .preview-media-box {
+        .preview-thumb-box {
           position: relative;
-          width: 68px;
-          height: 68px;
-          border-radius: var(--radius-sm);
+          width: 60px;
+          height: 60px;
+          border-radius: 4px;
           overflow: hidden;
-          background: #000;
-          border: 1px solid var(--border-subtle);
+          background: #08090d;
+          border: 1px solid var(--border-medium);
           flex-shrink: 0;
         }
-        .slot-img-preview {
+        .preview-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
         }
-        .remove-btn {
+        /* Subtle red remove button */
+        .slot-remove-btn {
           position: absolute;
           top: 2px;
           right: 2px;
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: rgba(0, 0, 0, 0.8);
+          background: rgba(8, 9, 13, 0.85);
+          color: #f87171;
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: auto;
+        }
+        .slot-remove-btn:hover {
+          background: var(--status-red);
           color: #ffffff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          backdrop-filter: blur(4px);
-          transition: all 0.15s ease;
         }
-        .remove-btn:hover {
-          background: var(--status-error);
-          transform: scale(1.1);
-        }
-        .slot-meta-info {
-          flex: 1;
-          min-width: 0;
+        .preview-details {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.15rem;
+          flex: 1;
           overflow: hidden;
         }
-        .file-name {
-          font-size: 0.75rem;
+        .preview-filename {
+          font-size: 0.8rem;
           font-weight: 600;
-          color: var(--text-main);
+          color: #ffffff;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          line-height: 1.2;
         }
-        .file-submeta {
+        .preview-submeta {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          font-size: 0.675rem;
-          color: var(--text-dim);
-          flex-wrap: wrap;
-        }
-        .file-ready-tag {
-          color: #34d399;
-          display: flex;
-          align-items: center;
-          gap: 0.15rem;
-          font-weight: 500;
-        }
-        .file-warn-tag {
-          color: #fbbf24;
-          display: flex;
-          align-items: center;
-          gap: 0.15rem;
-          font-weight: 500;
-        }
-        .date-info {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
+          gap: 0.5rem;
           font-size: 0.675rem;
           color: var(--text-muted);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
         }
-        .date-icon {
-          flex-shrink: 0;
+        .status-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+          font-weight: 700;
         }
-        .date-info strong {
-          color: var(--text-main);
+        .status-tag.ok { color: var(--status-green-text); }
+        .status-tag.warn { color: #fbbf24; }
+        .preview-id-tag {
+          font-size: 0.625rem;
+          color: var(--text-dim);
         }
-        .upload-loading-state {
+        .upload-progress-state {
           flex: 1;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
           font-size: 0.75rem;
           color: var(--text-muted);
         }
-        .spinner {
-          width: 20px;
-          height: 20px;
+        .progress-spinner {
+          width: 18px;
+          height: 18px;
           border: 2px solid var(--border-medium);
-          border-top-color: var(--accent-cyan);
+          border-top-color: var(--accent-orange);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        .upload-error {
+        .slot-error-msg {
           display: flex;
           align-items: center;
           gap: 0.3rem;
-          font-size: 0.675rem;
-          color: var(--status-error);
-          margin-top: 0.25rem;
+          font-size: 0.7rem;
+          color: var(--status-red-text);
         }
       `}</style>
     </div>

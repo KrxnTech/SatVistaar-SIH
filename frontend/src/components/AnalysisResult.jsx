@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Bot, AlertCircle, CheckCircle2, FileText, Image as ImageIcon, HelpCircle } from 'lucide-react';
+import { Bot, AlertCircle, CheckCircle2, FileText, Activity } from 'lucide-react';
 import GroundingVisualizer from './GroundingVisualizer.jsx';
 import ChangeVisualizer from './ChangeVisualizer.jsx';
 import MetadataPanel from './MetadataPanel.jsx';
@@ -16,88 +16,58 @@ export function AnalysisResult({
 }) {
   if (loading) {
     return (
-      <div className="result-card-root loading-state">
-        <div className="loading-card-content">
-          <div className="radar-spinner">
-            <div className="radar-sweep" />
-            <div className="radar-ring r1" />
-            <div className="radar-ring r2" />
-            <div className="radar-center" />
-          </div>
-          <h3 className="loading-heading">Vision-Language Model In Progress</h3>
-          <p className="loading-subtext">Analyzing multimodal satellite imagery, spatial structures, and spectral features...</p>
-          <div className="loading-mode-pill">
-            <span>Mission: <strong>{selectedMode}</strong></span>
+      <div className="gov-result-card loading-state">
+        <div className="loading-content">
+          <div className="loading-spinner" />
+          <h3 className="loading-title">Vision-Language Model In Progress</h3>
+          <p className="loading-desc">
+            Processing multimodal satellite raster, extracting spatial land-cover features, and synthesizing natural language response...
+          </p>
+          <div className="loading-task-tag font-mono">
+            Task: <strong className="t-orange">{selectedMode}</strong> • Backbone: <strong className="t-blue">Qwen3.8-27B</strong>
           </div>
         </div>
         <style>{`
-          .loading-card-content {
+          .loading-content {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 4rem 2rem;
+            padding: 3.5rem 2rem;
             text-align: center;
             gap: 1rem;
           }
-          .radar-spinner {
-            position: relative;
-            width: 72px;
-            height: 72px;
+          .loading-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid var(--border-medium);
+            border-top-color: var(--accent-orange);
             border-radius: 50%;
-            background: rgba(0, 229, 255, 0.05);
-            border: 1px solid rgba(0, 229, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
+            animation: spin 0.8s linear infinite;
           }
-          .radar-sweep {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: conic-gradient(from 0deg, transparent 60%, rgba(0, 229, 255, 0.5) 100%);
-            border-radius: 50%;
-            animation: radar-rotate 1.5s linear infinite;
-          }
-          .radar-ring {
-            position: absolute;
-            border-radius: 50%;
-            border: 1px dashed rgba(0, 229, 255, 0.25);
-          }
-          .radar-ring.r1 { width: 36px; height: 36px; }
-          .radar-ring.r2 { width: 56px; height: 56px; }
-          .radar-center {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-cyan);
-            box-shadow: 0 0 10px var(--accent-cyan);
-            z-index: 2;
-          }
-          @keyframes radar-rotate {
+          @keyframes spin {
             to { transform: rotate(360deg); }
           }
-          .loading-heading {
-            font-size: 1.1rem;
-            color: var(--text-main);
+          .loading-title {
+            font-size: 1.15rem;
+            color: #ffffff;
           }
-          .loading-subtext {
-            font-size: 0.8rem;
+          .loading-desc {
+            font-size: 0.85rem;
             color: var(--text-muted);
-            max-width: 380px;
+            max-width: 420px;
+            line-height: 1.5;
           }
-          .loading-mode-pill {
+          .loading-task-tag {
             font-size: 0.75rem;
-            color: var(--accent-cyan);
-            background: rgba(0, 229, 255, 0.1);
-            border: 1px solid rgba(0, 229, 255, 0.3);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
+            background: #0d0e15;
+            border: 1px solid var(--border-subtle);
+            padding: 0.25rem 0.65rem;
+            border-radius: 4px;
+            color: var(--text-secondary);
           }
+          .t-orange { color: var(--accent-orange-text); }
+          .t-blue { color: var(--accent-blue-text); }
         `}</style>
       </div>
     );
@@ -105,53 +75,63 @@ export function AnalysisResult({
 
   if (error) {
     return (
-      <div className="result-card-root error-state">
-        <div className="error-card-content">
-          <div className="error-icon-box">
+      <div className="gov-result-card error-state">
+        <div className="error-content">
+          <div className="error-icon-circle">
             <AlertCircle size={28} />
           </div>
-          <h3 className="error-title">Analysis Error</h3>
-          <p className="error-message">{error}</p>
-          <div className="error-help">
-            <span>Please verify that image inputs and query meet the requirements for <strong>{selectedMode}</strong> mode.</span>
+          <h3 className="error-heading">Analysis Request Error</h3>
+          <p className="error-detail-text">{error}</p>
+          <div className="error-guidance-box">
+            <strong>Recommended Next Steps:</strong>
+            <span>Ensure the uploaded satellite imagery conforms to supported formats (.tif, .png, .jpg up to 50MB) and meets image count requirements ({selectedMode === 'CHANGE_ANALYSIS' ? '2 images for Bi-Temporal Change' : '1 image'}).</span>
           </div>
         </div>
         <style>{`
-          .error-card-content {
+          .error-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 3.5rem 2rem;
+            padding: 3rem 1.5rem;
             text-align: center;
-            gap: 0.75rem;
+            gap: 0.85rem;
           }
-          .error-icon-box {
-            width: 52px;
-            height: 52px;
+          .error-icon-circle {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background: var(--status-error-bg);
-            color: var(--status-error);
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--status-red);
+            border: 1px solid rgba(239, 68, 68, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
           }
-          .error-title {
-            font-size: 1.05rem;
-            color: var(--status-error);
+          .error-heading {
+            font-size: 1.1rem;
+            color: var(--status-red-text);
           }
-          .error-message {
-            font-size: 0.85rem;
+          .error-detail-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            max-width: 460px;
+            line-height: 1.5;
+          }
+          .error-guidance-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            font-size: 0.775rem;
             color: var(--text-muted);
-            max-width: 440px;
-            line-height: 1.45;
-          }
-          .error-help {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            background: var(--bg-card);
-            padding: 0.4rem 0.8rem;
-            border-radius: var(--radius-sm);
+            background: #0d0e15;
             border: 1px solid var(--border-subtle);
+            padding: 0.6rem 0.85rem;
+            border-radius: var(--radius-sm);
+            text-align: left;
+            max-width: 480px;
+          }
+          .error-guidance-box strong {
+            color: var(--status-red-text);
           }
         `}</style>
       </div>
@@ -160,79 +140,78 @@ export function AnalysisResult({
 
   if (!analysisResult) {
     return (
-      <div className="result-card-root empty-state">
-        <div className="empty-card-content">
-          <div className="empty-satellite-box">
-            <Bot size={32} className="bot-icon" />
+      <div className="gov-result-card empty-state">
+        <div className="empty-content">
+          <div className="empty-icon-circle">
+            <Bot size={32} />
           </div>
-          <h3 className="empty-title">Ready for Satellite Analysis</h3>
-          <p className="empty-subtitle">
-            Upload imagery, select an analysis mode on the left, and click <strong>Run Analysis</strong> to receive detailed Vision-Language insights.
+          <h3 className="empty-heading">Ready for Satellite Analysis</h3>
+          <p className="empty-desc">
+            Select a task on the left, upload optical imagery, and click <strong className="t-orange">Run Analysis</strong> to synthesize geospatial intelligence.
           </p>
-          <div className="capabilities-list">
-            <div className="cap-item">
-              <CheckCircle2 size={13} className="cap-check" />
-              <span>Multi-band JPEG/PNG & GeoTIFF support</span>
+          <div className="empty-verified-list">
+            <div className="verified-item">
+              <CheckCircle2 size={14} className="check-icon" />
+              <span>Multi-band GeoTIFF, TIFF, PNG, and JPEG support</span>
             </div>
-            <div className="cap-item">
-              <CheckCircle2 size={13} className="cap-check" />
-              <span>Deep VLM Reasoning & Spatial Localization</span>
+            <div className="verified-item">
+              <CheckCircle2 size={14} className="check-icon" />
+              <span>VLM Reasoning & Visual Grounding Overlays</span>
             </div>
-            <div className="cap-item">
-              <CheckCircle2 size={13} className="cap-check" />
-              <span>Bi-Temporal Visual Change Comparison</span>
+            <div className="verified-item">
+              <CheckCircle2 size={14} className="check-icon" />
+              <span>Bi-Temporal Visual Pair Comparison</span>
             </div>
           </div>
         </div>
         <style>{`
-          .empty-card-content {
+          .empty-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 4rem 2rem;
+            padding: 3.5rem 2rem;
             text-align: center;
-            gap: 1rem;
+            gap: 0.85rem;
           }
-          .empty-satellite-box {
-            width: 64px;
-            height: 64px;
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
+          .empty-icon-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-sm);
+            background: #141722;
             border: 1px solid var(--border-medium);
+            color: var(--accent-orange);
             display: flex;
             align-items: center;
             justify-content: center;
           }
-          .bot-icon {
-            color: var(--accent-cyan);
+          .empty-heading {
+            font-size: 1.2rem;
+            color: #ffffff;
           }
-          .empty-title {
-            font-size: 1.15rem;
-            color: var(--text-main);
+          .empty-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            max-width: 420px;
+            line-height: 1.5;
           }
-          .empty-subtitle {
-            font-size: 0.825rem;
-            color: var(--text-muted);
-            max-width: 440px;
-            line-height: 1.45;
-          }
-          .capabilities-list {
+          .empty-verified-list {
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
             margin-top: 0.5rem;
             text-align: left;
           }
-          .cap-item {
+          .verified-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.775rem;
-            color: var(--text-muted);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
           }
-          .cap-check {
-            color: var(--status-success);
+          .check-icon {
+            color: var(--status-green-text);
           }
+          .t-orange { color: var(--accent-orange-text); }
         `}</style>
       </div>
     );
@@ -241,32 +220,29 @@ export function AnalysisResult({
   const { answerText, task, grounding, warnings, raw, trace } = analysisResult;
 
   return (
-    <div className="result-card-root populated">
-      {/* Header */}
-      <div className="result-header">
-        <div className="header-left">
-          <div className="ai-badge">
-            <Sparkles size={14} className="sparkle-icon" />
-            <span>AI ANALYSIS RESULT</span>
-          </div>
-          <span className="task-pill">{task}</span>
+    <div className="gov-result-card populated">
+      {/* Result Header */}
+      <div className="result-header-row">
+        <div className="header-left-meta">
+          <span className="result-badge font-mono">ANALYSIS RESULT</span>
+          <span className="task-badge font-mono">{task}</span>
         </div>
 
-        <div className="header-right">
-          <span className="status-indicator-live">
-            <span className="live-dot" /> Real Backend Response
+        <div className="header-right-meta">
+          <span className="live-indicator font-mono">
+            <span className="live-dot" /> REAL BACKEND RESPONSE
           </span>
         </div>
       </div>
 
       {/* Primary Answer Box */}
-      <div className="answer-text-container">
-        <div className="answer-text-content">
+      <div className="answer-card">
+        <div className="answer-text-body">
           {formatAnswerContent(answerText)}
         </div>
       </div>
 
-      {/* Visual Component depending on Mode */}
+      {/* Visualizer Component depending on Mode */}
       {task === 'FEATURE_IDENTIFICATION' && (
         <GroundingVisualizer
           imagePreviewUrl={imageA?.previewUrl}
@@ -285,101 +261,96 @@ export function AnalysisResult({
         />
       )}
 
-      {/* For VQA and Captioning, show single image reference preview */}
+      {/* Single image reference preview for VQA and Captioning */}
       {(task === 'VQA' || task === 'CAPTIONING') && imageA?.previewUrl && (
-        <div className="reference-thumbnail-section">
-          <span className="ref-label">Analyzed Imagery Reference:</span>
-          <div className="ref-thumb-wrapper">
-            <img src={imageA.previewUrl} alt="Analyzed Satellite Frame" className="ref-thumb" />
-            <div className="ref-name">{imageA.fileName}</div>
+        <div className="ref-image-section">
+          <span className="ref-section-label font-mono">Analyzed Imagery Frame:</span>
+          <div className="ref-image-box">
+            <img src={imageA.previewUrl} alt="Analyzed Satellite Frame" className="ref-img-thumb" />
+            <div className="ref-image-details">
+              <span className="ref-img-name">{imageA.fileName}</span>
+              {imageA.fileId && <span className="ref-img-id font-mono">ID: {imageA.fileId.slice(0, 16)}...</span>}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Metadata Telemetry */}
+      {/* Execution Telemetry & Metadata */}
       <MetadataPanel result={analysisResult} />
 
-      {/* Collapsible Execution Trace */}
+      {/* Execution Trace Timeline */}
       <ExecutionTraceViewer trace={trace} />
 
-      {/* Collapsible Raw JSON */}
+      {/* Raw Backend JSON Viewer */}
       <RawJsonViewer rawData={raw} />
 
       <style>{`
-        .result-card-root {
-          background: var(--bg-panel);
+        .gov-result-card {
+          background: #141722;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-card);
           padding: 1.25rem;
           display: flex;
           flex-direction: column;
-          box-shadow: var(--shadow-sm);
         }
-        .result-header {
+        .result-header-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-bottom: 0.875rem;
+          padding-bottom: 0.75rem;
           border-bottom: 1px solid var(--border-subtle);
           margin-bottom: 1rem;
         }
-        .header-left {
+        .header-left-meta {
           display: flex;
           align-items: center;
-          gap: 0.6rem;
+          gap: 0.5rem;
         }
-        .ai-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-          font-size: 0.775rem;
+        .result-badge {
+          font-size: 0.75rem;
           font-weight: 700;
-          color: var(--accent-cyan);
-          letter-spacing: 0.04em;
+          color: #ffffff;
+          letter-spacing: 0.05em;
         }
-        .sparkle-icon {
-          color: var(--accent-cyan);
-        }
-        .task-pill {
+        .task-badge {
           font-size: 0.675rem;
           font-weight: 700;
-          color: #a5b4fc;
-          background: rgba(99, 102, 241, 0.15);
-          border: 1px solid rgba(99, 102, 241, 0.3);
-          padding: 0.12rem 0.5rem;
+          color: var(--accent-orange-text);
+          background: rgba(249, 115, 22, 0.12);
+          border: 1px solid rgba(249, 115, 22, 0.35);
+          padding: 0.1rem 0.45rem;
           border-radius: 4px;
         }
-        .status-indicator-live {
+        .live-indicator {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          font-size: 0.725rem;
-          color: #34d399;
-          font-weight: 500;
+          gap: 0.35rem;
+          font-size: 0.7rem;
+          color: var(--status-green-text);
+          font-weight: 700;
         }
         .live-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 8px #10b981;
+          background: var(--status-green);
         }
-        .answer-text-container {
-          background: var(--bg-card);
+        .answer-card {
+          background: #0d0e15;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          padding: 1.15rem 1.35rem;
-          border-left: 3px solid var(--accent-cyan);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+          border-left: 3px solid var(--accent-orange);
+          border-radius: var(--radius-sm);
+          padding: 1.15rem;
         }
-        .answer-text-content {
-          font-size: 0.935rem;
-          color: #e2e8f0;
-          line-height: 1.7;
+        .answer-text-body {
+          font-size: 0.925rem;
+          color: #f8fafc;
+          line-height: 1.65;
           word-break: break-word;
         }
         .answer-paragraph {
-          margin-bottom: 0.85rem;
+          margin-bottom: 0.75rem;
         }
         .answer-paragraph:last-child {
           margin-bottom: 0;
@@ -387,70 +358,67 @@ export function AnalysisResult({
         .answer-heading {
           font-size: 0.975rem;
           font-weight: 700;
-          color: var(--accent-cyan);
+          color: var(--accent-orange-text);
           margin-top: 0.85rem;
-          margin-bottom: 0.4rem;
-          letter-spacing: 0.02em;
+          margin-bottom: 0.35rem;
         }
         .answer-bullet {
           display: flex;
           align-items: flex-start;
-          gap: 0.6rem;
-          margin-bottom: 0.6rem;
-          padding-left: 0.25rem;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+          padding-left: 0.2rem;
         }
         .bullet-dot {
-          color: var(--accent-cyan);
+          color: var(--accent-orange);
           font-weight: bold;
           font-size: 1.1rem;
-          line-height: 1.4;
+          line-height: 1.3;
         }
         .bullet-text-wrapper {
           flex: 1;
         }
         .bullet-topic-pill {
-          color: #38bdf8;
+          color: var(--accent-blue-text);
           font-weight: 700;
-          background: rgba(56, 189, 248, 0.12);
-          border: 1px solid rgba(56, 189, 248, 0.28);
-          padding: 0.1rem 0.45rem;
-          border-radius: 4px;
+          background: rgba(59, 130, 246, 0.12);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          padding: 0.1rem 0.4rem;
+          border-radius: 3px;
           display: inline-block;
-          margin-right: 0.45rem;
-          letter-spacing: 0.01em;
+          margin-right: 0.4rem;
+          font-size: 0.85rem;
         }
         .answer-summary-box {
-          margin-top: 0.9rem;
-          background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(99, 102, 241, 0.08));
-          border: 1px solid rgba(56, 189, 248, 0.28);
+          margin-top: 0.85rem;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.3);
           border-radius: var(--radius-sm);
           padding: 0.65rem 0.85rem;
           display: flex;
           align-items: flex-start;
           gap: 0.5rem;
-          line-height: 1.6;
+          line-height: 1.55;
         }
         .summary-badge {
-          background: rgba(56, 189, 248, 0.22);
-          color: #38bdf8;
+          background: rgba(16, 185, 129, 0.2);
+          color: var(--status-green-text);
           font-size: 0.675rem;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.06em;
-          padding: 0.15rem 0.45rem;
-          border-radius: 4px;
-          border: 1px solid rgba(56, 189, 248, 0.4);
+          padding: 0.12rem 0.4rem;
+          border-radius: 3px;
+          border: 1px solid rgba(16, 185, 129, 0.4);
           flex-shrink: 0;
           margin-top: 0.15rem;
         }
         .summary-text {
           flex: 1;
-          color: #f1f5f9;
+          color: #a7f3d0;
         }
         .hl-bold {
           color: #ffffff;
           font-weight: 700;
-          text-shadow: 0 0 6px rgba(255, 255, 255, 0.25);
         }
         .hl-tag {
           font-weight: 700;
@@ -458,25 +426,25 @@ export function AnalysisResult({
           line-height: 1.25;
         }
         .hl-img-a {
-          color: #c7d2fe;
-          background: rgba(99, 102, 241, 0.22);
-          border: 1px solid rgba(99, 102, 241, 0.45);
+          color: var(--accent-blue-text);
+          background: rgba(59, 130, 246, 0.15);
+          border: 1px solid rgba(59, 130, 246, 0.35);
           padding: 0.05rem 0.35rem;
-          border-radius: 4px;
+          border-radius: 3px;
         }
         .hl-img-b {
-          color: #a5f3fc;
-          background: rgba(0, 229, 255, 0.2);
-          border: 1px solid rgba(0, 229, 255, 0.45);
+          color: var(--status-green-text);
+          background: rgba(16, 185, 129, 0.15);
+          border: 1px solid rgba(16, 185, 129, 0.35);
           padding: 0.05rem 0.35rem;
-          border-radius: 4px;
+          border-radius: 3px;
         }
         .hl-date {
-          color: #e2e8f0;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          color: #cbd5e1;
+          font-family: 'JetBrains Mono', monospace;
           font-size: 0.85em;
-          background: rgba(15, 23, 42, 0.9);
-          border: 1px solid rgba(148, 163, 184, 0.3);
+          background: #141722;
+          border: 1px solid var(--border-subtle);
           padding: 0.05rem 0.3rem;
           border-radius: 3px;
         }
@@ -487,64 +455,71 @@ export function AnalysisResult({
         }
         .hl-loss {
           color: #fca5a5;
-          background: rgba(239, 68, 68, 0.16);
-          border-bottom: 2px solid rgba(239, 68, 68, 0.6);
+          background: rgba(239, 68, 68, 0.2);
+          border-bottom: 2px solid #ef4444;
         }
         .hl-gain {
-          color: #6ee7b7;
-          background: rgba(16, 185, 129, 0.16);
-          border-bottom: 2px solid rgba(16, 185, 129, 0.6);
+          color: #86efac;
+          background: rgba(16, 185, 129, 0.2);
+          border-bottom: 2px solid #22c55e;
         }
         .hl-feature {
           color: #fde047;
-          background: rgba(234, 179, 8, 0.14);
-          border-bottom: 1px dashed rgba(234, 179, 8, 0.5);
+          background: rgba(234, 179, 8, 0.2);
+          border-bottom: 1px dashed #eab308;
         }
         .hl-stable {
           color: #93c5fd;
-          background: rgba(59, 130, 246, 0.14);
-          border-bottom: 1px dotted rgba(59, 130, 246, 0.5);
+          background: rgba(59, 130, 246, 0.2);
+          border-bottom: 1px dotted #3b82f6;
         }
-        .reference-thumbnail-section {
+        .ref-image-section {
           margin-top: 1rem;
           display: flex;
           flex-direction: column;
           gap: 0.35rem;
         }
-        .ref-label {
+        .ref-section-label {
           font-size: 0.7rem;
-          font-weight: 600;
+          font-weight: 700;
           color: var(--text-dim);
           text-transform: uppercase;
         }
-        .ref-thumb-wrapper {
+        .ref-image-box {
           display: flex;
           align-items: center;
-          gap: 0.6rem;
-          background: var(--bg-card);
-          padding: 0.35rem 0.6rem;
+          gap: 0.65rem;
+          background: #0d0e15;
+          padding: 0.4rem 0.65rem;
           border-radius: var(--radius-sm);
           border: 1px solid var(--border-subtle);
           width: fit-content;
         }
-        .ref-thumb {
-          width: 32px;
-          height: 32px;
+        .ref-img-thumb {
+          width: 36px;
+          height: 36px;
           object-fit: cover;
-          border-radius: 4px;
+          border-radius: 3px;
         }
-        .ref-name {
-          font-size: 0.725rem;
-          color: var(--text-muted);
+        .ref-image-details {
+          display: flex;
+          flex-direction: column;
+          gap: 0.1rem;
+        }
+        .ref-img-name {
+          font-size: 0.775rem;
+          font-weight: 600;
+          color: #ffffff;
+        }
+        .ref-img-id {
+          font-size: 0.65rem;
+          color: var(--text-dim);
         }
       `}</style>
     </div>
   );
 }
 
-/**
- * Format markdown/text response into structured React elements
- */
 function formatAnswerContent(text) {
   if (!text) return null;
 
@@ -555,7 +530,6 @@ function formatAnswerContent(text) {
     const line = lines[i].trim();
     if (!line) continue;
 
-    // Check for explicit heading
     if (line.startsWith('**') && line.endsWith('**')) {
       elements.push(
         <div key={i} className="answer-heading">
@@ -565,23 +539,19 @@ function formatAnswerContent(text) {
       continue;
     }
 
-    // Check for Summary line
     if (/^(in summary,?\s*|summary:?\s*|conclusion:?\s*)/i.test(line)) {
       const cleaned = line.replace(/^(in summary,?\s*|summary:?\s*|conclusion:?\s*)/i, '');
       elements.push(
         <div key={i} className="answer-summary-box">
-          <span className="summary-badge">Summary</span>
+          <span className="summary-badge font-mono">Summary</span>
           <span className="summary-text">{renderFormattedText(cleaned)}</span>
         </div>
       );
       continue;
     }
 
-    // Check for bullet line
     if (line.startsWith('- ') || line.startsWith('* ') || line.startsWith('• ')) {
       let bulletContent = line.substring(2).trim();
-
-      // Check if bullet has a topic title like "Removal of Tree Canopy: ..." or "**Removal of Tree Canopy**: ..."
       const colonIdx = bulletContent.indexOf(':');
       if (colonIdx > 0 && colonIdx < 45 && !bulletContent.substring(0, colonIdx).includes('\n')) {
         const rawPrefix = bulletContent.substring(0, colonIdx).replace(/\*\*/g, '').trim();
@@ -609,7 +579,6 @@ function formatAnswerContent(text) {
       continue;
     }
 
-    // Standard paragraph
     elements.push(
       <p key={i} className="answer-paragraph">
         {renderFormattedText(line)}
@@ -620,13 +589,9 @@ function formatAnswerContent(text) {
   return elements;
 }
 
-/**
- * Smart highlighting of key words, dates, image tags, and change verbs
- */
 function highlightKeywordsInText(plainText, keyPrefix = '0') {
   if (!plainText) return plainText;
 
-  // Master combined regex pattern for atomic keyword matching
   const masterRegex = /\b(Image A|Image B|T1|T2|\d{4}-\d{2}-\d{2}|completely removed|trees were removed|tree cover has been completely removed|clearing of a significant area of trees|removal of tree canopy|removed|removal|cleared|clearing|demolished|demolition|reduction|decreased|cut down|new construction|infrastructure expansion|built-up surfaces|building foundations|paved surfaces|paved ground|new development|development|constructed|developed|expansion|expanded|built-up|newly added|increased|erected|tree canopy|dense green trees|green vegetation|vegetation and tree cover|vegetation cover|vegetation|water bodies|water body|terminal building|terminal structure|parking lots|parking areas|largely consistent|no major changes|largely unchanged|consistent|stable)\b/gi;
 
   const parts = plainText.split(masterRegex);
@@ -635,10 +600,10 @@ function highlightKeywordsInText(plainText, keyPrefix = '0') {
     if (!part) return null;
 
     if (part === 'Image A' || part === 'T1') {
-      return <span key={`${keyPrefix}-${idx}`} className="hl-tag hl-img-a">{part}</span>;
+      return <span key={`${keyPrefix}-${idx}`} className="hl-tag hl-img-a font-mono">{part}</span>;
     }
     if (part === 'Image B' || part === 'T2') {
-      return <span key={`${keyPrefix}-${idx}`} className="hl-tag hl-img-b">{part}</span>;
+      return <span key={`${keyPrefix}-${idx}`} className="hl-tag hl-img-b font-mono">{part}</span>;
     }
     if (/^\d{4}-\d{2}-\d{2}$/.test(part)) {
       return <span key={`${keyPrefix}-${idx}`} className="hl-tag hl-date">{part}</span>;
@@ -662,8 +627,6 @@ function highlightKeywordsInText(plainText, keyPrefix = '0') {
 
 function renderFormattedText(text) {
   if (!text) return null;
-
-  // Split by markdown bold markers: **...**
   const boldParts = text.split(/(\*\*.*?\*\*)/g);
 
   return boldParts.map((part, idx) => {

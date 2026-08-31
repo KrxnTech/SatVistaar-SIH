@@ -21,41 +21,39 @@ export function ChangeVisualizer({
   const deltaText = (dateA && dateB) ? calculateTemporalDelta(dateA, dateB) : null;
 
   return (
-    <div className="change-visualizer-root">
-      <div className="visualizer-toolbar">
-        <div className="toolbar-title-group">
-          <GitCompare size={16} className="cyan-icon" />
-          <span className="toolbar-title">Bi-Temporal Visual Pair Comparison</span>
+    <div className="gov-change-visualizer">
+      <div className="visualizer-header">
+        <div className="header-title-group">
+          <GitCompare size={15} className="header-icon" />
+          <span className="visualizer-title font-mono">BI-TEMPORAL VISUAL COMPARISON</span>
           {hasRegions && (
-            <span className="region-count-badge">
-              {regions.length} Detected Change Region{regions.length > 1 ? 's' : ''}
+            <span className="region-count-badge font-mono">
+              {regions.length} CHANGE REGION{regions.length > 1 ? 'S' : ''}
             </span>
           )}
         </div>
 
         {hasRegions && (
-          <div className="annotation-toggle-group">
-            <button
-              type="button"
-              className={`toggle-btn ${showAnnotations ? 'active' : ''}`}
-              onClick={() => setShowAnnotations(!showAnnotations)}
-            >
-              {showAnnotations ? <Eye size={13} /> : <EyeOff size={13} />}
-              <span>{showAnnotations ? 'Annotated' : 'Original'}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            className={`annotation-toggle-btn font-mono ${showAnnotations ? 'active' : ''}`}
+            onClick={() => setShowAnnotations(!showAnnotations)}
+          >
+            {showAnnotations ? <Eye size={12} /> : <EyeOff size={12} />}
+            <span>{showAnnotations ? 'ANNOTATIONS ON' : 'ORIGINAL'}</span>
+          </button>
         )}
       </div>
 
-      {/* Temporal Baseline Indicator Banner */}
+      {/* Temporal Baseline Indicator Bar */}
       {dateA && dateB && (
         <div className="temporal-baseline-bar">
           <div className="baseline-left">
-            <Clock size={13} className="cyan-icon" />
-            <span className="baseline-label">Temporal Baseline:</span>
-            <span className="baseline-delta-val">{deltaText}</span>
+            <Clock size={13} className="baseline-icon" />
+            <span className="baseline-label font-mono">Temporal Delta:</span>
+            <span className="baseline-delta-val font-mono">{deltaText}</span>
           </div>
-          <div className="baseline-dates">
+          <div className="baseline-dates font-mono">
             <span className="date-span old">{displayA} (T1)</span>
             <ArrowRight size={12} className="arrow-sep" />
             <span className="date-span new">{displayB} (T2)</span>
@@ -63,32 +61,33 @@ export function ChangeVisualizer({
         </div>
       )}
 
+      {/* Side-by-Side Dual Comparison Grid */}
       <div className="dual-comparison-grid">
         {/* Image A Slot */}
-        <div className="comparison-card card-old">
-          <div className="comparison-card-header">
-            <div className="header-badge image-a">IMAGE A (Old / Reference)</div>
-            <div className="date-badge old">
+        <div className="comparison-slot gov-card slot-old">
+          <div className="slot-header">
+            <div className="slot-badge old font-mono">IMAGE A: Reference (T1)</div>
+            <div className="date-badge old font-mono">
               <Calendar size={11} />
               <span>{displayA}</span>
             </div>
           </div>
 
-          <div className="canvas-wrapper">
+          <div className="canvas-frame">
             {imageAPreviewUrl ? (
-              <div className="image-relative-wrapper">
+              <div className="image-relative-container">
                 <img
                   src={imageAPreviewUrl}
                   alt="Reference Satellite Image A"
-                  className="comparison-image"
+                  className="comparison-img"
                 />
 
                 {hasRegions && showAnnotations && (
-                  <div className="bounding-boxes-layer">
+                  <div className="bounding-layer">
                     {regions.map((reg, idx) => (
                       <div
                         key={idx}
-                        className="change-box ref"
+                        className="change-box-ref"
                         style={{
                           left: `${reg.x * 100}%`,
                           top: `${reg.y * 100}%`,
@@ -96,7 +95,7 @@ export function ChangeVisualizer({
                           height: `${reg.height * 100}%`
                         }}
                       >
-                        <div className="change-label-pill ref">
+                        <div className="change-tag-ref font-mono">
                           <span>[A] {reg.label || `Change #${idx + 1}`}</span>
                         </div>
                       </div>
@@ -105,36 +104,36 @@ export function ChangeVisualizer({
                 )}
               </div>
             ) : (
-              <div className="no-image-placeholder">No Image A loaded</div>
+              <div className="no-image-placeholder font-mono">No Image A loaded</div>
             )}
           </div>
         </div>
 
         {/* Image B Slot */}
-        <div className="comparison-card card-new">
-          <div className="comparison-card-header">
-            <div className="header-badge image-b">IMAGE B (New / Comparison)</div>
-            <div className="date-badge new">
+        <div className="comparison-slot gov-card slot-new">
+          <div className="slot-header">
+            <div className="slot-badge new font-mono">IMAGE B: Comparison (T2)</div>
+            <div className="date-badge new font-mono">
               <Calendar size={11} />
               <span>{displayB}</span>
             </div>
           </div>
 
-          <div className="canvas-wrapper">
+          <div className="canvas-frame">
             {imageBPreviewUrl ? (
-              <div className="image-relative-wrapper">
+              <div className="image-relative-container">
                 <img
                   src={imageBPreviewUrl}
                   alt="Comparison Satellite Image B"
-                  className="comparison-image"
+                  className="comparison-img"
                 />
 
                 {hasRegions && showAnnotations && (
-                  <div className="bounding-boxes-layer">
+                  <div className="bounding-layer">
                     {regions.map((reg, idx) => (
                       <div
                         key={idx}
-                        className="change-box comp"
+                        className="change-box-comp"
                         style={{
                           left: `${reg.x * 100}%`,
                           top: `${reg.y * 100}%`,
@@ -142,7 +141,7 @@ export function ChangeVisualizer({
                           height: `${reg.height * 100}%`
                         }}
                       >
-                        <div className="change-label-pill comp">
+                        <div className="change-tag-comp font-mono">
                           <span>[B] {reg.label || `Change #${idx + 1}`}</span>
                         </div>
                       </div>
@@ -151,75 +150,75 @@ export function ChangeVisualizer({
                 )}
               </div>
             ) : (
-              <div className="no-image-placeholder">No Image B loaded</div>
+              <div className="no-image-placeholder font-mono">No Image B loaded</div>
             )}
           </div>
         </div>
       </div>
 
       <style>{`
-        .change-visualizer-root {
+        .gov-change-visualizer {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid var(--border-subtle);
         }
-        .visualizer-toolbar {
+        .visualizer-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid var(--border-subtle);
         }
-        .toolbar-title-group {
+        .header-title-group {
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
-        .cyan-icon {
-          color: var(--accent-cyan);
+        .header-icon {
+          color: var(--status-red-text);
         }
-        .toolbar-title {
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: var(--text-main);
+        .visualizer-title {
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #ffffff;
         }
         .region-count-badge {
-          font-size: 0.675rem;
-          font-weight: 600;
-          color: var(--accent-cyan);
-          background: rgba(0, 229, 255, 0.12);
-          border: 1px solid rgba(0, 229, 255, 0.3);
-          padding: 0.15rem 0.5rem;
-          border-radius: 20px;
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: var(--status-red-text);
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(239, 68, 68, 0.35);
+          padding: 0.1rem 0.45rem;
+          border-radius: 4px;
         }
-        .toggle-btn {
-          display: flex;
+        .annotation-toggle-btn {
+          display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.3rem 0.7rem;
+          padding: 0.2rem 0.55rem;
           border-radius: var(--radius-sm);
-          font-size: 0.75rem;
-          font-weight: 500;
-          background: var(--bg-card);
+          font-size: 0.7rem;
+          font-weight: 700;
+          background: #141722;
           border: 1px solid var(--border-subtle);
-          color: var(--text-muted);
-          transition: all 0.2s ease;
+          color: var(--text-secondary);
+          min-height: auto;
         }
-        .toggle-btn.active {
-          background: rgba(0, 229, 255, 0.15);
-          border-color: var(--accent-cyan);
-          color: var(--accent-cyan);
+        .annotation-toggle-btn.active {
+          background: rgba(239, 68, 68, 0.15);
+          border-color: var(--status-red);
+          color: var(--status-red-text);
         }
         .temporal-baseline-bar {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(13, 27, 62, 0.6);
-          border: 1px solid rgba(0, 229, 255, 0.25);
+          background: #0d0e15;
+          border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 0.45rem 0.75rem;
-          font-size: 0.725rem;
+          font-size: 0.75rem;
           gap: 0.5rem;
         }
         .baseline-left {
@@ -227,15 +226,16 @@ export function ChangeVisualizer({
           align-items: center;
           gap: 0.4rem;
         }
+        .baseline-icon {
+          color: var(--accent-orange);
+        }
         .baseline-label {
-          color: var(--text-dim);
+          color: var(--text-muted);
           font-weight: 600;
-          text-transform: uppercase;
-          font-size: 0.65rem;
-          letter-spacing: 0.03em;
+          font-size: 0.7rem;
         }
         .baseline-delta-val {
-          color: var(--accent-cyan);
+          color: var(--accent-orange-text);
           font-weight: 700;
         }
         .baseline-dates {
@@ -244,100 +244,60 @@ export function ChangeVisualizer({
           gap: 0.4rem;
           font-size: 0.7rem;
         }
-        .date-span.old {
-          color: #a5b4fc;
-          font-weight: 600;
-        }
-        .date-span.new {
-          color: #67e8f9;
-          font-weight: 600;
-        }
-        .arrow-sep {
-          color: var(--text-dim);
-        }
+        .date-span.old { color: var(--accent-blue-text); font-weight: 600; }
+        .date-span.new { color: var(--status-green-text); font-weight: 600; }
+        .arrow-sep { color: var(--text-dim); }
         .dual-comparison-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.75rem;
         }
         @media (max-width: 768px) {
-          .dual-comparison-grid {
-            grid-template-columns: 1fr;
-          }
-          .temporal-baseline-bar {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.35rem;
-          }
+          .dual-comparison-grid { grid-template-columns: 1fr; }
         }
-        .comparison-card {
-          background: var(--bg-card);
+        .comparison-slot {
+          background: #0d0e15;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
           overflow: hidden;
           display: flex;
           flex-direction: column;
         }
-        .comparison-card.card-old {
-          border-top: 2px solid #818cf8;
+        .comparison-slot.slot-old {
+          border-top: 3px solid var(--accent-blue);
         }
-        .comparison-card.card-new {
-          border-top: 2px solid #00e5ff;
+        .comparison-slot.slot-new {
+          border-top: 3px solid var(--status-green);
         }
-        .comparison-card-header {
+        .slot-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0.5rem 0.75rem;
-          background: var(--bg-panel);
+          background: #141722;
           border-bottom: 1px solid var(--border-subtle);
         }
-        .header-badge {
+        .slot-badge {
           font-size: 0.7rem;
           font-weight: 700;
-          padding: 0.15rem 0.45rem;
-          border-radius: 4px;
         }
-        .header-badge.image-a {
-          background: rgba(99, 102, 241, 0.2);
-          color: #a5b4fc;
-          border: 1px solid rgba(99, 102, 241, 0.4);
-        }
-        .header-badge.image-b {
-          background: rgba(0, 229, 255, 0.2);
-          color: #67e8f9;
-          border: 1px solid rgba(0, 229, 255, 0.4);
-        }
+        .slot-badge.old { color: var(--accent-blue-text); }
+        .slot-badge.new { color: var(--status-green-text); }
         .date-badge {
           display: flex;
           align-items: center;
           gap: 0.3rem;
-          font-size: 0.68rem;
-          font-weight: 600;
+          font-size: 0.675rem;
+          color: var(--text-muted);
         }
-        .date-badge.old {
-          color: #c7d2fe;
-          background: rgba(99, 102, 241, 0.15);
-          padding: 0.1rem 0.4rem;
-          border-radius: 4px;
-          border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-        .date-badge.new {
-          color: #a5f3fc;
-          background: rgba(0, 229, 255, 0.12);
-          padding: 0.1rem 0.4rem;
-          border-radius: 4px;
-          border: 1px solid rgba(0, 229, 255, 0.3);
-        }
-        .canvas-wrapper {
-          background: #000000;
+        .canvas-frame {
+          background: #08090d;
           display: flex;
           align-items: center;
           justify-content: center;
           min-height: 220px;
           position: relative;
         }
-        .image-relative-wrapper {
+        .image-relative-container {
           position: relative;
           width: 100%;
           display: flex;
@@ -345,56 +305,55 @@ export function ChangeVisualizer({
           justify-content: center;
           line-height: 0;
         }
-        .comparison-image {
+        .comparison-img {
           width: 100%;
           height: auto;
           max-height: 380px;
           object-fit: contain;
           display: block;
         }
-        .bounding-boxes-layer {
+        .bounding-layer {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          inset: 0;
           pointer-events: none;
         }
-        .change-box {
+        .change-box-ref {
           position: absolute;
+          border: 2px solid var(--accent-blue);
+          background: rgba(59, 130, 246, 0.2);
           box-sizing: border-box;
-          z-index: 10;
         }
-        .change-box.ref {
-          border: 2px solid #818cf8;
-          background: rgba(99, 102, 241, 0.18);
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-        }
-        .change-box.comp {
-          border: 2px solid #00e5ff;
-          background: rgba(0, 229, 255, 0.18);
-          box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-        }
-        .change-label-pill {
+        .change-box-comp {
           position: absolute;
-          top: -22px;
+          border: 2px solid var(--status-red);
+          background: rgba(239, 68, 68, 0.2);
+          box-sizing: border-box;
+        }
+        .change-tag-ref {
+          position: absolute;
+          top: -20px;
           left: -2px;
-          padding: 0.15rem 0.4rem;
-          font-size: 0.625rem;
+          background: #08090d;
+          color: var(--accent-blue-text);
+          border: 1px solid var(--accent-blue);
+          padding: 0.05rem 0.35rem;
+          font-size: 0.6rem;
           font-weight: 700;
-          border-radius: 4px;
+          border-radius: 2px;
           white-space: nowrap;
-          backdrop-filter: blur(4px);
         }
-        .change-label-pill.ref {
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid #818cf8;
-          color: #a5b4fc;
-        }
-        .change-label-pill.comp {
-          background: rgba(15, 23, 42, 0.95);
-          border: 1px solid #00e5ff;
-          color: #00e5ff;
+        .change-tag-comp {
+          position: absolute;
+          top: -20px;
+          left: -2px;
+          background: #08090d;
+          color: var(--status-red-text);
+          border: 1px solid var(--status-red);
+          padding: 0.05rem 0.35rem;
+          font-size: 0.6rem;
+          font-weight: 700;
+          border-radius: 2px;
+          white-space: nowrap;
         }
         .no-image-placeholder {
           padding: 2rem;

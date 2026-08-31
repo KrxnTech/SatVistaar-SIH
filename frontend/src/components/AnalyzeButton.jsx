@@ -1,72 +1,74 @@
 import React from 'react';
-import { Play, Loader2, Sparkles } from 'lucide-react';
+import { Play, Loader2 } from 'lucide-react';
 
 export function AnalyzeButton({ loading, onClick, disabled, selectedMode }) {
+  const getModeTitle = () => {
+    switch (selectedMode) {
+      case 'CHANGE_ANALYSIS': return 'Bi-Temporal Change';
+      case 'FEATURE_IDENTIFICATION': return 'Visual Grounding';
+      case 'CAPTIONING': return 'Scene Description';
+      default: return 'Visual Q&A';
+    }
+  };
+
   return (
-    <div className="analyze-action-wrapper">
+    <div className="gov-analyze-action">
       <button
         type="button"
-        className={`analyze-main-btn ${loading ? 'loading' : ''}`}
+        className={`gov-run-analysis-orange-btn ${loading ? 'loading' : ''}`}
         onClick={onClick}
         disabled={disabled || loading}
       >
         {loading ? (
           <>
-            <Loader2 className="btn-spinner" size={18} />
+            <Loader2 className="btn-spinner-icon" size={17} />
             <span>Analyzing satellite imagery with VLM...</span>
           </>
         ) : (
           <>
-            <Play size={16} fill="currentColor" />
-            <span>Run {selectedMode === 'CHANGE_ANALYSIS' ? 'Change Analysis' : selectedMode === 'FEATURE_IDENTIFICATION' ? 'Visual Grounding' : selectedMode === 'CAPTIONING' ? 'Scene Description' : 'VQA Analysis'}</span>
+            <Play size={15} fill="currentColor" />
+            <span>Run {getModeTitle()} Analysis</span>
           </>
         )}
       </button>
 
       <style>{`
-        .analyze-action-wrapper {
+        .gov-analyze-action {
           width: 100%;
-          margin-top: 0.25rem;
         }
-        .analyze-main-btn {
+        .gov-run-analysis-orange-btn {
           width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.6rem;
-          padding: 0.875rem 1.5rem;
-          border-radius: var(--radius-md);
-          font-size: 0.9rem;
-          font-weight: 600;
-          letter-spacing: 0.01em;
-          background: linear-gradient(135deg, #00d8ff, #0099ff);
-          color: #050b14;
-          box-shadow: 0 4px 20px rgba(0, 216, 255, 0.35);
-          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          gap: 0.5rem;
+          padding: 0.8rem 1.25rem;
+          background: var(--accent-orange);
+          color: #08090d;
+          border-radius: var(--radius-sm);
+          font-size: 0.925rem;
+          font-weight: 700;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+          min-height: 44px;
+          transition: background-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
         }
-        .analyze-main-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 25px rgba(0, 216, 255, 0.5);
-          background: linear-gradient(135deg, #33e1ff, #1aa3ff);
+        .gov-run-analysis-orange-btn:hover:not(:disabled) {
+          background: var(--accent-orange-hover);
+          transform: translateY(-1px);
         }
-        .analyze-main-btn:active:not(:disabled) {
-          transform: translateY(0);
-        }
-        .analyze-main-btn:disabled {
-          background: var(--bg-card);
-          border: 1px solid var(--border-subtle);
-          color: var(--text-dim);
-          box-shadow: none;
+        .gov-run-analysis-orange-btn:disabled {
+          background: #1e2230;
+          color: #525f76;
           cursor: not-allowed;
+          box-shadow: none;
+          transform: none;
         }
-        .analyze-main-btn.loading {
-          background: var(--bg-card-hover);
-          border: 1px solid var(--accent-cyan);
-          color: var(--accent-cyan);
+        .gov-run-analysis-orange-btn.loading {
+          background: var(--accent-orange);
           cursor: wait;
         }
-        .btn-spinner {
-          animation: spin 1s linear infinite;
+        .btn-spinner-icon {
+          animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
           to { transform: rotate(360deg); }
