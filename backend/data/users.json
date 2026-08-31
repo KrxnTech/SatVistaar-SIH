@@ -1,0 +1,35 @@
+[
+  {
+    "id": "0cbebb41-92e8-41ac-95e6-87d1246c40b9",
+    "name": "Dr. Vikram Sarabhai",
+    "email": "analyst_1788155687881@satvistaar.ai",
+    "passwordHash": "$2b$10$5M4HehDjYoGitBWOVg3KSegGTUG9vguqaKFeMf8JECZ7r.IkszRYe",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2026-08-31T05:54:48.047Z",
+    "updatedAt": "2026-08-31T05:54:48.180Z",
+    "lastLoginAt": "2026-08-31T05:54:48.180Z"
+  },
+  {
+    "id": "ca1a4f1b-47ae-4b1a-a950-ffc236770000",
+    "name": "Dr. Vikram Sarabhai",
+    "email": "analyst_1788155721312@satvistaar.ai",
+    "passwordHash": "$2b$10$qf1n0lI5VN0VAlKIzjPESu9uUV5AX3w.te8CE6dhxvxAhEFK8J2v2",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2026-08-31T05:55:21.463Z",
+    "updatedAt": "2026-08-31T05:55:21.590Z",
+    "lastLoginAt": "2026-08-31T05:55:21.590Z"
+  },
+  {
+    "id": "2ac30bb6-6aff-4630-af17-eaa86ec0a1ff",
+    "name": "Rajesh Sharma",
+    "email": "rajesh@isro.gov.in",
+    "passwordHash": "$2b$10$qj56b/Al.cjAvhKymEYx.OlWHpykaMTp3r9.6jA9tR4b6DCUdqk.S",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2026-08-31T06:00:13.363Z",
+    "updatedAt": "2026-08-31T06:00:30.631Z",
+    "lastLoginAt": "2026-08-31T06:00:30.631Z"
+  }
+]

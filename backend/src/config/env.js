@@ -30,6 +30,11 @@ const config = {
   modelRouterMode: (process.env.MODEL_ROUTER_MODE || 'priority').toLowerCase(), // 'priority' | 'fallback'
   vlmTimeoutMs: parseInt(process.env.VLM_TIMEOUT_MS || '30000', 10),
 
+  // Authentication & Security Configurations
+  jwtSecret: process.env.JWT_SECRET || 'satvistaar_jwt_development_secret_key_2026',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  cookieSecret: process.env.COOKIE_SECRET || '',
+
   isProduction: process.env.NODE_ENV === 'production',
   isDevelopment: process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
 };

@@ -5,29 +5,13 @@
       "query": "Is there water in this image?",
       "inputs": [
         {
-          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
           "metadata": {
-            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
-            "bands": 3,
-            "bounds": null,
-            "crs": null,
-            "format": "JPEG",
-            "height": 670,
+            "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
             "isGeoreferenced": false,
-            "modality": null,
-            "timestamp": null,
-            "transform": [
-              1,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
             "warnings": [
-              "CRS information is not available for this image."
-            ],
-            "width": 900
+              "Geospatial metadata extraction unavailable at analysis request time."
+            ]
           }
         }
       ],
@@ -141,9 +125,9 @@
           "version": "1.0.0"
         }
       ],
-      "startedAt": "2026-08-31T01:25:32.404Z",
-      "endedAt": "2026-08-31T01:25:33.807Z",
-      "durationMs": 1403,
+      "startedAt": "2026-08-31T05:55:27.404Z",
+      "endedAt": "2026-08-31T05:55:41.094Z",
+      "durationMs": 13690,
       "modelVersions": {
         "vqa-tool": "1.0.0"
       },
@@ -152,42 +136,42 @@
       "events": [
         {
           "type": "REQUEST_RECEIVED",
-          "timestamp": "2026-08-31T01:25:32.404Z"
+          "timestamp": "2026-08-31T05:55:27.404Z"
         },
         {
           "type": "INTENT_SELECTED",
-          "timestamp": "2026-08-31T01:25:32.430Z",
+          "timestamp": "2026-08-31T05:55:27.408Z",
           "intent": "VQA",
           "confidence": 0.88
         },
         {
           "type": "COMPATIBILITY_CHECKED",
-          "timestamp": "2026-08-31T01:25:32.430Z",
+          "timestamp": "2026-08-31T05:55:27.408Z",
           "status": "READY",
           "compatible": true
         },
         {
           "type": "MODEL_ROUTED",
-          "timestamp": "2026-08-31T01:25:32.430Z",
+          "timestamp": "2026-08-31T05:55:27.408Z",
           "selectedModel": "Groq Qwen3.8-27B Vision",
           "provider": "groq",
           "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for VQA task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
         },
         {
           "type": "TOOL_STARTED",
-          "timestamp": "2026-08-31T01:25:32.430Z",
+          "timestamp": "2026-08-31T05:55:27.408Z",
           "intent": "VQA"
         },
         {
           "type": "TOOL_COMPLETED",
-          "timestamp": "2026-08-31T01:25:33.807Z",
+          "timestamp": "2026-08-31T05:55:41.094Z",
           "toolName": "vqa-tool",
           "status": "success",
-          "durationMs": 1377
+          "durationMs": 13686
         },
         {
           "type": "RESPONSE_READY",
-          "timestamp": "2026-08-31T01:25:33.807Z"
+          "timestamp": "2026-08-31T05:55:41.094Z"
         }
       ],
       "finalStatus": "success"
@@ -199,29 +183,13 @@
       "query": "Describe this satellite image in detail.",
       "inputs": [
         {
-          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
           "metadata": {
-            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
-            "bands": 3,
-            "bounds": null,
-            "crs": null,
-            "format": "JPEG",
-            "height": 670,
+            "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
             "isGeoreferenced": false,
-            "modality": null,
-            "timestamp": null,
-            "transform": [
-              1,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
             "warnings": [
-              "CRS information is not available for this image."
-            ],
-            "width": 900
+              "Geospatial metadata extraction unavailable at analysis request time."
+            ]
           }
         }
       ],
@@ -308,7 +276,7 @@
     },
     "result": {
       "task": "CAPTIONING",
-      "answerText": "This satellite image provides a top-down view of a major airport terminal complex and its surrounding infrastructure.\n\n**Terminal and Airside:**\n- A large, modern terminal building dominates the center and left of the frame. It features a distinctive white, curved roof structure that extends outwards.\n- The main terminal has a long, linear section with a green roof, adjacent to a larger section with a grey roof.\n- Several jet bridges (jetways) extend from the terminal to the tarmac.\n- On the tarmac to the left, a large passenger airplane is parked at a gate. Its fuselage is light blue and white, with wings spread out.\n- The tarmac is marked with yellow and white lines for aircraft guidance and parking.\n- Various ground service vehicles, including buses and trucks, are visible on the tarmac and near the terminal.\n\n**Land-side and Transportation:**\n- To the right of the terminal, there is a multi-level parking garage filled with numerous cars.\n- A prominent, elevated roadway or skybridge with a unique circular design connects different parts of the terminal complex. This structure has a white exterior with a pattern of dark circles.\n- Below this skybridge, there are multiple lanes of road traffic, with cars and buses visible.\n- A large, open-air parking lot is situated in the lower right quadrant, densely packed with vehicles.\n- Patches of green vegetation, including trees and landscaped areas, are interspersed between the roads and buildings.\n\n**Overall Layout:**\n- The image shows a well-organized, high-capacity airport hub. The layout clearly separates the airside operations (tarmac, aircraft) from the land-side transportation (roads, parking lots).\n- The architecture is modern, with large glass facades (implied by the structure) and expansive roofs.\n- The density of vehicles and infrastructure suggests a busy, major international airport.",
+      "answerText": "This satellite image provides a top-down view of a major airport terminal complex and its surrounding infrastructure. The scene is dominated by the large, modern terminal building, which features a distinctive white, curved roof structure that extends outwards. This main terminal is connected to a series of jet bridges, or airbridges, that reach out to the aircraft parked at the gates.\n\nIn the upper-left portion of the image, a large passenger airplane with a light blue and white livery is visible, docked at one of the gates. Several other aircraft are partially visible at adjacent gates. The tarmac area is extensive, marked with yellow and white lines for taxiways and parking positions. Numerous ground service vehicles, including buses and baggage carts, are scattered across the apron.\n\nTo the right and below the main terminal, there is a large, multi-level parking garage filled with cars. A network of roads and ramps connects the parking area to the terminal and the surrounding highway system. A prominent feature is a white, circular building with a dark roof, situated near the intersection of several roads, possibly a security checkpoint or a small satellite terminal.\n\nThe roof of the main terminal is a mix of materials, including large sections of green, likely representing solar panels or a specific type of roofing, and lighter grey areas. The overall layout shows a well-organized and busy transportation hub, with clear demarcations between the airside (tarmac) and landside (roads and parking) areas. The image captures the scale and complexity of modern airport operations.",
       "confidence": null,
       "grounding": null,
       "evidence": [],
@@ -320,7 +288,7 @@
         "provider": "groq",
         "temperature": 0.1,
         "imagesProcessed": 1,
-        "rawResponseLength": 1871
+        "rawResponseLength": 1604
       },
       "warnings": [],
       "status": "success"
@@ -335,9 +303,9 @@
           "version": "1.0.0"
         }
       ],
-      "startedAt": "2026-08-31T01:25:43.953Z",
-      "endedAt": "2026-08-31T01:26:14.212Z",
-      "durationMs": 30259,
+      "startedAt": "2026-08-31T05:56:05.045Z",
+      "endedAt": "2026-08-31T05:56:29.462Z",
+      "durationMs": 24417,
       "modelVersions": {
         "caption-tool": "1.0.0"
       },
@@ -346,42 +314,42 @@
       "events": [
         {
           "type": "REQUEST_RECEIVED",
-          "timestamp": "2026-08-31T01:25:43.953Z"
+          "timestamp": "2026-08-31T05:56:05.045Z"
         },
         {
           "type": "INTENT_SELECTED",
-          "timestamp": "2026-08-31T01:25:43.987Z",
+          "timestamp": "2026-08-31T05:56:05.049Z",
           "intent": "CAPTIONING",
           "confidence": 0.9
         },
         {
           "type": "COMPATIBILITY_CHECKED",
-          "timestamp": "2026-08-31T01:25:43.987Z",
+          "timestamp": "2026-08-31T05:56:05.049Z",
           "status": "READY",
           "compatible": true
         },
         {
           "type": "MODEL_ROUTED",
-          "timestamp": "2026-08-31T01:25:43.987Z",
+          "timestamp": "2026-08-31T05:56:05.049Z",
           "selectedModel": "Groq Qwen3.8-27B Vision",
           "provider": "groq",
           "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CAPTIONING task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
         },
         {
           "type": "TOOL_STARTED",
-          "timestamp": "2026-08-31T01:25:43.987Z",
+          "timestamp": "2026-08-31T05:56:05.049Z",
           "intent": "CAPTIONING"
         },
         {
           "type": "TOOL_COMPLETED",
-          "timestamp": "2026-08-31T01:26:14.212Z",
+          "timestamp": "2026-08-31T05:56:29.462Z",
           "toolName": "caption-tool",
           "status": "success",
-          "durationMs": 30224
+          "durationMs": 24413
         },
         {
           "type": "RESPONSE_READY",
-          "timestamp": "2026-08-31T01:26:14.212Z"
+          "timestamp": "2026-08-31T05:56:29.462Z"
         }
       ],
       "finalStatus": "success"
@@ -393,29 +361,13 @@
       "query": "Where are the major buildings and facilities located?",
       "inputs": [
         {
-          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
           "metadata": {
-            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
-            "bands": 3,
-            "bounds": null,
-            "crs": null,
-            "format": "JPEG",
-            "height": 670,
+            "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
             "isGeoreferenced": false,
-            "modality": null,
-            "timestamp": null,
-            "transform": [
-              1,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
             "warnings": [
-              "CRS information is not available for this image."
-            ],
-            "width": 900
+              "Geospatial metadata extraction unavailable at analysis request time."
+            ]
           }
         }
       ],
@@ -502,7 +454,7 @@
     },
     "result": {
       "task": "FEATURE_IDENTIFICATION",
-      "answerText": "The major buildings and facilities are concentrated in the central and upper-right portions of the image, characterized by large structures with green and grey roofs, connected by a prominent white, branching walkway or bridge system. A large parking facility is also visible in the lower-right area.",
+      "answerText": "The major buildings and facilities, including the main terminal structure with its distinctive green roof and adjacent parking structures, are located in the central and right-hand portions of the image.",
       "confidence": null,
       "grounding": {
         "type": "approximate",
@@ -513,7 +465,7 @@
             "x": 0.2,
             "y": 0.1,
             "width": 0.8,
-            "height": 0.5,
+            "height": 0.6,
             "confidence": 0.9
           }
         ]
@@ -533,7 +485,7 @@
         "provider": "groq",
         "temperature": 0.1,
         "imagesProcessed": 1,
-        "rawResponseLength": 531
+        "rawResponseLength": 434
       },
       "warnings": [
         "MVP Visual Feature Identification notice: Approximate visual grounding generated by generic VLM. Pixel-exact geospatial segmentation is not claimed."
@@ -550,9 +502,9 @@
           "version": "1.0.0"
         }
       ],
-      "startedAt": "2026-08-31T01:26:19.228Z",
-      "endedAt": "2026-08-31T01:26:36.180Z",
-      "durationMs": 16952,
+      "startedAt": "2026-08-31T05:56:34.464Z",
+      "endedAt": "2026-08-31T05:57:04.608Z",
+      "durationMs": 30144,
       "modelVersions": {
         "feature-identification-tool": "1.0.0"
       },
@@ -567,42 +519,42 @@
       "events": [
         {
           "type": "REQUEST_RECEIVED",
-          "timestamp": "2026-08-31T01:26:19.228Z"
+          "timestamp": "2026-08-31T05:56:34.465Z"
         },
         {
           "type": "INTENT_SELECTED",
-          "timestamp": "2026-08-31T01:26:19.243Z",
+          "timestamp": "2026-08-31T05:56:34.471Z",
           "intent": "FEATURE_IDENTIFICATION",
           "confidence": 0.91
         },
         {
           "type": "COMPATIBILITY_CHECKED",
-          "timestamp": "2026-08-31T01:26:19.243Z",
+          "timestamp": "2026-08-31T05:56:34.471Z",
           "status": "READY",
           "compatible": true
         },
         {
           "type": "MODEL_ROUTED",
-          "timestamp": "2026-08-31T01:26:19.243Z",
+          "timestamp": "2026-08-31T05:56:34.471Z",
           "selectedModel": "Groq Qwen3.8-27B Vision",
           "provider": "groq",
           "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for FEATURE_IDENTIFICATION task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
         },
         {
           "type": "TOOL_STARTED",
-          "timestamp": "2026-08-31T01:26:19.243Z",
+          "timestamp": "2026-08-31T05:56:34.471Z",
           "intent": "FEATURE_IDENTIFICATION"
         },
         {
           "type": "TOOL_COMPLETED",
-          "timestamp": "2026-08-31T01:26:36.180Z",
+          "timestamp": "2026-08-31T05:57:04.608Z",
           "toolName": "feature-identification-tool",
           "status": "success",
-          "durationMs": 16937
+          "durationMs": 30137
         },
         {
           "type": "RESPONSE_READY",
-          "timestamp": "2026-08-31T01:26:36.180Z"
+          "timestamp": "2026-08-31T05:57:04.608Z"
         }
       ],
       "finalStatus": "success"
@@ -614,55 +566,23 @@
       "query": "What changed between these two satellite images?",
       "inputs": [
         {
-          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
           "metadata": {
-            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
-            "bands": 3,
-            "bounds": null,
-            "crs": null,
-            "format": "JPEG",
-            "height": 670,
+            "fileId": "00953864-bbdf-4ff4-be93-3a42bbf943be",
             "isGeoreferenced": false,
-            "modality": null,
-            "timestamp": null,
-            "transform": [
-              1,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
             "warnings": [
-              "CRS information is not available for this image."
-            ],
-            "width": 900
+              "Geospatial metadata extraction unavailable at analysis request time."
+            ]
           }
         },
         {
-          "fileId": "0c1a61b2-f2f8-42b6-aa37-de30fa6316c9",
+          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
           "metadata": {
-            "fileId": "0c1a61b2-f2f8-42b6-aa37-de30fa6316c9",
-            "bands": 3,
-            "bounds": null,
-            "crs": null,
-            "format": "JPEG",
-            "height": 762,
+            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
             "isGeoreferenced": false,
-            "modality": null,
-            "timestamp": null,
-            "transform": [
-              1,
-              0,
-              0,
-              0,
-              1,
-              0
-            ],
             "warnings": [
-              "CRS information is not available for this image."
-            ],
-            "width": 1024
+              "Geospatial metadata extraction unavailable at analysis request time."
+            ]
           }
         }
       ],
@@ -749,18 +669,30 @@
     },
     "result": {
       "task": "CHANGE_ANALYSIS",
-      "answerText": null,
+      "answerText": "Based on a visual comparison of the two satellite images, there are no observable differences.\n\n*   **Infrastructure and Buildings**: The airport terminal, the distinctive white jet bridge, the green-roofed structures, and the surrounding roads and parking lots are **identical** in both Image A and Image B.\n*   **Vehicles and Aircraft**: The position of the large blue and white airplane on the tarmac, as well as the arrangement of cars in the parking lots and buses on the roads, appears to be **consistent** across both images.\n*   **Land Cover**: There are no changes in vegetation, water, or other land cover features.\n\nIn summary, no changes can be established between the two images; they appear to be identical or captured at nearly the same moment in time.",
       "confidence": null,
       "grounding": null,
-      "evidence": [],
-      "modelName": "Groq Qwen3.8-27B Vision",
-      "modelVersion": "1.0.0",
-      "provider": "groq",
-      "parametersUsed": {},
-      "warnings": [
-        "Change Analysis VLM execution failed: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01kngvwzkdew5b7062epgswvw3` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 3222, Requested 6350. Please try again in 11.79s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+      "evidence": [
+        {
+          "type": "bitemporal_comparison",
+          "source": "groq",
+          "description": "Vision-Language Based Change Analysis"
+        }
       ],
-      "status": "failed"
+      "modelName": "Groq Qwen3.8-27B Vision",
+      "modelVersion": "qwen/qwen3.8-27b",
+      "provider": "groq",
+      "parametersUsed": {
+        "model": "qwen/qwen3.8-27b",
+        "provider": "groq",
+        "temperature": 0.1,
+        "imagesProcessed": 2,
+        "rawResponseLength": 767
+      },
+      "warnings": [
+        "Vision-Language Based Change Analysis notice: Results are based on visual VLM comparison and do not constitute a scientifically validated pixel-level change detection raster model."
+      ],
+      "status": "success"
     },
     "trace": {
       "requestId": "final-change-req-1",
@@ -772,56 +704,62 @@
           "version": "1.0.0"
         }
       ],
-      "startedAt": "2026-08-31T01:26:42.197Z",
-      "endedAt": "2026-08-31T01:27:51.222Z",
-      "durationMs": 69025,
+      "startedAt": "2026-08-31T05:57:10.621Z",
+      "endedAt": "2026-08-31T05:57:39.494Z",
+      "durationMs": 28873,
       "modelVersions": {
         "change-analysis-tool": "1.0.0"
       },
       "parameters": {},
-      "outputReferences": [],
+      "outputReferences": [
+        {
+          "type": "bitemporal_comparison",
+          "source": "groq",
+          "description": "Vision-Language Based Change Analysis"
+        }
+      ],
       "events": [
         {
           "type": "REQUEST_RECEIVED",
-          "timestamp": "2026-08-31T01:26:42.197Z"
+          "timestamp": "2026-08-31T05:57:10.621Z"
         },
         {
           "type": "INTENT_SELECTED",
-          "timestamp": "2026-08-31T01:26:42.306Z",
+          "timestamp": "2026-08-31T05:57:10.630Z",
           "intent": "CHANGE_ANALYSIS",
           "confidence": 0.92
         },
         {
           "type": "COMPATIBILITY_CHECKED",
-          "timestamp": "2026-08-31T01:26:42.306Z",
+          "timestamp": "2026-08-31T05:57:10.630Z",
           "status": "READY",
           "compatible": true
         },
         {
           "type": "MODEL_ROUTED",
-          "timestamp": "2026-08-31T01:26:42.306Z",
+          "timestamp": "2026-08-31T05:57:10.630Z",
           "selectedModel": "Groq Qwen3.8-27B Vision",
           "provider": "groq",
           "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CHANGE_ANALYSIS task based on top benchmark priority ranking (Priority: #1, Multi-Image: Enforced). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
         },
         {
           "type": "TOOL_STARTED",
-          "timestamp": "2026-08-31T01:26:42.306Z",
+          "timestamp": "2026-08-31T05:57:10.630Z",
           "intent": "CHANGE_ANALYSIS"
         },
         {
           "type": "TOOL_COMPLETED",
-          "timestamp": "2026-08-31T01:27:51.222Z",
+          "timestamp": "2026-08-31T05:57:39.494Z",
           "toolName": "change-analysis-tool",
-          "status": "failed",
-          "durationMs": 68916
+          "status": "success",
+          "durationMs": 28864
         },
         {
           "type": "RESPONSE_READY",
-          "timestamp": "2026-08-31T01:27:51.222Z"
+          "timestamp": "2026-08-31T05:57:39.494Z"
         }
       ],
-      "finalStatus": "failed"
+      "finalStatus": "success"
     }
   }
 }

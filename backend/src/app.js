@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import config from './config/index.js';
 import requestIdMiddleware from './middleware/requestId.middleware.js';
 import notFoundMiddleware from './middleware/notFound.middleware.js';
@@ -19,7 +20,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-        return callback(null, true);
+        return callback(null, origin || config.clientUrl);
       }
       return callback(null, config.clientUrl);
     },
@@ -29,7 +30,10 @@ app.use(
   })
 );
 
-// 3. Request ID middleware (must run before logging & routes)
+// 3. Cookie Parsing middleware
+app.use(cookieParser(config.cookieSecret || undefined));
+
+// 4. Request ID middleware (must run before logging & routes)
 app.use(requestIdMiddleware);
 
 // 4. Request Logging middleware (Morgan) with custom request-id token
