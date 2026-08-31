@@ -1,7 +1,9 @@
 import React from 'react';
-import { Satellite, ShieldCheck, Activity, Cpu, Sparkles } from 'lucide-react';
+import { Satellite, ShieldCheck, Activity, Cpu, User, LogOut, LogIn } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext.jsx';
 
-export function Navbar({ backendHealth }) {
+export function Navbar({ backendHealth, onNavigateToLogin, onNavigateToRegister }) {
+  const { user, isAuthenticated, logout } = useAuth();
   const isHealthy = backendHealth?.ok && (backendHealth.status === 'healthy' || backendHealth.status === 'ok');
 
   return (
@@ -31,6 +33,52 @@ export function Navbar({ backendHealth }) {
             <span className={`status-dot ${isHealthy ? 'live' : 'dead'}`} />
             <span>Backend: {isHealthy ? 'Connected' : (backendHealth?.status || 'Checking...')}</span>
           </div>
+
+          {isAuthenticated && user ? (
+            <div className="user-session-group">
+              <div className="user-profile-pill">
+                <div className="user-avatar-circle">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="user-info-text">
+                  <span className="user-name">{user.name || 'Analyst'}</span>
+                  <span className="user-role-badge">{user.role || 'USER'}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="nav-logout-btn"
+                onClick={logout}
+                title="Sign out of SatVistaar"
+              >
+                <LogOut size={15} />
+                <span className="logout-text">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <div className="auth-action-group">
+              {onNavigateToLogin && (
+                <button
+                  type="button"
+                  className="nav-login-btn"
+                  onClick={onNavigateToLogin}
+                >
+                  <LogIn size={15} />
+                  <span>Sign In</span>
+                </button>
+              )}
+              {onNavigateToRegister && (
+                <button
+                  type="button"
+                  className="nav-register-btn"
+                  onClick={onNavigateToRegister}
+                >
+                  <span>Register</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -115,7 +163,7 @@ export function Navbar({ backendHealth }) {
         .meta-icon {
           color: var(--accent-indigo);
         }
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
           .meta-pill {
             display: flex;
           }
@@ -152,6 +200,109 @@ export function Navbar({ backendHealth }) {
         .status-dot.dead {
           background: #f59e0b;
         }
+        .user-session-group {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding-left: 0.5rem;
+          border-left: 1px solid var(--border-subtle);
+        }
+        .user-profile-pill {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.25rem 0.65rem 0.25rem 0.35rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          border-radius: 20px;
+        }
+        .user-avatar-circle {
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00e5ff, #6366f1);
+          color: #070a12;
+          font-weight: 700;
+          font-size: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .user-info-text {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+        .user-name {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: var(--text-main);
+          max-width: 110px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .user-role-badge {
+          font-size: 0.6rem;
+          font-weight: 700;
+          padding: 0.1rem 0.35rem;
+          border-radius: 4px;
+          background: rgba(99, 102, 241, 0.2);
+          border: 1px solid rgba(99, 102, 241, 0.4);
+          color: #a5b4fc;
+        }
+        .nav-logout-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.7rem;
+          background: rgba(244, 63, 94, 0.1);
+          border: 1px solid rgba(244, 63, 94, 0.25);
+          border-radius: var(--radius-md);
+          color: #fda4af;
+          font-size: 0.75rem;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+        .nav-logout-btn:hover {
+          background: rgba(244, 63, 94, 0.2);
+          border-color: rgba(244, 63, 94, 0.5);
+          color: #ffffff;
+        }
+        .auth-action-group {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding-left: 0.5rem;
+          border-left: 1px solid var(--border-subtle);
+        }
+        .nav-login-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.75rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border-medium);
+          border-radius: var(--radius-md);
+          color: var(--text-main);
+          font-size: 0.775rem;
+          font-weight: 500;
+        }
+        .nav-login-btn:hover {
+          border-color: var(--accent-cyan);
+          color: var(--accent-cyan);
+        }
+        .nav-register-btn {
+          padding: 0.35rem 0.75rem;
+          background: linear-gradient(135deg, #00e5ff, #3b82f6);
+          border-radius: var(--radius-md);
+          color: #070a12;
+          font-size: 0.775rem;
+          font-weight: 600;
+        }
+        .nav-register-btn:hover {
+          opacity: 0.9;
+        }
         @keyframes pulse-green {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.6; transform: scale(0.85); }
@@ -162,3 +313,4 @@ export function Navbar({ backendHealth }) {
 }
 
 export default Navbar;
+

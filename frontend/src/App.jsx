@@ -1,4 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { AuthProvider, useAuth } from './auth/AuthContext.jsx';
+import { ProtectedRoute } from './auth/ProtectedRoute.jsx';
+import { Login } from './auth/Login.jsx';
+import { Register } from './auth/Register.jsx';
 import Navbar from './components/Navbar.jsx';
 import ModeSelector, { ANALYSIS_MODES } from './components/ModeSelector.jsx';
 import ImageUploader from './components/ImageUploader.jsx';
@@ -9,8 +13,7 @@ import { checkBackendHealth, analyzeSatelliteImages } from './services/api.js';
 import { normalizeAnalysisResponse } from './utils/responseNormalizer.js';
 import { generateBiTemporalDatePair } from './utils/dateGenerator.js';
 
-export function App() {
-  const [backendHealth, setBackendHealth] = useState({ ok: false, status: 'checking' });
+function MainWorkspace({ backendHealth }) {
   const [selectedMode, setSelectedMode] = useState('VQA');
   const [imageA, setImageA] = useState(null);
   const [imageB, setImageB] = useState(null);
@@ -19,21 +22,6 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
-
-  // Check health on mount and periodically every 30s
-  useEffect(() => {
-    let mounted = true;
-    const fetchHealth = async () => {
-      const health = await checkBackendHealth();
-      if (mounted) setBackendHealth(health);
-    };
-    fetchHealth();
-    const interval = setInterval(fetchHealth, 30000);
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
 
   // When mode changes, update default query if query matches previous default
   const handleSelectMode = (newMode) => {
@@ -124,55 +112,153 @@ export function App() {
   } : null;
 
   return (
+    <main className="main-content">
+      <div className="container workspace-layout">
+        {/* Left Column: Mission Controls & Input */}
+        <section className="input-column glass-panel">
+          <ModeSelector
+            selectedMode={selectedMode}
+            onSelectMode={handleSelectMode}
+          />
+
+          <ImageUploader
+            selectedMode={selectedMode}
+            imageA={imageA}
+            setImageA={setImageA}
+            imageB={imageB}
+            setImageB={setImageB}
+            biTemporalDates={biTemporalDates}
+            setBiTemporalDates={setBiTemporalDates}
+          />
+
+          <QueryInput
+            selectedMode={selectedMode}
+            query={query}
+            setQuery={setQuery}
+          />
+
+          <AnalyzeButton
+            loading={loading}
+            onClick={handleAnalyze}
+            disabled={isAnalyzeDisabled}
+            selectedMode={selectedMode}
+          />
+        </section>
+
+        {/* Right Column: AI Analysis Result & Visuals */}
+        <section className="output-column">
+          <AnalysisResult
+            analysisResult={analysisResult}
+            loading={loading}
+            error={error}
+            selectedMode={selectedMode}
+            imageA={enrichedImageA}
+            imageB={enrichedImageB}
+          />
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function AppContent() {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [backendHealth, setBackendHealth] = useState({ ok: false, status: 'checking' });
+  
+  // Lightweight client-side router state with path sync
+  const getInitialView = () => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('/register')) return 'register';
+    if (path.includes('/login')) return 'login';
+    return 'workspace';
+  };
+
+  const [currentView, setCurrentView] = useState(getInitialView);
+
+  const navigateTo = useCallback((view) => {
+    setCurrentView(view);
+    const path = view === 'register' ? '/register' : view === 'login' ? '/login' : '/';
+    if (window.location.pathname !== path) {
+      window.history.pushState({ view }, '', path);
+    }
+  }, []);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (e) => {
+      const path = window.location.pathname.toLowerCase();
+      if (path.includes('/register')) {
+        setCurrentView('register');
+      } else if (path.includes('/login')) {
+        setCurrentView('login');
+      } else {
+        setCurrentView('workspace');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Check health on mount and periodically every 30s
+  useEffect(() => {
+    let mounted = true;
+    const fetchHealth = async () => {
+      const health = await checkBackendHealth();
+      if (mounted) setBackendHealth(health);
+    };
+    fetchHealth();
+    const interval = setInterval(fetchHealth, 30000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // If user is authenticated and on login/register view, redirect to workspace
+  useEffect(() => {
+    if (isAuthenticated && (currentView === 'login' || currentView === 'register')) {
+      navigateTo('workspace');
+    }
+  }, [isAuthenticated, currentView, navigateTo]);
+
+  return (
     <div className="app-root">
-      <Navbar backendHealth={backendHealth} />
+      <Navbar
+        backendHealth={backendHealth}
+        onNavigateToLogin={() => navigateTo('login')}
+        onNavigateToRegister={() => navigateTo('register')}
+      />
 
-      <main className="main-content">
-        <div className="container workspace-layout">
-          {/* Left Column: Mission Controls & Input */}
-          <section className="input-column glass-panel">
-            <ModeSelector
-              selectedMode={selectedMode}
-              onSelectMode={handleSelectMode}
+      {/* Render Authentication Views or Protected Workspace */}
+      {!isAuthenticated && currentView === 'register' ? (
+        <Register
+          onNavigateToLogin={() => navigateTo('login')}
+          onSuccess={() => navigateTo('workspace')}
+        />
+      ) : !isAuthenticated && (currentView === 'login' || !authLoading) ? (
+        <ProtectedRoute
+          fallback={
+            <Login
+              onNavigateToRegister={() => navigateTo('register')}
+              onSuccess={() => navigateTo('workspace')}
             />
-
-            <ImageUploader
-              selectedMode={selectedMode}
-              imageA={imageA}
-              setImageA={setImageA}
-              imageB={imageB}
-              setImageB={setImageB}
-              biTemporalDates={biTemporalDates}
-              setBiTemporalDates={setBiTemporalDates}
+          }
+        >
+          <MainWorkspace backendHealth={backendHealth} />
+        </ProtectedRoute>
+      ) : (
+        <ProtectedRoute
+          fallback={
+            <Login
+              onNavigateToRegister={() => navigateTo('register')}
+              onSuccess={() => navigateTo('workspace')}
             />
-
-            <QueryInput
-              selectedMode={selectedMode}
-              query={query}
-              setQuery={setQuery}
-            />
-
-            <AnalyzeButton
-              loading={loading}
-              onClick={handleAnalyze}
-              disabled={isAnalyzeDisabled}
-              selectedMode={selectedMode}
-            />
-          </section>
-
-          {/* Right Column: AI Analysis Result & Visuals */}
-          <section className="output-column">
-            <AnalysisResult
-              analysisResult={analysisResult}
-              loading={loading}
-              error={error}
-              selectedMode={selectedMode}
-              imageA={enrichedImageA}
-              imageB={enrichedImageB}
-            />
-          </section>
-        </div>
-      </main>
+          }
+        >
+          <MainWorkspace backendHealth={backendHealth} />
+        </ProtectedRoute>
+      )}
 
       <footer className="app-footer">
         <div className="container footer-inner">
@@ -198,6 +284,7 @@ export function App() {
           grid-template-columns: minmax(360px, 480px) minmax(0, 1fr);
           gap: 1.5rem;
           align-items: start;
+          min-width: 0;
         }
         @media (max-width: 1024px) {
           .workspace-layout {
@@ -210,6 +297,8 @@ export function App() {
           display: flex;
           flex-direction: column;
           gap: 1.25rem;
+          min-width: 0;
+          overflow: hidden;
         }
         .output-column {
           display: flex;
@@ -234,6 +323,14 @@ export function App() {
         }
       `}</style>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

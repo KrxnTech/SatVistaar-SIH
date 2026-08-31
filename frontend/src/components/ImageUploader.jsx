@@ -357,15 +357,17 @@ export function ImageUploader({
         }
         .uploader-grid {
           display: grid;
-          gap: 0.75rem;
+          gap: 0.65rem;
+          width: 100%;
+          min-width: 0;
         }
         .uploader-grid.single {
           grid-template-columns: 1fr;
         }
         .uploader-grid.dual {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         }
-        @media (max-width: 640px) {
+        @media (max-width: 540px) {
           .uploader-grid.dual {
             grid-template-columns: 1fr;
           }
@@ -490,12 +492,12 @@ function UploadSlot({
       />
 
       <div className="slot-header">
-        <div className="slot-title-group">
-          <span className={`slot-title ${isOld ? 'old' : isNew ? 'new' : ''}`}>{slotName}</span>
-          {isOld && <span className="temporal-tag old">Old</span>}
-          {isNew && <span className="temporal-tag new">New</span>}
+        <div className="slot-badge-row">
+          <span className={`slot-badge ${isOld ? 'old' : isNew ? 'new' : ''}`}>{slotName}</span>
+          {isOld && <span className="temporal-tag old">OLD</span>}
+          {isNew && <span className="temporal-tag new">NEW</span>}
         </div>
-        <span className="slot-role">{roleLabel}</span>
+        <span className="slot-role" title={roleLabel}>{roleLabel}</span>
       </div>
 
       {uploading ? (
@@ -517,7 +519,7 @@ function UploadSlot({
               onClick={removeImage}
               title="Remove image"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           </div>
 
@@ -533,12 +535,12 @@ function UploadSlot({
                 </span>
               ) : (
                 <span className="file-warn-tag">
-                  <AlertCircle size={11} /> Not Uploaded
+                  <AlertCircle size={11} /> Ready
                 </span>
               )}
             </div>
             <div className="date-info">
-              <Calendar size={11} />
+              <Calendar size={11} className="date-icon" />
               <span>Acquired: <strong>{formatDisplayDate(effectiveTimestamp)}</strong></span>
             </div>
           </div>
@@ -569,11 +571,14 @@ function UploadSlot({
           background: var(--bg-card);
           border: 1px dashed var(--border-medium);
           border-radius: var(--radius-md);
-          padding: 0.75rem;
+          padding: 0.65rem 0.75rem;
           cursor: pointer;
           transition: all 0.2s ease;
           position: relative;
-          min-height: 145px;
+          min-height: 140px;
+          min-width: 0;
+          overflow: hidden;
+          box-sizing: border-box;
           display: flex;
           flex-direction: column;
         }
@@ -599,34 +604,41 @@ function UploadSlot({
         }
         .slot-header {
           display: flex;
-          align-items: center;
-          justify-content: space-between;
+          flex-direction: column;
+          gap: 0.25rem;
           margin-bottom: 0.5rem;
+          min-width: 0;
         }
-        .slot-title-group {
+        .slot-badge-row {
           display: flex;
           align-items: center;
+          justify-content: space-between;
           gap: 0.35rem;
         }
-        .slot-title {
-          font-size: 0.75rem;
+        .slot-badge {
+          font-size: 0.725rem;
           font-weight: 700;
-          color: var(--accent-cyan);
-          background: rgba(0, 229, 255, 0.1);
-          padding: 0.1rem 0.4rem;
+          letter-spacing: 0.02em;
+          padding: 0.12rem 0.45rem;
           border-radius: 4px;
+          background: rgba(0, 229, 255, 0.1);
+          color: var(--accent-cyan);
+          border: 1px solid rgba(0, 229, 255, 0.25);
         }
-        .slot-title.old {
+        .slot-badge.old {
           color: #a5b4fc;
           background: rgba(99, 102, 241, 0.15);
+          border-color: rgba(99, 102, 241, 0.35);
         }
-        .slot-title.new {
+        .slot-badge.new {
           color: #67e8f9;
           background: rgba(0, 229, 255, 0.15);
+          border-color: rgba(0, 229, 255, 0.35);
         }
         .temporal-tag {
-          font-size: 0.625rem;
+          font-size: 0.6rem;
           font-weight: 700;
+          letter-spacing: 0.04em;
           padding: 0.08rem 0.35rem;
           border-radius: 3px;
           text-transform: uppercase;
@@ -642,8 +654,12 @@ function UploadSlot({
           border: 1px solid rgba(0, 229, 255, 0.4);
         }
         .slot-role {
-          font-size: 0.7rem;
+          font-size: 0.675rem;
           color: var(--text-dim);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.2;
         }
         .slot-dropzone {
           flex: 1;
@@ -655,8 +671,8 @@ function UploadSlot({
           padding: 0.5rem 0;
         }
         .drop-icon-circle {
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           background: var(--bg-panel);
           border: 1px solid var(--border-subtle);
@@ -674,26 +690,29 @@ function UploadSlot({
           border-color: #818cf8;
         }
         .drop-text {
-          font-size: 0.75rem;
+          font-size: 0.725rem;
           color: var(--text-muted);
+          text-align: center;
         }
         .drop-text strong {
           color: var(--text-main);
         }
         .drop-subtext {
-          font-size: 0.675rem;
+          font-size: 0.65rem;
           color: var(--text-dim);
+          text-align: center;
         }
         .slot-preview-card {
           display: flex;
-          gap: 0.75rem;
+          gap: 0.65rem;
           align-items: center;
           flex: 1;
+          min-width: 0;
         }
         .preview-media-box {
           position: relative;
-          width: 90px;
-          height: 75px;
+          width: 68px;
+          height: 68px;
           border-radius: var(--radius-sm);
           overflow: hidden;
           background: #000;
@@ -704,64 +723,78 @@ function UploadSlot({
           width: 100%;
           height: 100%;
           object-fit: cover;
+          display: block;
         }
         .remove-btn {
           position: absolute;
-          top: 3px;
-          right: 3px;
-          width: 20px;
-          height: 20px;
+          top: 2px;
+          right: 2px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.8);
           color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           backdrop-filter: blur(4px);
+          transition: all 0.15s ease;
         }
         .remove-btn:hover {
           background: var(--status-error);
+          transform: scale(1.1);
         }
         .slot-meta-info {
           flex: 1;
           min-width: 0;
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
+          gap: 0.25rem;
+          overflow: hidden;
         }
         .file-name {
-          font-size: 0.775rem;
+          font-size: 0.75rem;
           font-weight: 600;
           color: var(--text-main);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          line-height: 1.2;
         }
         .file-submeta {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.7rem;
+          gap: 0.4rem;
+          font-size: 0.675rem;
           color: var(--text-dim);
+          flex-wrap: wrap;
         }
         .file-ready-tag {
           color: #34d399;
           display: flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.15rem;
+          font-weight: 500;
         }
         .file-warn-tag {
           color: #fbbf24;
           display: flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.15rem;
+          font-weight: 500;
         }
         .date-info {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
-          font-size: 0.68rem;
+          gap: 0.25rem;
+          font-size: 0.675rem;
           color: var(--text-muted);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .date-icon {
+          flex-shrink: 0;
         }
         .date-info strong {
           color: var(--text-main);
@@ -777,8 +810,8 @@ function UploadSlot({
           color: var(--text-muted);
         }
         .spinner {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           border: 2px solid var(--border-medium);
           border-top-color: var(--accent-cyan);
           border-radius: 50%;
@@ -791,9 +824,9 @@ function UploadSlot({
           display: flex;
           align-items: center;
           gap: 0.3rem;
-          font-size: 0.7rem;
+          font-size: 0.675rem;
           color: var(--status-error);
-          margin-top: 0.3rem;
+          margin-top: 0.25rem;
         }
       `}</style>
     </div>

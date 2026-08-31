@@ -17,7 +17,10 @@ const getUrl = (endpoint) => `${API_BASE_URL}${API_PREFIX}${endpoint}`;
  */
 export async function checkBackendHealth() {
   try {
-    const res = await fetch(getUrl('/health'), { signal: AbortSignal.timeout(3000) });
+    const res = await fetch(getUrl('/health'), {
+      credentials: 'include',
+      signal: AbortSignal.timeout(3000)
+    });
     if (res.ok) {
       const data = await res.json();
       return {
@@ -27,7 +30,10 @@ export async function checkBackendHealth() {
       };
     }
     // Fallback prefix alias
-    const fallbackRes = await fetch(`${API_BASE_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+    const fallbackRes = await fetch(`${API_BASE_URL}/api/health`, {
+      credentials: 'include',
+      signal: AbortSignal.timeout(3000)
+    });
     if (fallbackRes.ok) {
       const data = await fallbackRes.json();
       return { ok: true, status: data.data?.status || 'healthy', message: data.message };
@@ -35,6 +41,104 @@ export async function checkBackendHealth() {
     return { ok: false, status: 'unhealthy' };
   } catch (err) {
     return { ok: false, status: 'offline', error: err.message };
+  }
+}
+
+/**
+ * Register a new user account
+ * @param {object} params
+ * @param {string} params.name
+ * @param {string} params.email
+ * @param {string} params.password
+ * @returns {Promise<{ success: boolean, user: object, message?: string }>}
+ */
+export async function registerUser({ name, email, password }) {
+  const res = await fetch(getUrl('/auth/register'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({ name, email, password })
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    const err = new Error(data.message || data.error?.message || 'Registration failed');
+    err.statusCode = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data.data || data;
+}
+
+/**
+ * Log in with user credentials
+ * @param {object} params
+ * @param {string} params.email
+ * @param {string} params.password
+ * @returns {Promise<{ success: boolean, user: object, message?: string }>}
+ */
+export async function loginUser({ email, password }) {
+  const res = await fetch(getUrl('/auth/login'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    const err = new Error(data.message || data.error?.message || 'Invalid email or password');
+    err.statusCode = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data.data || data;
+}
+
+/**
+ * Log out current session
+ * @returns {Promise<{ success: boolean, message?: string }>}
+ */
+export async function logoutUser() {
+  try {
+    const res = await fetch(getUrl('/auth/logout'), {
+      method: 'POST',
+      credentials: 'include'
+    });
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.warn('[API logoutUser Warning]:', err);
+    return { success: true };
+  }
+}
+
+/**
+ * Retrieve authenticated user profile
+ * @returns {Promise<object|null>}
+ */
+export async function getCurrentUser() {
+  try {
+    const res = await fetch(getUrl('/auth/me'), {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    return data.data?.user || null;
+  } catch (err) {
+    console.warn('[API getCurrentUser Warning]:', err);
+    return null;
   }
 }
 
@@ -50,6 +154,7 @@ export async function uploadImageFile(file) {
   try {
     const res = await fetch(getUrl('/uploads'), {
       method: 'POST',
+      credentials: 'include',
       body: formData
     });
 
@@ -87,7 +192,9 @@ export async function uploadImageFile(file) {
  */
 export async function getImageMetadata(fileId) {
   try {
-    const res = await fetch(getUrl(`/uploads/${fileId}/metadata`));
+    const res = await fetch(getUrl(`/uploads/${fileId}/metadata`), {
+      credentials: 'include'
+    });
     const data = await res.json();
     return data.data || data;
   } catch (err) {
@@ -126,6 +233,7 @@ export async function analyzeSatelliteImages({ query, fileIds, requestedTask = n
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     });
 
@@ -148,6 +256,10 @@ export async function analyzeSatelliteImages({ query, fileIds, requestedTask = n
 
 export default {
   checkBackendHealth,
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
   uploadImageFile,
   getImageMetadata,
   analyzeSatelliteImages,
