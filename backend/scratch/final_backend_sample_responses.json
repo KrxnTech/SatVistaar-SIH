@@ -1,0 +1,827 @@
+{
+  "VQA": {
+    "analysisRequest": {
+      "requestId": "final-vqa-req-1",
+      "query": "Is there water in this image?",
+      "inputs": [
+        {
+          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "metadata": {
+            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+            "bands": 3,
+            "bounds": null,
+            "crs": null,
+            "format": "JPEG",
+            "height": 670,
+            "isGeoreferenced": false,
+            "modality": null,
+            "timestamp": null,
+            "transform": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "warnings": [
+              "CRS information is not available for this image."
+            ],
+            "width": 900
+          }
+        }
+      ],
+      "requestedTask": null,
+      "benchmarkMode": false
+    },
+    "intent": {
+      "name": "VQA",
+      "confidence": 0.88,
+      "reason": "The query asks a general visual question about image content.",
+      "warnings": []
+    },
+    "compatibility": {
+      "compatible": true,
+      "status": "READY",
+      "selectedIntent": "VQA",
+      "reasons": [],
+      "warnings": [],
+      "requirements": {
+        "minImages": 1,
+        "maxImages": 2,
+        "temporalPair": false,
+        "description": "General Visual Question Answering (1 or 2 images)"
+      }
+    },
+    "executionPlan": {
+      "selectedIntent": "VQA",
+      "status": "READY",
+      "selectedTools": [
+        {
+          "name": "vqa-tool",
+          "task": "VQA",
+          "version": "1.0.0",
+          "description": "General Visual Question Answering tool backed by Vision-Language Models",
+          "model": "qwen/qwen3.8-27b",
+          "provider": "groq"
+        }
+      ],
+      "modelSelection": {
+        "selectedModel": {
+          "id": "groq-qwen38",
+          "name": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 1,
+            "CAPTIONING": 1,
+            "FEATURE_IDENTIFICATION": 1,
+            "CHANGE_ANALYSIS": 1
+          }
+        },
+        "fallbackModel": {
+          "id": "groq-qwen36",
+          "name": "Groq Qwen3.6-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.6-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 2,
+            "CAPTIONING": 2,
+            "FEATURE_IDENTIFICATION": 2,
+            "CHANGE_ANALYSIS": 2
+          }
+        },
+        "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for VQA task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq).",
+        "isMock": false
+      },
+      "warnings": []
+    },
+    "result": {
+      "task": "VQA",
+      "answerText": "No, there is no water visible in this image.",
+      "confidence": null,
+      "grounding": null,
+      "evidence": [],
+      "modelName": "Groq Qwen3.8-27B Vision",
+      "modelVersion": "qwen/qwen3.8-27b",
+      "provider": "groq",
+      "parametersUsed": {
+        "model": "qwen/qwen3.8-27b",
+        "provider": "groq",
+        "temperature": 0.1,
+        "imagesProcessed": 1,
+        "rawResponseLength": 44
+      },
+      "warnings": [],
+      "status": "success"
+    },
+    "trace": {
+      "requestId": "final-vqa-req-1",
+      "selectedIntent": "VQA",
+      "validationResults": [],
+      "selectedTools": [
+        {
+          "name": "vqa-tool",
+          "version": "1.0.0"
+        }
+      ],
+      "startedAt": "2026-08-31T01:25:32.404Z",
+      "endedAt": "2026-08-31T01:25:33.807Z",
+      "durationMs": 1403,
+      "modelVersions": {
+        "vqa-tool": "1.0.0"
+      },
+      "parameters": {},
+      "outputReferences": [],
+      "events": [
+        {
+          "type": "REQUEST_RECEIVED",
+          "timestamp": "2026-08-31T01:25:32.404Z"
+        },
+        {
+          "type": "INTENT_SELECTED",
+          "timestamp": "2026-08-31T01:25:32.430Z",
+          "intent": "VQA",
+          "confidence": 0.88
+        },
+        {
+          "type": "COMPATIBILITY_CHECKED",
+          "timestamp": "2026-08-31T01:25:32.430Z",
+          "status": "READY",
+          "compatible": true
+        },
+        {
+          "type": "MODEL_ROUTED",
+          "timestamp": "2026-08-31T01:25:32.430Z",
+          "selectedModel": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for VQA task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
+        },
+        {
+          "type": "TOOL_STARTED",
+          "timestamp": "2026-08-31T01:25:32.430Z",
+          "intent": "VQA"
+        },
+        {
+          "type": "TOOL_COMPLETED",
+          "timestamp": "2026-08-31T01:25:33.807Z",
+          "toolName": "vqa-tool",
+          "status": "success",
+          "durationMs": 1377
+        },
+        {
+          "type": "RESPONSE_READY",
+          "timestamp": "2026-08-31T01:25:33.807Z"
+        }
+      ],
+      "finalStatus": "success"
+    }
+  },
+  "CAPTIONING": {
+    "analysisRequest": {
+      "requestId": "final-caption-req-1",
+      "query": "Describe this satellite image in detail.",
+      "inputs": [
+        {
+          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "metadata": {
+            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+            "bands": 3,
+            "bounds": null,
+            "crs": null,
+            "format": "JPEG",
+            "height": 670,
+            "isGeoreferenced": false,
+            "modality": null,
+            "timestamp": null,
+            "transform": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "warnings": [
+              "CRS information is not available for this image."
+            ],
+            "width": 900
+          }
+        }
+      ],
+      "requestedTask": null,
+      "benchmarkMode": false
+    },
+    "intent": {
+      "name": "CAPTIONING",
+      "confidence": 0.9,
+      "reason": "The query requests a descriptive summary or scene description of the image.",
+      "warnings": []
+    },
+    "compatibility": {
+      "compatible": true,
+      "status": "READY",
+      "selectedIntent": "CAPTIONING",
+      "reasons": [],
+      "warnings": [],
+      "requirements": {
+        "minImages": 1,
+        "maxImages": 1,
+        "temporalPair": false,
+        "description": "Image/Scene Description (1 image)"
+      }
+    },
+    "executionPlan": {
+      "selectedIntent": "CAPTIONING",
+      "status": "READY",
+      "selectedTools": [
+        {
+          "name": "caption-tool",
+          "task": "CAPTIONING",
+          "version": "1.0.0",
+          "description": "Image and scene description specialist tool powered by VLMs",
+          "model": "qwen/qwen3.8-27b",
+          "provider": "groq"
+        }
+      ],
+      "modelSelection": {
+        "selectedModel": {
+          "id": "groq-qwen38",
+          "name": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 1,
+            "CAPTIONING": 1,
+            "FEATURE_IDENTIFICATION": 1,
+            "CHANGE_ANALYSIS": 1
+          }
+        },
+        "fallbackModel": {
+          "id": "groq-qwen36",
+          "name": "Groq Qwen3.6-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.6-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 2,
+            "CAPTIONING": 2,
+            "FEATURE_IDENTIFICATION": 2,
+            "CHANGE_ANALYSIS": 2
+          }
+        },
+        "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CAPTIONING task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq).",
+        "isMock": false
+      },
+      "warnings": []
+    },
+    "result": {
+      "task": "CAPTIONING",
+      "answerText": "This satellite image provides a top-down view of a major airport terminal complex and its surrounding infrastructure.\n\n**Terminal and Airside:**\n- A large, modern terminal building dominates the center and left of the frame. It features a distinctive white, curved roof structure that extends outwards.\n- The main terminal has a long, linear section with a green roof, adjacent to a larger section with a grey roof.\n- Several jet bridges (jetways) extend from the terminal to the tarmac.\n- On the tarmac to the left, a large passenger airplane is parked at a gate. Its fuselage is light blue and white, with wings spread out.\n- The tarmac is marked with yellow and white lines for aircraft guidance and parking.\n- Various ground service vehicles, including buses and trucks, are visible on the tarmac and near the terminal.\n\n**Land-side and Transportation:**\n- To the right of the terminal, there is a multi-level parking garage filled with numerous cars.\n- A prominent, elevated roadway or skybridge with a unique circular design connects different parts of the terminal complex. This structure has a white exterior with a pattern of dark circles.\n- Below this skybridge, there are multiple lanes of road traffic, with cars and buses visible.\n- A large, open-air parking lot is situated in the lower right quadrant, densely packed with vehicles.\n- Patches of green vegetation, including trees and landscaped areas, are interspersed between the roads and buildings.\n\n**Overall Layout:**\n- The image shows a well-organized, high-capacity airport hub. The layout clearly separates the airside operations (tarmac, aircraft) from the land-side transportation (roads, parking lots).\n- The architecture is modern, with large glass facades (implied by the structure) and expansive roofs.\n- The density of vehicles and infrastructure suggests a busy, major international airport.",
+      "confidence": null,
+      "grounding": null,
+      "evidence": [],
+      "modelName": "Groq Qwen3.8-27B Vision",
+      "modelVersion": "qwen/qwen3.8-27b",
+      "provider": "groq",
+      "parametersUsed": {
+        "model": "qwen/qwen3.8-27b",
+        "provider": "groq",
+        "temperature": 0.1,
+        "imagesProcessed": 1,
+        "rawResponseLength": 1871
+      },
+      "warnings": [],
+      "status": "success"
+    },
+    "trace": {
+      "requestId": "final-caption-req-1",
+      "selectedIntent": "CAPTIONING",
+      "validationResults": [],
+      "selectedTools": [
+        {
+          "name": "caption-tool",
+          "version": "1.0.0"
+        }
+      ],
+      "startedAt": "2026-08-31T01:25:43.953Z",
+      "endedAt": "2026-08-31T01:26:14.212Z",
+      "durationMs": 30259,
+      "modelVersions": {
+        "caption-tool": "1.0.0"
+      },
+      "parameters": {},
+      "outputReferences": [],
+      "events": [
+        {
+          "type": "REQUEST_RECEIVED",
+          "timestamp": "2026-08-31T01:25:43.953Z"
+        },
+        {
+          "type": "INTENT_SELECTED",
+          "timestamp": "2026-08-31T01:25:43.987Z",
+          "intent": "CAPTIONING",
+          "confidence": 0.9
+        },
+        {
+          "type": "COMPATIBILITY_CHECKED",
+          "timestamp": "2026-08-31T01:25:43.987Z",
+          "status": "READY",
+          "compatible": true
+        },
+        {
+          "type": "MODEL_ROUTED",
+          "timestamp": "2026-08-31T01:25:43.987Z",
+          "selectedModel": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CAPTIONING task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
+        },
+        {
+          "type": "TOOL_STARTED",
+          "timestamp": "2026-08-31T01:25:43.987Z",
+          "intent": "CAPTIONING"
+        },
+        {
+          "type": "TOOL_COMPLETED",
+          "timestamp": "2026-08-31T01:26:14.212Z",
+          "toolName": "caption-tool",
+          "status": "success",
+          "durationMs": 30224
+        },
+        {
+          "type": "RESPONSE_READY",
+          "timestamp": "2026-08-31T01:26:14.212Z"
+        }
+      ],
+      "finalStatus": "success"
+    }
+  },
+  "VISUAL_GROUNDING": {
+    "analysisRequest": {
+      "requestId": "final-grounding-req-1",
+      "query": "Where are the major buildings and facilities located?",
+      "inputs": [
+        {
+          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "metadata": {
+            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+            "bands": 3,
+            "bounds": null,
+            "crs": null,
+            "format": "JPEG",
+            "height": 670,
+            "isGeoreferenced": false,
+            "modality": null,
+            "timestamp": null,
+            "transform": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "warnings": [
+              "CRS information is not available for this image."
+            ],
+            "width": 900
+          }
+        }
+      ],
+      "requestedTask": null,
+      "benchmarkMode": false
+    },
+    "intent": {
+      "name": "FEATURE_IDENTIFICATION",
+      "confidence": 0.91,
+      "reason": "The query requests feature or object visual identification / approximate grounding.",
+      "warnings": []
+    },
+    "compatibility": {
+      "compatible": true,
+      "status": "READY",
+      "selectedIntent": "FEATURE_IDENTIFICATION",
+      "reasons": [],
+      "warnings": [],
+      "requirements": {
+        "minImages": 1,
+        "maxImages": 1,
+        "temporalPair": false,
+        "description": "Feature/Object Identification & approximate visual grounding (1 image)"
+      }
+    },
+    "executionPlan": {
+      "selectedIntent": "FEATURE_IDENTIFICATION",
+      "status": "READY",
+      "selectedTools": [
+        {
+          "name": "feature-identification-tool",
+          "task": "FEATURE_IDENTIFICATION",
+          "version": "1.0.0",
+          "description": "Feature and object identification tool for approximate visual grounding in satellite imagery",
+          "model": "qwen/qwen3.8-27b",
+          "provider": "groq"
+        }
+      ],
+      "modelSelection": {
+        "selectedModel": {
+          "id": "groq-qwen38",
+          "name": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 1,
+            "CAPTIONING": 1,
+            "FEATURE_IDENTIFICATION": 1,
+            "CHANGE_ANALYSIS": 1
+          }
+        },
+        "fallbackModel": {
+          "id": "groq-qwen36",
+          "name": "Groq Qwen3.6-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.6-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 2,
+            "CAPTIONING": 2,
+            "FEATURE_IDENTIFICATION": 2,
+            "CHANGE_ANALYSIS": 2
+          }
+        },
+        "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for FEATURE_IDENTIFICATION task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq).",
+        "isMock": false
+      },
+      "warnings": []
+    },
+    "result": {
+      "task": "FEATURE_IDENTIFICATION",
+      "answerText": "The major buildings and facilities are concentrated in the central and upper-right portions of the image, characterized by large structures with green and grey roofs, connected by a prominent white, branching walkway or bridge system. A large parking facility is also visible in the lower-right area.",
+      "confidence": null,
+      "grounding": {
+        "type": "approximate",
+        "isMock": false,
+        "regions": [
+          {
+            "label": "Where are the major buildings and facilities locat",
+            "x": 0.2,
+            "y": 0.1,
+            "width": 0.8,
+            "height": 0.5,
+            "confidence": 0.9
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "type": "approximate_location",
+          "source": "groq",
+          "description": "VLM approximate visual grounding (1 region(s) identified)"
+        }
+      ],
+      "modelName": "Groq Qwen3.8-27B Vision",
+      "modelVersion": "qwen/qwen3.8-27b",
+      "provider": "groq",
+      "parametersUsed": {
+        "model": "qwen/qwen3.8-27b",
+        "provider": "groq",
+        "temperature": 0.1,
+        "imagesProcessed": 1,
+        "rawResponseLength": 531
+      },
+      "warnings": [
+        "MVP Visual Feature Identification notice: Approximate visual grounding generated by generic VLM. Pixel-exact geospatial segmentation is not claimed."
+      ],
+      "status": "success"
+    },
+    "trace": {
+      "requestId": "final-grounding-req-1",
+      "selectedIntent": "FEATURE_IDENTIFICATION",
+      "validationResults": [],
+      "selectedTools": [
+        {
+          "name": "feature-identification-tool",
+          "version": "1.0.0"
+        }
+      ],
+      "startedAt": "2026-08-31T01:26:19.228Z",
+      "endedAt": "2026-08-31T01:26:36.180Z",
+      "durationMs": 16952,
+      "modelVersions": {
+        "feature-identification-tool": "1.0.0"
+      },
+      "parameters": {},
+      "outputReferences": [
+        {
+          "type": "approximate_location",
+          "source": "groq",
+          "description": "VLM approximate visual grounding (1 region(s) identified)"
+        }
+      ],
+      "events": [
+        {
+          "type": "REQUEST_RECEIVED",
+          "timestamp": "2026-08-31T01:26:19.228Z"
+        },
+        {
+          "type": "INTENT_SELECTED",
+          "timestamp": "2026-08-31T01:26:19.243Z",
+          "intent": "FEATURE_IDENTIFICATION",
+          "confidence": 0.91
+        },
+        {
+          "type": "COMPATIBILITY_CHECKED",
+          "timestamp": "2026-08-31T01:26:19.243Z",
+          "status": "READY",
+          "compatible": true
+        },
+        {
+          "type": "MODEL_ROUTED",
+          "timestamp": "2026-08-31T01:26:19.243Z",
+          "selectedModel": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for FEATURE_IDENTIFICATION task based on top benchmark priority ranking (Priority: #1, Multi-Image: Supported). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
+        },
+        {
+          "type": "TOOL_STARTED",
+          "timestamp": "2026-08-31T01:26:19.243Z",
+          "intent": "FEATURE_IDENTIFICATION"
+        },
+        {
+          "type": "TOOL_COMPLETED",
+          "timestamp": "2026-08-31T01:26:36.180Z",
+          "toolName": "feature-identification-tool",
+          "status": "success",
+          "durationMs": 16937
+        },
+        {
+          "type": "RESPONSE_READY",
+          "timestamp": "2026-08-31T01:26:36.180Z"
+        }
+      ],
+      "finalStatus": "success"
+    }
+  },
+  "BI_TEMPORAL": {
+    "analysisRequest": {
+      "requestId": "final-change-req-1",
+      "query": "What changed between these two satellite images?",
+      "inputs": [
+        {
+          "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+          "metadata": {
+            "fileId": "05226c0e-dc3a-4cb9-8607-9e4166b55f45",
+            "bands": 3,
+            "bounds": null,
+            "crs": null,
+            "format": "JPEG",
+            "height": 670,
+            "isGeoreferenced": false,
+            "modality": null,
+            "timestamp": null,
+            "transform": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "warnings": [
+              "CRS information is not available for this image."
+            ],
+            "width": 900
+          }
+        },
+        {
+          "fileId": "0c1a61b2-f2f8-42b6-aa37-de30fa6316c9",
+          "metadata": {
+            "fileId": "0c1a61b2-f2f8-42b6-aa37-de30fa6316c9",
+            "bands": 3,
+            "bounds": null,
+            "crs": null,
+            "format": "JPEG",
+            "height": 762,
+            "isGeoreferenced": false,
+            "modality": null,
+            "timestamp": null,
+            "transform": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ],
+            "warnings": [
+              "CRS information is not available for this image."
+            ],
+            "width": 1024
+          }
+        }
+      ],
+      "requestedTask": null,
+      "benchmarkMode": false
+    },
+    "intent": {
+      "name": "CHANGE_ANALYSIS",
+      "confidence": 0.92,
+      "reason": "The query requests Vision-Language based temporal visual change analysis across images.",
+      "warnings": []
+    },
+    "compatibility": {
+      "compatible": true,
+      "status": "READY",
+      "selectedIntent": "CHANGE_ANALYSIS",
+      "reasons": [],
+      "warnings": [],
+      "requirements": {
+        "minImages": 2,
+        "maxImages": 2,
+        "temporalPair": true,
+        "description": "Simple Two-Image Vision-Language Change Analysis (strictly 2 images)"
+      }
+    },
+    "executionPlan": {
+      "selectedIntent": "CHANGE_ANALYSIS",
+      "status": "READY",
+      "selectedTools": [
+        {
+          "name": "change-analysis-tool",
+          "task": "CHANGE_ANALYSIS",
+          "version": "1.0.0",
+          "description": "Vision-Language Based Change Analysis tool for temporal visual comparison between two images",
+          "model": "qwen/qwen3.8-27b",
+          "provider": "groq"
+        }
+      ],
+      "modelSelection": {
+        "selectedModel": {
+          "id": "groq-qwen38",
+          "name": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.8-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 1,
+            "CAPTIONING": 1,
+            "FEATURE_IDENTIFICATION": 1,
+            "CHANGE_ANALYSIS": 1
+          }
+        },
+        "fallbackModel": {
+          "id": "groq-qwen36",
+          "name": "Groq Qwen3.6-27B Vision",
+          "provider": "groq",
+          "model": "qwen/qwen3.6-27b",
+          "capabilities": [
+            "VQA",
+            "CAPTIONING",
+            "FEATURE_IDENTIFICATION",
+            "CHANGE_ANALYSIS"
+          ],
+          "supportsMultipleImages": true,
+          "enabled": true,
+          "taskPriority": {
+            "VQA": 2,
+            "CAPTIONING": 2,
+            "FEATURE_IDENTIFICATION": 2,
+            "CHANGE_ANALYSIS": 2
+          }
+        },
+        "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CHANGE_ANALYSIS task based on top benchmark priority ranking (Priority: #1, Multi-Image: Enforced). Fallback: 'Groq Qwen3.6-27B Vision' (groq).",
+        "isMock": false
+      },
+      "warnings": []
+    },
+    "result": {
+      "task": "CHANGE_ANALYSIS",
+      "answerText": null,
+      "confidence": null,
+      "grounding": null,
+      "evidence": [],
+      "modelName": "Groq Qwen3.8-27B Vision",
+      "modelVersion": "1.0.0",
+      "provider": "groq",
+      "parametersUsed": {},
+      "warnings": [
+        "Change Analysis VLM execution failed: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01kngvwzkdew5b7062epgswvw3` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 3222, Requested 6350. Please try again in 11.79s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing"
+      ],
+      "status": "failed"
+    },
+    "trace": {
+      "requestId": "final-change-req-1",
+      "selectedIntent": "CHANGE_ANALYSIS",
+      "validationResults": [],
+      "selectedTools": [
+        {
+          "name": "change-analysis-tool",
+          "version": "1.0.0"
+        }
+      ],
+      "startedAt": "2026-08-31T01:26:42.197Z",
+      "endedAt": "2026-08-31T01:27:51.222Z",
+      "durationMs": 69025,
+      "modelVersions": {
+        "change-analysis-tool": "1.0.0"
+      },
+      "parameters": {},
+      "outputReferences": [],
+      "events": [
+        {
+          "type": "REQUEST_RECEIVED",
+          "timestamp": "2026-08-31T01:26:42.197Z"
+        },
+        {
+          "type": "INTENT_SELECTED",
+          "timestamp": "2026-08-31T01:26:42.306Z",
+          "intent": "CHANGE_ANALYSIS",
+          "confidence": 0.92
+        },
+        {
+          "type": "COMPATIBILITY_CHECKED",
+          "timestamp": "2026-08-31T01:26:42.306Z",
+          "status": "READY",
+          "compatible": true
+        },
+        {
+          "type": "MODEL_ROUTED",
+          "timestamp": "2026-08-31T01:26:42.306Z",
+          "selectedModel": "Groq Qwen3.8-27B Vision",
+          "provider": "groq",
+          "reason": "Selected 'Groq Qwen3.8-27B Vision' (groq) for CHANGE_ANALYSIS task based on top benchmark priority ranking (Priority: #1, Multi-Image: Enforced). Fallback: 'Groq Qwen3.6-27B Vision' (groq)."
+        },
+        {
+          "type": "TOOL_STARTED",
+          "timestamp": "2026-08-31T01:26:42.306Z",
+          "intent": "CHANGE_ANALYSIS"
+        },
+        {
+          "type": "TOOL_COMPLETED",
+          "timestamp": "2026-08-31T01:27:51.222Z",
+          "toolName": "change-analysis-tool",
+          "status": "failed",
+          "durationMs": 68916
+        },
+        {
+          "type": "RESPONSE_READY",
+          "timestamp": "2026-08-31T01:27:51.222Z"
+        }
+      ],
+      "finalStatus": "failed"
+    }
+  }
+}

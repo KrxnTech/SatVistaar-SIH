@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -16,7 +17,12 @@ app.use(helmet());
 // 2. CORS configuration using CLIENT_URL from environment
 app.use(
   cors({
-    origin: config.clientUrl,
+    origin: (origin, callback) => {
+      if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+        return callback(null, true);
+      }
+      return callback(null, config.clientUrl);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']
@@ -37,6 +43,9 @@ app.use(morgan(morganFormat));
 // 5. Body Parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.resolve(config.uploadDir || 'uploads')));
 
 // 6. API Route mounting
 // Primary prefix: e.g. /api/v1

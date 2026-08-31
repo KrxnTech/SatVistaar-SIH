@@ -1,0 +1,42 @@
+[
+  {
+    "caseId": "vqa-001",
+    "task": "VQA",
+    "query": "What is visible in this satellite image?",
+    "fileIds": ["4204c4a8-1e4e-4603-9d4d-c48e064a5970"],
+    "modality": "optical_rgb",
+    "evaluationCriteria": ["relevance", "grounding", "taskCompliance"]
+  },
+  {
+    "caseId": "caption-001",
+    "task": "CAPTIONING",
+    "query": "Describe this satellite image in detail.",
+    "fileIds": ["4204c4a8-1e4e-4603-9d4d-c48e064a5970"],
+    "modality": "optical_rgb",
+    "evaluationCriteria": ["completeness", "factualConsistency", "sceneSummary"]
+  },
+  {
+    "caseId": "feature-001",
+    "task": "FEATURE_IDENTIFICATION",
+    "query": "Identify the visible buildings, roads, vegetation and water bodies.",
+    "fileIds": ["4204c4a8-1e4e-4603-9d4d-c48e064a5970"],
+    "modality": "optical_rgb",
+    "evaluationCriteria": ["featureCategorization", "approximateGrounding"]
+  },
+  {
+    "caseId": "change-001",
+    "task": "CHANGE_ANALYSIS",
+    "query": "What changed between these two satellite images?",
+    "fileIds": ["4204c4a8-1e4e-4603-9d4d-c48e064a5970", "a2bc3dad-50c5-491f-80e3-b838f52db8da"],
+    "modality": "optical_rgb",
+    "evaluationCriteria": ["bitemporalComparison", "nonOverclaimingNotice"]
+  },
+  {
+    "caseId": "vqa-geotiff-002",
+    "task": "VQA",
+    "query": "Describe what is visible in this GeoTIFF image.",
+    "fileIds": ["13ba76c6-5cb6-4306-9e25-c7aa1b592358"],
+    "modality": "multispectral_visual_representation",
+    "evaluationCriteria": ["geotiffVisualRendering", "taskCompliance"]
+  }
+]

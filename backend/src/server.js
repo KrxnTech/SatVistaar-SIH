@@ -11,6 +11,15 @@ const server = app.listen(config.port, () => {
   console.log(`=================================`);
 });
 
+// Server error handling (e.g., EADDRINUSE)
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${config.port} is already in use.`);
+  } else {
+    console.error('Server error:', err);
+  }
+});
+
 // Graceful shutdown handling
 const gracefulShutdown = (signal) => {
   console.log(`Received ${signal}. Shutting down HTTP server gracefully...`);
@@ -18,16 +27,12 @@ const gracefulShutdown = (signal) => {
     console.log('HTTP server closed.');
     process.exit(0);
   });
-
-  // Force shutdown after 10s if connections persist
-  setTimeout(() => {
-    console.error('Could not close connections in time, forcefully shutting down');
-    process.exit(1);
-  }, 10000);
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+if (config.nodeEnv === 'production') {
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
