@@ -31,5 +31,27 @@
     "createdAt": "2026-08-31T06:00:13.363Z",
     "updatedAt": "2026-08-31T09:35:29.422Z",
     "lastLoginAt": "2026-08-31T09:35:29.422Z"
+  },
+  {
+    "id": "3fc5089c-581d-4d9b-90ca-92454c035edd",
+    "name": "admin123",
+    "email": "admin@satvistaar.in",
+    "passwordHash": "$2b$10$t1ydMX8dCW9nybwRf5alB.bGWshV/b3N5QJosl5w/uwuR6vn736q.",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2026-09-02T08:04:11.822Z",
+    "updatedAt": "2026-09-02T08:04:11.822Z",
+    "lastLoginAt": null
+  },
+  {
+    "id": "8b27ea2b-cf8a-4e35-8666-3eb763663bf6",
+    "name": "Dr. Analyst",
+    "email": "test@isro.gov.in",
+    "passwordHash": "$2b$10$zXCkUnnFS7piVqZrPsbVreq8HokGP0B1I.k6FvODg7hvyNEQMp9ny",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2026-09-02T08:55:38.427Z",
+    "updatedAt": "2026-09-02T08:55:38.427Z",
+    "lastLoginAt": null
   }
 ]

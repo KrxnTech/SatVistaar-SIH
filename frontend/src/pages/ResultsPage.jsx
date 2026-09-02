@@ -23,6 +23,7 @@ import PageHeader from '../components/common/PageHeader.jsx';
 import CyberCard from '../components/common/CyberCard.jsx';
 import CyberButton from '../components/common/CyberButton.jsx';
 import StatusBadge from '../components/common/StatusBadge.jsx';
+import EmptyState from '../components/common/EmptyState.jsx';
 
 export function ResultsPage({ backendHealth }) {
   const { navigateTo } = useRouter();
@@ -156,62 +157,15 @@ export function ResultsPage({ backendHealth }) {
           </div>
         ) : (
           /* Empty State: No active analysis loaded yet */
-          <div className="results-empty-view">
-            <div className="empty-dossier-card glass-panel cyber-cut border-neon-cyan">
-              <div className="empty-icon-box">
-                <Bot size={36} className="empty-bot-icon" />
-              </div>
-              <h2 className="empty-heading">No Active Intelligence Dossier</h2>
-              <p className="empty-description">
-                You haven't run a satellite analysis mission yet in this session. Configure your inputs in the workspace to generate structured VLM insights, grounding overlays, and temporal comparisons.
-              </p>
-
-              <div className="empty-actions-row">
-                <CyberButton
-                  variant="primary"
-                  size="lg"
-                  icon={Play}
-                  cutCorner
-                  onClick={() => navigateTo('/analysis')}
-                >
-                  LAUNCH MISSION WORKSPACE
-                </CyberButton>
-                <CyberButton
-                  variant="outline"
-                  size="lg"
-                  icon={FileText}
-                  onClick={() => navigateTo('/system')}
-                >
-                  SYSTEM DOCUMENTATION
-                </CyberButton>
-              </div>
-
-              {/* Supported Output Preview Tiles */}
-              <div className="empty-capabilities-grid">
-                <div className="empty-cap-tile">
-                  <CheckCircle2 size={16} className="cap-icon green" />
-                  <div>
-                    <strong>Visual Grounding Overlays</strong>
-                    <p>Bounding coordinates and spatial quadrant highlights</p>
-                  </div>
-                </div>
-                <div className="empty-cap-tile">
-                  <CheckCircle2 size={16} className="cap-icon cyan" />
-                  <div>
-                    <strong>Bi-Temporal Comparison</strong>
-                    <p>Co-registered old vs new imagery change evaluation</p>
-                  </div>
-                </div>
-                <div className="empty-cap-tile">
-                  <CheckCircle2 size={16} className="cap-icon magenta" />
-                  <div>
-                    <strong>Execution Telemetry</strong>
-                    <p>Sub-second step-by-step latency & token tracking</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <EmptyState
+            tag="MISSION READINESS"
+            title="No Active Intelligence Dossier"
+            description="You haven't run a satellite analysis mission yet in this session. Configure your raster inputs in the workspace to generate structured VLM insights, grounding overlays, and temporal comparisons."
+            primaryActionLabel="Return to Home"
+            primaryActionRoute="/"
+            secondaryActionLabel="Launch Workspace"
+            secondaryActionRoute="/analysis"
+          />
         )}
       </main>
 

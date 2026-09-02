@@ -161,7 +161,7 @@ export function HelpPage({ backendHealth }) {
           </div>
 
           {/* 1. Getting Started */}
-          <section id="getting-started" ref={registerRef('getting-started')} className="help-section">
+          <section id="getting-started" className="help-section">
             <div className="section-title-row">
               <BookOpen size={18} className="sec-icon orange" />
               <h2 className="section-heading">Getting Started Guide</h2>
@@ -194,7 +194,7 @@ export function HelpPage({ backendHealth }) {
           </section>
 
           {/* 2. Task-by-task guide — alternating rows */}
-          <section id="task-guide" ref={registerRef('task-guide')} className="help-section">
+          <section id="task-guide" className="help-section">
             <div className="section-title-row">
               <Layers size={18} className="sec-icon blue" />
               <h2 className="section-heading">Detailed Task Guide</h2>
@@ -245,7 +245,7 @@ export function HelpPage({ backendHealth }) {
           </section>
 
           {/* 3. FAQ */}
-          <section id="faq" ref={registerRef('faq')} className="help-section">
+          <section id="faq" className="help-section">
             <div className="section-title-row">
               <HelpCircle size={18} className="sec-icon orange" />
               <h2 className="section-heading">Frequently Asked Questions</h2>

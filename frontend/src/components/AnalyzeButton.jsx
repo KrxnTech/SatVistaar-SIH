@@ -1,7 +1,7 @@
 import React from 'react';
-import { Play, Loader2 } from 'lucide-react';
+import { Play, Loader2, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
 
-export function AnalyzeButton({ loading, onClick, disabled, selectedMode }) {
+export function AnalyzeButton({ loading, onClick, disabled, selectedMode, imageA, imageB, query }) {
   const getModeTitle = () => {
     switch (selectedMode) {
       case 'CHANGE_ANALYSIS': return 'Bi-Temporal Change';
@@ -11,67 +11,170 @@ export function AnalyzeButton({ loading, onClick, disabled, selectedMode }) {
     }
   };
 
+  const isDual = selectedMode === 'CHANGE_ANALYSIS';
+
+  // Validation feedback
+  const getMissingReason = () => {
+    if (!imageA?.fileId) {
+      return isDual ? 'Upload Image A (T1 Reference) to continue' : 'Upload a satellite scene to continue';
+    }
+    if (isDual && !imageB?.fileId) {
+      return 'Upload Image B (T2 Comparison) for change detection';
+    }
+    if (!query || !query.trim()) {
+      return 'Enter an analysis question or select a suggested prompt';
+    }
+    return null;
+  };
+
+  const missingReason = disabled && !loading ? getMissingReason() : null;
+
   return (
-    <div className="gov-analyze-action">
+    <div className="sat-analyze-cta-root">
       <button
         type="button"
-        className={`gov-run-analysis-orange-btn ${loading ? 'loading' : ''}`}
+        className={`sat-run-btn ${loading ? 'is-loading' : ''} ${disabled ? 'is-disabled' : ''}`}
         onClick={onClick}
         disabled={disabled || loading}
       >
         {loading ? (
-          <>
-            <Loader2 className="btn-spinner-icon" size={17} />
-            <span>Analyzing satellite imagery with VLM...</span>
-          </>
+          <div className="cta-content-row">
+            <Loader2 className="cta-spinner" size={18} />
+            <span>Analyzing Satellite Raster with Qwen3.8-27B...</span>
+          </div>
         ) : (
-          <>
-            <Play size={15} fill="currentColor" />
-            <span>Run {getModeTitle()} Analysis</span>
-          </>
+          <div className="cta-content-row">
+            <Sparkles size={16} />
+            <span className="cta-main-text">Run {getModeTitle()} Analysis</span>
+            <ArrowRight size={16} className="cta-arrow" />
+          </div>
         )}
       </button>
 
+      {/* Validation Message / Status */}
+      {missingReason ? (
+        <div className="cta-validation-status font-mono">
+          <AlertCircle size={13} className="val-icon" />
+          <span>{missingReason}</span>
+        </div>
+      ) : (
+        <div className="cta-ready-status font-mono">
+          <span className="pulse-dot" />
+          <span>Inputs validated • Ready for multimodal inference</span>
+        </div>
+      )}
+
       <style>{`
-        .gov-analyze-action {
+        .sat-analyze-cta-root {
           width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
         }
-        .gov-run-analysis-orange-btn {
+
+        .sat-run-btn {
           width: 100%;
+          min-height: 48px;
+          padding: 0.85rem 1.5rem;
+          background: #ff5225;
+          color: #ffffff;
+          border: none;
+          border-radius: 12px;
+          font-size: 0.95rem;
+          font-weight: 800;
+          letter-spacing: 0.01em;
+          cursor: pointer;
+          box-shadow: 0 4px 18px rgba(255, 82, 37, 0.35);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
-          padding: 0.8rem 1.25rem;
-          background: var(--accent-orange);
-          color: var(--white);
-          border-radius: var(--radius-sm);
-          font-size: 0.925rem;
-          font-weight: 700;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-          min-height: 44px;
-          transition: background-color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
         }
-        .gov-run-analysis-orange-btn:hover:not(:disabled) {
-          background: var(--accent-orange-hover);
+
+        .sat-run-btn:hover:not(:disabled) {
+          background: #e6451a;
           transform: translateY(-1px);
+          box-shadow: 0 6px 24px rgba(255, 82, 37, 0.45);
         }
-        .gov-run-analysis-orange-btn:disabled {
-          background: var(--border-subtle);
-          color: var(--slate-gray);
-          cursor: not-allowed;
+
+        .sat-run-btn:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        .sat-run-btn.is-disabled {
+          background: #e2e8f0;
+          color: #94a3b8;
           box-shadow: none;
+          cursor: not-allowed;
           transform: none;
         }
-        .gov-run-analysis-orange-btn.loading {
-          background: var(--accent-orange);
+
+        .sat-run-btn.is-loading {
+          background: #ff5225;
           cursor: wait;
+          box-shadow: 0 0 20px rgba(255, 82, 37, 0.4);
         }
-        .btn-spinner-icon {
+
+        .cta-content-row {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+        }
+
+        .cta-main-text {
+          letter-spacing: -0.01em;
+        }
+
+        .cta-arrow {
+          transition: transform 0.2s ease;
+        }
+
+        .sat-run-btn:hover:not(:disabled) .cta-arrow {
+          transform: translateX(3px);
+        }
+
+        .cta-spinner {
           animation: spin 0.8s linear infinite;
         }
+
         @keyframes spin {
+          from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+
+        .cta-validation-status {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+          font-size: 0.725rem;
+          color: #f59e0b;
+          text-align: center;
+          padding: 0.2rem 0;
+        }
+
+        .val-icon {
+          color: #f59e0b;
+          flex-shrink: 0;
+        }
+
+        .cta-ready-status {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.4rem;
+          font-size: 0.725rem;
+          color: #16a34a;
+          text-align: center;
+          padding: 0.2rem 0;
+        }
+
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #16a34a;
+          box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
         }
       `}</style>
     </div>

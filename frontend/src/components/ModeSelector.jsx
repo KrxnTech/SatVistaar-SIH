@@ -1,44 +1,38 @@
 import React from 'react';
-import { MessageSquare, FileText, Crosshair, GitCompare } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { cn } from '../lib/utils';
 
 export const ANALYSIS_MODES = [
   {
+    value: 'VQA',
     id: 'VQA',
     title: 'Visual Q&A',
-    badge: '1 Image',
-    icon: MessageSquare,
-    accentColor: 'blue',
-    description: 'Ask arbitrary natural language questions about visible objects, water bodies, or terrain.',
+    description: 'Ask natural-language questions about visible terrain, infrastructure, and facilities.',
     defaultQuery: 'What is visible in this satellite image?',
     minImages: 1
   },
   {
+    value: 'CAPTIONING',
     id: 'CAPTIONING',
     title: 'Scene Description',
-    badge: '1 Image',
-    icon: FileText,
-    accentColor: 'green',
-    description: 'Generate a structured visual overview covering built-up structures, roads, and land cover.',
+    description: 'Generate structured summaries of land cover, transport grids, and installations.',
     defaultQuery: 'Describe this satellite image in detail.',
     minImages: 1
   },
   {
+    value: 'FEATURE_IDENTIFICATION',
     id: 'FEATURE_IDENTIFICATION',
     title: 'Visual Grounding',
-    badge: '1 Image + Overlay',
-    icon: Crosshair,
-    accentColor: 'orange',
-    description: 'Identify and localize features with approximate spatial bounding box overlays.',
+    description: 'Localize targets with coordinate attention bounding box overlays.',
     defaultQuery: 'Where are the major buildings and facilities located?',
     minImages: 1
   },
   {
+    value: 'CHANGE_ANALYSIS',
     id: 'CHANGE_ANALYSIS',
     title: 'Bi-Temporal Change',
-    badge: '2 Images (Pair)',
-    icon: GitCompare,
-    accentColor: 'red-orange',
-    description: 'Compare baseline reference (Image A) with comparison (Image B) to identify visual changes.',
+    description: 'Compare baseline reference (T1) with later pass (T2) to detect modifications.',
     defaultQuery: 'What changed between these two satellite images?',
     minImages: 2
   }
@@ -46,146 +40,145 @@ export const ANALYSIS_MODES = [
 
 export function ModeSelector({ selectedMode, onSelectMode }) {
   return (
-    <div className="gov-mode-selector">
-      <div className="mode-section-header">
-        <label className="mode-section-title">
-          1. Select Analysis Task
-        </label>
-        <span className="mode-hint font-mono">PIPELINE ROUTING</span>
+    <div className="sat-task-selector-root">
+      {/* Header */}
+      <div className="task-selector-header">
+        <div className="header-title-group">
+          <span className="step-num-pill font-mono">01</span>
+          <div>
+            <h3 className="selector-heading">CHOOSE ANALYSIS TASK</h3>
+            <p className="selector-subheading">Select the vision intelligence pipeline to route your satellite raster</p>
+          </div>
+        </div>
+        <span className="pipeline-route-tag font-mono">PIPELINE ROUTING</span>
       </div>
 
-      <div className="modes-grid">
+      {/* Cards Grid */}
+      <RadioGroup
+        value={selectedMode}
+        onValueChange={(val) => onSelectMode(val)}
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+      >
         {ANALYSIS_MODES.map((mode) => {
-          const Icon = mode.icon;
-          const isSelected = selectedMode === mode.id;
+          const isSelected = selectedMode === mode.value;
 
           return (
-            <button
-              key={mode.id}
-              type="button"
-              className={`mode-select-card ${isSelected ? 'active' : ''} accent-${mode.accentColor}`}
-              onClick={() => onSelectMode(mode.id)}
+            <div
+              key={mode.value}
+              onClick={() => onSelectMode(mode.value)}
+              className={cn(
+                "group relative flex flex-col justify-between rounded-xl border bg-white p-5 shadow-xs transition-all duration-200 cursor-pointer min-h-[155px]",
+                isSelected
+                  ? "border-[#ff5225] ring-2 ring-[#ff5225]/20 bg-[#fffaf8] shadow-sm -translate-y-0.5"
+                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/70 hover:-translate-y-0.5"
+              )}
             >
-              <div className="mode-card-top">
-                <div className={`mode-icon-box accent-${mode.accentColor} ${isSelected ? 'selected' : ''}`}>
-                  <Icon size={16} />
-                </div>
-                <span className="mode-badge font-mono">{mode.badge}</span>
-              </div>
+              <RadioGroupItem
+                value={mode.value}
+                id={mode.value}
+                className="sr-only"
+              />
 
-              <div className="mode-card-info">
-                <span className="mode-title">{mode.title}</span>
-                <p className="mode-desc">{mode.description}</p>
-              </div>
-            </button>
+              <label
+                htmlFor={mode.value}
+                className="relative flex flex-col justify-between h-full cursor-pointer"
+              >
+                {/* Title & Description Stack */}
+                <div className="flex flex-col gap-2">
+                  <h4
+                    className={cn(
+                      "text-[13px] font-bold tracking-tight transition-colors",
+                      isSelected ? "text-[#000066]" : "text-slate-900"
+                    )}
+                  >
+                    {mode.title}
+                  </h4>
+                  <p className="text-[11.5px] leading-snug text-slate-500 mt-1">
+                    {mode.description}
+                  </p>
+                </div>
+
+                {/* Bottom Action Pill Button */}
+                <div className="pt-3 mt-auto">
+                  <span
+                    className={cn(
+                      "relative inline-flex h-8 items-center justify-center rounded-lg px-4 text-xs font-semibold transition-all w-full select-none",
+                      isSelected
+                        ? "bg-[#ff5225] text-white shadow-sm shadow-[#ff5225]/20"
+                        : "bg-slate-100 text-slate-700 group-hover:bg-slate-200/80"
+                    )}
+                  >
+                    <span>{isSelected ? "Selected" : "Select Task"}</span>
+                    {isSelected && (
+                      <motion.span
+                        className="absolute inset-x-2 -bottom-1 h-0.5 rounded-full bg-[#ff5225]"
+                        layoutId="activeTaskIndicator"
+                      />
+                    )}
+                  </span>
+                </div>
+              </label>
+            </div>
           );
         })}
-      </div>
+      </RadioGroup>
 
       <style>{`
-        .gov-mode-selector {
+        .sat-task-selector-root {
           display: flex;
           flex-direction: column;
-          gap: 0.65rem;
-        }
-        .mode-section-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .mode-section-title {
-          font-size: 0.825rem;
-          font-weight: 700;
-          color: var(--text-main);
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-        .mode-hint {
-          font-size: 0.675rem;
-          color: var(--text-dim);
-        }
-        .modes-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 0.65rem;
-        }
-        @media (max-width: 580px) {
-          .modes-grid { grid-template-columns: 1fr; }
-        }
-        .mode-select-card {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          text-align: left;
-          padding: 0.85rem;
-          background: var(--bg-card);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          transition: all 0.15s ease;
-          cursor: pointer;
-        }
-        .mode-select-card:hover {
-          border-color: var(--border-medium);
-          background: var(--light-gray);
-        }
-        .mode-select-card.active {
-          background: var(--very-light-gray);
-          border-color: var(--accent-orange);
-          box-shadow: 0 0 10px rgba(255, 82, 37, 0.2);
-        }
-        .mode-card-top {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+          gap: 1rem;
           width: 100%;
-          margin-bottom: 0.45rem;
         }
-        .mode-icon-box {
-          width: 30px;
-          height: 30px;
-          border-radius: var(--radius-sm);
-          background: var(--bg-main);
-          border: 1px solid var(--border-subtle);
+
+        .task-selector-header {
           display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+
+        .header-title-group {
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+        }
+
+        .step-num-pill {
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-        }
-        .mode-icon-box.accent-blue { color: var(--accent-blue-text); border-color: rgba(59, 130, 246, 0.35); }
-        .mode-icon-box.accent-orange { color: var(--accent-orange); border-color: rgba(255, 82, 37, 0.35); }
-        .mode-icon-box.accent-green { color: var(--status-green-text); border-color: rgba(34, 197, 94, 0.35); }
-        .mode-icon-box.accent-red-orange { color: var(--error); border-color: rgba(239, 68, 68, 0.35); }
-
-        .mode-icon-box.selected {
-          background: var(--bg-card);
-        }
-        .mode-badge {
-          font-size: 0.65rem;
-          font-weight: 600;
-          color: var(--text-muted);
-          background: var(--bg-main);
-          padding: 0.12rem 0.45rem;
-          border-radius: 3px;
-          border: 1px solid var(--border-subtle);
-        }
-        .mode-select-card.active .mode-badge {
-          background: rgba(255, 82, 37, 0.12);
-          color: var(--accent-orange-text);
-          border-color: rgba(255, 82, 37, 0.35);
-        }
-        .mode-card-info {
-          display: flex;
-          flex-direction: column;
-          gap: 0.2rem;
-        }
-        .mode-title {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: var(--text-main);
-        }
-        .mode-desc {
+          width: 26px;
+          height: 26px;
+          border-radius: 7px;
+          background: #000066;
+          color: #ffffff;
           font-size: 0.75rem;
-          color: var(--text-secondary);
-          line-height: 1.35;
+          font-weight: 800;
+          flex-shrink: 0;
+        }
+
+        .selector-heading {
+          font-size: 0.9rem;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: -0.01em;
+          text-transform: uppercase;
+          margin: 0;
+        }
+
+        .selector-subheading {
+          font-size: 0.775rem;
+          color: #64748b;
+          margin: 0;
+        }
+
+        .pipeline-route-tag {
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #94a3b8;
+          letter-spacing: 0.05em;
         }
       `}</style>
     </div>
