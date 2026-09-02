@@ -6,7 +6,12 @@ import { sendSuccess } from '../utils/response.js';
  */
 export const createAnalysis = async (req, res, next) => {
   try {
-    const analysisResult = await processAnalysisRequest(req.body, req.requestId);
+    const payload = {
+      isMock: false,
+      modelProvider: req.body?.modelSelection?.provider || 'python_ml',
+      ...(req.body || {})
+    };
+    const analysisResult = await processAnalysisRequest(payload, req.requestId);
     const status = analysisResult?.compatibility?.status || 'READY';
     
     let message = 'Analysis completed';

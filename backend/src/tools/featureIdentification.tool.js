@@ -89,6 +89,48 @@ Do not output <think> or internal reasoning blocks.`;
       });
 
       const extracted = extractGroundingFromText(vlmResponse.answerText);
+
+      // Support explicit provider grounding boxes (e.g. Python ML Engine)
+      const rawBoxes = vlmResponse.groundingBoxes || vlmResponse.boundingBoxes || vlmResponse.bounding_boxes || vlmResponse.regions || vlmResponse.evidence;
+      if (rawBoxes && Array.isArray(rawBoxes) && rawBoxes.length > 0) {
+        const mapped = rawBoxes.map(b => {
+          if (b.box && Array.isArray(b.box) && b.box.length >= 4) {
+            const [ymin, xmin, ymax, xmax] = b.box;
+            return {
+              label: b.label || query,
+              x: xmin,
+              y: ymin,
+              width: Math.max(0.02, xmax - xmin),
+              height: Math.max(0.02, ymax - ymin),
+              confidence: b.confidence || 0.88
+            };
+          } else if (b.x !== undefined && b.y !== undefined && b.width !== undefined && b.height !== undefined) {
+            return {
+              label: b.label || query,
+              x: b.x,
+              y: b.y,
+              width: Math.max(0.02, b.width),
+              height: Math.max(0.02, b.height),
+              confidence: b.confidence || 0.88
+            };
+          } else if (b.ymin !== undefined && b.xmin !== undefined) {
+            return {
+              label: b.label || query,
+              x: b.xmin,
+              y: b.ymin,
+              width: Math.max(0.02, (b.xmax || b.xmin + 0.2) - b.xmin),
+              height: Math.max(0.02, (b.ymax || b.ymin + 0.2) - b.ymin),
+              confidence: b.confidence || 0.88
+            };
+          }
+          return null;
+        }).filter(Boolean);
+
+        if (mapped.length > 0) {
+          extracted.regions = validateGroundingRegions(mapped);
+        }
+      }
+
       const textToNormalize = extracted.cleanText || vlmResponse.answerText;
       let normalized = normalizeVLMResponse(textToNormalize, this.task);
       const combinedWarnings = [
