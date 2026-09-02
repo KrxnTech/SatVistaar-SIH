@@ -50,7 +50,7 @@ export function AnalysisResult({
           }
           .loading-title {
             font-size: 1.15rem;
-            color: #ffffff;
+            color: var(--text-main);
           }
           .loading-desc {
             font-size: 0.85rem;
@@ -60,7 +60,7 @@ export function AnalysisResult({
           }
           .loading-task-tag {
             font-size: 0.75rem;
-            background: #0d0e15;
+            background: var(--bg-main);
             border: 1px solid var(--border-subtle);
             padding: 0.25rem 0.65rem;
             border-radius: 4px;
@@ -123,7 +123,7 @@ export function AnalysisResult({
             gap: 0.2rem;
             font-size: 0.775rem;
             color: var(--text-muted);
-            background: #0d0e15;
+            background: var(--bg-main);
             border: 1px solid var(--border-subtle);
             padding: 0.6rem 0.85rem;
             border-radius: var(--radius-sm);
@@ -177,7 +177,7 @@ export function AnalysisResult({
             width: 56px;
             height: 56px;
             border-radius: var(--radius-sm);
-            background: #141722;
+            background: var(--bg-card);
             border: 1px solid var(--border-medium);
             color: var(--accent-orange);
             display: flex;
@@ -186,7 +186,7 @@ export function AnalysisResult({
           }
           .empty-heading {
             font-size: 1.2rem;
-            color: #ffffff;
+            color: var(--text-main);
           }
           .empty-desc {
             font-size: 0.85rem;
@@ -286,7 +286,7 @@ export function AnalysisResult({
 
       <style>{`
         .gov-result-card {
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
           box-shadow: var(--shadow-card);
@@ -310,15 +310,15 @@ export function AnalysisResult({
         .result-badge {
           font-size: 0.75rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: 0.05em;
         }
         .task-badge {
           font-size: 0.675rem;
           font-weight: 700;
           color: var(--accent-orange-text);
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.35);
+          background: rgba(255, 82, 37, 0.12);
+          border: 1px solid rgba(255, 82, 37, 0.35);
           padding: 0.1rem 0.45rem;
           border-radius: 4px;
         }
@@ -337,7 +337,7 @@ export function AnalysisResult({
           background: var(--status-green);
         }
         .answer-card {
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-left: 3px solid var(--accent-orange);
           border-radius: var(--radius-sm);
@@ -345,7 +345,7 @@ export function AnalysisResult({
         }
         .answer-text-body {
           font-size: 0.925rem;
-          color: #f8fafc;
+          color: var(--text-main);
           line-height: 1.65;
           word-break: break-word;
         }
@@ -391,8 +391,8 @@ export function AnalysisResult({
         }
         .answer-summary-box {
           margin-top: 0.85rem;
-          background: rgba(16, 185, 129, 0.08);
-          border: 1px solid rgba(16, 185, 129, 0.3);
+          background: rgba(34, 197, 94, 0.08);
+          border: 1px solid rgba(34, 197, 94, 0.3);
           border-radius: var(--radius-sm);
           padding: 0.65rem 0.85rem;
           display: flex;
@@ -401,23 +401,23 @@ export function AnalysisResult({
           line-height: 1.55;
         }
         .summary-badge {
-          background: rgba(16, 185, 129, 0.2);
+          background: rgba(34, 197, 94, 0.2);
           color: var(--status-green-text);
           font-size: 0.675rem;
           font-weight: 800;
           text-transform: uppercase;
           padding: 0.12rem 0.4rem;
           border-radius: 3px;
-          border: 1px solid rgba(16, 185, 129, 0.4);
+          border: 1px solid rgba(34, 197, 94, 0.4);
           flex-shrink: 0;
           margin-top: 0.15rem;
         }
         .summary-text {
           flex: 1;
-          color: #a7f3d0;
+          color: var(--success);
         }
         .hl-bold {
-          color: #ffffff;
+          color: var(--text-main);
           font-weight: 700;
         }
         .hl-tag {
@@ -434,16 +434,16 @@ export function AnalysisResult({
         }
         .hl-img-b {
           color: var(--status-green-text);
-          background: rgba(16, 185, 129, 0.15);
-          border: 1px solid rgba(16, 185, 129, 0.35);
+          background: rgba(34, 197, 94, 0.15);
+          border: 1px solid rgba(34, 197, 94, 0.35);
           padding: 0.05rem 0.35rem;
           border-radius: 3px;
         }
         .hl-date {
-          color: #cbd5e1;
+          color: var(--light-gray);
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.85em;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           padding: 0.05rem 0.3rem;
           border-radius: 3px;
@@ -454,24 +454,24 @@ export function AnalysisResult({
           border-radius: 3px;
         }
         .hl-loss {
-          color: #fca5a5;
+          color: var(--error);
           background: rgba(239, 68, 68, 0.2);
-          border-bottom: 2px solid #ef4444;
+          border-bottom: 2px solid var(--error);
         }
         .hl-gain {
-          color: #86efac;
-          background: rgba(16, 185, 129, 0.2);
-          border-bottom: 2px solid #22c55e;
+          color: var(--success);
+          background: rgba(34, 197, 94, 0.2);
+          border-bottom: 2px solid var(--success);
         }
         .hl-feature {
-          color: #fde047;
+          color: var(--warning);
           background: rgba(234, 179, 8, 0.2);
-          border-bottom: 1px dashed #eab308;
+          border-bottom: 1px dashed var(--warning);
         }
         .hl-stable {
-          color: #93c5fd;
+          color: var(--info);
           background: rgba(59, 130, 246, 0.2);
-          border-bottom: 1px dotted #3b82f6;
+          border-bottom: 1px dotted var(--info);
         }
         .ref-image-section {
           margin-top: 1rem;
@@ -489,7 +489,7 @@ export function AnalysisResult({
           display: flex;
           align-items: center;
           gap: 0.65rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           padding: 0.4rem 0.65rem;
           border-radius: var(--radius-sm);
           border: 1px solid var(--border-subtle);
@@ -509,7 +509,7 @@ export function AnalysisResult({
         .ref-img-name {
           font-size: 0.775rem;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .ref-img-id {
           font-size: 0.65rem;

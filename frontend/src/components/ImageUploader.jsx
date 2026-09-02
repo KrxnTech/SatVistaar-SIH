@@ -188,7 +188,7 @@ export function ImageUploader({
         .uploader-title {
           font-size: 0.825rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
@@ -198,7 +198,7 @@ export function ImageUploader({
         }
         .bitemporal-banner {
           padding: 0.85rem;
-          background: #10121a;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           display: flex;
           flex-direction: column;
@@ -221,23 +221,23 @@ export function ImageUploader({
         .banner-title {
           font-size: 0.8rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .delta-badge {
           font-size: 0.7rem;
           font-weight: 700;
-          background: rgba(249, 115, 22, 0.12);
+          background: rgba(255, 82, 37, 0.12);
           color: var(--accent-orange-text);
           padding: 0.1rem 0.45rem;
           border-radius: 4px;
-          border: 1px solid rgba(249, 115, 22, 0.35);
+          border: 1px solid rgba(255, 82, 37, 0.35);
         }
         .randomize-dates-btn {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
           padding: 0.2rem 0.55rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           font-size: 0.7rem;
@@ -260,7 +260,7 @@ export function ImageUploader({
           .timeline-arrow-sep { display: none; }
         }
         .timeline-date-box {
-          background: #0a0c12;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 0.45rem 0.65rem;
@@ -294,8 +294,8 @@ export function ImageUploader({
           border-radius: 4px;
           padding: 0.25rem 0.45rem;
           font-size: 0.75rem;
-          color: #ffffff;
-          background: #141722;
+          color: var(--text-main);
+          background: var(--bg-card);
           outline: none;
         }
         .gov-dark-date-input:focus {
@@ -511,7 +511,7 @@ function UploadSlot({
 
       <style>{`
         .gov-upload-slot {
-          background: #141722;
+          background: var(--bg-card);
           border: 1px dashed var(--border-medium);
           border-radius: var(--radius-sm);
           padding: 0.75rem;
@@ -524,7 +524,7 @@ function UploadSlot({
         }
         .gov-upload-slot:hover {
           border-color: var(--accent-blue);
-          background: #181c28;
+          background: var(--light-gray);
         }
         .gov-upload-slot.has-file {
           border-style: solid;
@@ -533,7 +533,7 @@ function UploadSlot({
         }
         .gov-upload-slot.dragging {
           border-color: var(--accent-orange);
-          background: rgba(249, 115, 22, 0.08);
+          background: rgba(255, 82, 37, 0.08);
         }
         .slot-header-bar {
           display: flex;
@@ -549,10 +549,10 @@ function UploadSlot({
           font-size: 0.65rem;
           font-weight: 700;
           padding: 0.1rem 0.45rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: 3px;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .slot-role-text {
           font-size: 0.7rem;
@@ -597,7 +597,7 @@ function UploadSlot({
           height: 60px;
           border-radius: 4px;
           overflow: hidden;
-          background: #08090d;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           flex-shrink: 0;
         }
@@ -615,8 +615,8 @@ function UploadSlot({
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: rgba(8, 9, 13, 0.85);
-          color: #f87171;
+          background: rgba(255, 255, 255, 0.85);
+          color: var(--error);
           border: 1px solid rgba(239, 68, 68, 0.4);
           display: flex;
           align-items: center;
@@ -625,7 +625,7 @@ function UploadSlot({
         }
         .slot-remove-btn:hover {
           background: var(--status-red);
-          color: #ffffff;
+          color: var(--text-main);
         }
         .preview-details {
           display: flex;
@@ -637,7 +637,7 @@ function UploadSlot({
         .preview-filename {
           font-size: 0.8rem;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-main);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -656,7 +656,7 @@ function UploadSlot({
           font-weight: 700;
         }
         .status-tag.ok { color: var(--status-green-text); }
-        .status-tag.warn { color: #fbbf24; }
+        .status-tag.warn { color: var(--warning); }
         .preview-id-tag {
           font-size: 0.625rem;
           color: var(--text-dim);

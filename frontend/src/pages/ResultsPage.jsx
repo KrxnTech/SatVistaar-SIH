@@ -275,13 +275,13 @@ export function ResultsPage({ backendHealth }) {
           align-items: center;
           text-align: center;
           gap: 1.25rem;
-          background: rgba(14, 14, 22, 0.95);
+          background: rgba(255, 255, 255, 0.95);
         }
         .empty-icon-box {
           width: 68px;
           height: 68px;
           border-radius: var(--radius-sm);
-          background: rgba(0, 212, 255, 0.1);
+          background: rgba(59, 130, 246, 0.1);
           border: 1px solid var(--tertiary);
           display: flex;
           align-items: center;
@@ -294,7 +294,7 @@ export function ResultsPage({ backendHealth }) {
         .empty-heading {
           font-size: 1.85rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
         }
         .empty-description {
@@ -325,7 +325,7 @@ export function ResultsPage({ backendHealth }) {
           display: flex;
           align-items: flex-start;
           gap: 0.65rem;
-          background: rgba(10, 10, 15, 0.6);
+          background: rgba(255, 255, 255, 0.6);
           padding: 0.85rem;
           border-radius: var(--radius-sm);
           border: 1px solid var(--border-subtle);
@@ -340,7 +340,7 @@ export function ResultsPage({ backendHealth }) {
         .empty-cap-tile strong {
           display: block;
           font-size: 0.775rem;
-          color: #ffffff;
+          color: var(--text-main);
           margin-bottom: 0.2rem;
         }
         .empty-cap-tile p {

@@ -86,7 +86,7 @@ export function QueryInput({ selectedMode, query, setQuery }) {
         .query-label {
           font-size: 0.825rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
@@ -103,12 +103,12 @@ export function QueryInput({ selectedMode, query, setQuery }) {
         }
         .gov-dark-textarea {
           width: 100%;
-          background: #0a0c12;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           border-radius: var(--radius-sm);
           padding: 0.75rem;
           font-size: 0.875rem;
-          color: #ffffff;
+          color: var(--text-main);
           resize: vertical;
           min-height: 72px;
           max-height: 160px;
@@ -117,7 +117,7 @@ export function QueryInput({ selectedMode, query, setQuery }) {
         }
         .gov-dark-textarea:focus {
           border-color: var(--accent-orange);
-          box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+          box-shadow: 0 0 0 2px rgba(255, 82, 37, 0.25);
         }
         .query-presets-wrapper {
           display: flex;
@@ -143,7 +143,7 @@ export function QueryInput({ selectedMode, query, setQuery }) {
         .preset-chip-btn {
           font-size: 0.725rem;
           padding: 0.25rem 0.55rem;
-          background: #10121a;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           color: var(--text-secondary);
@@ -152,13 +152,13 @@ export function QueryInput({ selectedMode, query, setQuery }) {
           transition: all 0.15s ease;
         }
         .preset-chip-btn:hover {
-          background: #181c28;
-          color: #ffffff;
+          background: var(--light-gray);
+          color: var(--text-main);
           border-color: var(--border-medium);
         }
         .preset-chip-btn.active {
-          background: rgba(249, 115, 22, 0.12);
-          border-color: rgba(249, 115, 22, 0.4);
+          background: rgba(255, 82, 37, 0.12);
+          border-color: rgba(255, 82, 37, 0.4);
           color: var(--accent-orange-text);
           font-weight: 600;
         }

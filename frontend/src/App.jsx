@@ -102,7 +102,7 @@ function AppContent() {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #08090d;
+          background: var(--bg-main);
           position: relative;
         }
         .gov-app-main {

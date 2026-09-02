@@ -255,10 +255,10 @@ export function AnalysisPage({ backendHealth }) {
           flex-direction: column;
           gap: 1.5rem;
           padding-bottom: 3.5rem;
-          background: #08090d;
+          background: var(--bg-main);
         }
         .dashboard-header-bar {
-          background: #0c0e14;
+          background: var(--bg-card);
           border-bottom: 1px solid var(--border-subtle);
           padding: 1.5rem 0;
         }
@@ -272,7 +272,7 @@ export function AnalysisPage({ backendHealth }) {
         .dashboard-page-title {
           font-size: 1.65rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
         }
         .dashboard-page-subtitle {
@@ -295,14 +295,14 @@ export function AnalysisPage({ backendHealth }) {
           font-weight: 700;
         }
         .engine-badge.live {
-          background: rgba(16, 185, 129, 0.1);
-          border: 1px solid rgba(16, 185, 129, 0.35);
+          background: rgba(34, 197, 94, 0.1);
+          border: 1px solid rgba(34, 197, 94, 0.35);
           color: var(--status-green-text);
         }
         .engine-badge.standby {
           background: rgba(245, 158, 11, 0.1);
           border: 1px solid rgba(245, 158, 11, 0.35);
-          color: #fbbf24;
+          color: var(--warning);
         }
         .engine-badge .dot {
           width: 6px;
@@ -315,7 +315,7 @@ export function AnalysisPage({ backendHealth }) {
           align-items: center;
           gap: 0.35rem;
           padding: 0.35rem 0.75rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           font-size: 0.75rem;
@@ -324,8 +324,8 @@ export function AnalysisPage({ backendHealth }) {
           min-height: 36px;
         }
         .reset-btn:hover {
-          background: #181c28;
-          color: #ffffff;
+          background: var(--light-gray);
+          color: var(--text-main);
           border-color: var(--border-medium);
         }
 
@@ -396,7 +396,7 @@ export function AnalysisPage({ backendHealth }) {
         }
         .dash-panel {
           padding: 1.15rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
         }
         .action-panel {
@@ -428,7 +428,7 @@ export function AnalysisPage({ backendHealth }) {
         .panel-heading {
           font-size: 0.775rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: 0.05em;
         }
         .engine-details-list {
@@ -447,7 +447,7 @@ export function AnalysisPage({ backendHealth }) {
           color: var(--text-dim);
         }
         .e-val {
-          color: #ffffff;
+          color: var(--text-main);
           font-weight: 600;
         }
         .e-val.t-blue {
@@ -486,7 +486,7 @@ export function AnalysisPage({ backendHealth }) {
           width: 7px;
           height: 7px;
           border-radius: 50%;
-          background: #2a3044;
+          background: var(--border-medium);
         }
         .flow-step.completed {
           color: var(--text-secondary);

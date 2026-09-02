@@ -44,7 +44,7 @@ export function ProtectedRoute({ children, fallback = null }) {
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            background: rgba(13, 27, 62, 0.6);
+            background: rgba(0, 0, 102, 0.6);
             border: 1px solid var(--accent-cyan);
             margin-bottom: 1.5rem;
           }
@@ -67,7 +67,7 @@ export function ProtectedRoute({ children, fallback = null }) {
           .guard-card h3 {
             font-size: 1.15rem;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-main);
             margin-bottom: 0.5rem;
           }
           .guard-desc {

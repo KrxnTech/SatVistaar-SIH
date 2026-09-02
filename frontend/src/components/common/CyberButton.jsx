@@ -70,53 +70,53 @@ export function CyberButton({
           min-height: 50px;
         }
 
-        /* Primary (Neon Green) */
+        /* Primary */
         .btn-primary {
-          background: #00ff88;
-          color: #070a0f;
-          box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+          background: var(--navy-blue);
+          color: var(--white);
+          box-shadow: var(--shadow-blue-glow);
         }
         .btn-primary:hover:not(:disabled) {
-          background: #33ff9f;
-          box-shadow: 0 0 25px rgba(0, 255, 136, 0.55);
+          background: #000052;
+          box-shadow: 0 0 18px rgba(0, 0, 102, 0.35);
           transform: translateY(-1px);
         }
 
-        /* Secondary (Neon Magenta) */
+        /* Secondary */
         .btn-secondary {
-          background: #ff00ff;
-          color: #ffffff;
-          box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+          background: var(--flame-orange);
+          color: var(--white);
+          box-shadow: var(--shadow-orange-glow);
         }
         .btn-secondary:hover:not(:disabled) {
-          background: #ff33ff;
-          box-shadow: 0 0 25px rgba(255, 0, 255, 0.55);
+          background: var(--accent-orange-hover);
+          box-shadow: 0 0 18px rgba(255, 82, 37, 0.42);
           transform: translateY(-1px);
         }
 
-        /* Tertiary (Neon Cyan) */
+        /* Tertiary */
         .btn-tertiary {
-          background: #00d4ff;
-          color: #070a0f;
-          box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+          background: var(--info);
+          color: var(--white);
+          box-shadow: var(--shadow-blue-glow);
         }
         .btn-tertiary:hover:not(:disabled) {
-          background: #33ddff;
-          box-shadow: 0 0 25px rgba(0, 212, 255, 0.55);
+          background: var(--accent-blue-hover);
+          box-shadow: 0 0 18px rgba(59, 130, 246, 0.42);
           transform: translateY(-1px);
         }
 
         /* Outline */
         .btn-outline {
-          background: rgba(18, 18, 26, 0.6);
+          background: rgba(255, 255, 255, 0.6);
           border: 1px solid var(--border-medium);
           color: var(--text-main);
         }
         .btn-outline:hover:not(:disabled) {
-          border-color: var(--tertiary);
-          color: var(--tertiary);
-          box-shadow: 0 0 15px var(--tertiary-glow);
-          background: rgba(0, 212, 255, 0.08);
+          border-color: var(--flame-orange);
+          color: var(--flame-orange);
+          box-shadow: var(--shadow-orange-glow);
+          background: var(--accent-orange-subtle);
           transform: translateY(-1px);
         }
 
@@ -126,21 +126,21 @@ export function CyberButton({
           color: var(--text-muted);
         }
         .btn-ghost:hover:not(:disabled) {
-          color: var(--text-bright);
+          color: var(--text-main);
           background: var(--bg-muted);
         }
 
         /* Danger */
         .btn-danger {
-          background: rgba(255, 51, 102, 0.15);
-          border: 1px solid rgba(255, 51, 102, 0.4);
-          color: #ff6688;
+          background: var(--status-red-subtle);
+          border: 1px solid var(--status-red-border);
+          color: var(--error);
         }
         .btn-danger:hover:not(:disabled) {
-          background: rgba(255, 51, 102, 0.3);
-          border-color: #ff3366;
-          color: #ffffff;
-          box-shadow: 0 0 15px rgba(255, 51, 102, 0.35);
+          background: rgba(239, 68, 68, 0.24);
+          border-color: var(--error);
+          color: var(--white);
+          box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
         }
 
         .cyber-btn:disabled {

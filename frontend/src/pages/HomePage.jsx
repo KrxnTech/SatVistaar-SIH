@@ -1,27 +1,144 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Satellite,
   ArrowRight,
   Play,
+  Satellite,
+  Cpu,
+  Layers,
+  Sparkles,
+  Activity,
+  Zap,
+  ShieldCheck,
+  Scan,
 } from 'lucide-react';
 import { useRouter } from '../context/RouterContext.jsx';
 import { useAnalysis } from '../context/AnalysisContext.jsx';
+import BadgeTag from '../components/ui/badge-tag';
+import ScrollRevealContentA from '../components/ui/scroll-reveal-content-a';
+import { Feature72 } from '../components/ui/feature-72';
+import { FAQSection } from '../components/ui/faq-section-shadcnui';
 import { ANALYSIS_MODES } from '../components/ModeSelector.jsx';
-import { InteractiveHeroGrid } from '../components/InteractiveHeroGrid.jsx';
 
-const PIPELINE_STEPS = [
-  { n: '01', t: 'Upload Satellite Imagery', d: 'Upload 1 or 2 satellite images (GeoTIFF, TIFF, PNG, JPEG up to 50MB). Python/Rasterio extracts spatial CRS, dimensions, and band channels.' },
-  { n: '02', t: 'Enter Analysis Query', d: 'Submit an open-ended natural-language prompt or select from task-specific presets (e.g. "What is visible?", "What changed?").' },
-  { n: '03', t: 'Backend Intent Classifier', d: 'The agentic classifier inspects prompt tokens and image counts to categorize the task and verify compatibility before invoking models.' },
-  { n: '04', t: 'Model Routing & Fallback', d: 'The request is routed to Groq Cloud VLM (Qwen3.8-27B Vision), with automatic graceful fallback to local Ollama on timeout or error.' },
-  { n: '05', t: 'Multimodal VLM Inference', d: 'The Vision-Language model performs deep spatial reasoning over visible land cover, infrastructure, vegetation, and spectral boundaries.' },
-  { n: '06', t: 'Structured Results Returned', d: 'Outputs are normalized into standardized JSON contracts with bounding region overlays, execution traces, and telemetry.' },
+const SYSTEM_STAGES = [
+  {
+    id: 'ingest',
+    num: '01',
+    title: 'Multi-Sensor Satellite Ingestion',
+    badge: 'STAGE 01 // INGESTION',
+    icon: Satellite,
+    description: 'Sub-meter GeoTIFF, Sentinel-2 & Landsat-8 raster ingestion with automated CRS reprojection, spatial bounds calculation, and band normalization.',
+    techKey: 'Band Normalization',
+    techVal: 'Python Rasterio · GDAL Pipeline',
+    detail: 'Supports single & multi-temporal satellite rasters up to 50MB with instant geographic coordinate registration.',
+    image: {
+      url: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80',
+      width: 1200,
+      height: 800,
+      alt: 'Orbital Multi-Sensor Satellite Earth Ingestion',
+    },
+  },
+  {
+    id: 'classifier',
+    num: '02',
+    title: 'Deterministic Intent Classifier',
+    badge: 'STAGE 02 // AGENTIC ROUTER',
+    icon: Layers,
+    description: 'Autonomous natural-language parser analyzes prompt semantics, verifies image count modal constraints, and formulates the multi-step execution plan.',
+    techKey: 'Rule Engine',
+    techVal: 'Intent Classifier · Guardrails',
+    detail: 'Enforces strict modal integrity before triggering inference to ensure 100% execution compatibility.',
+    image: {
+      url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+      width: 1200,
+      height: 800,
+      alt: 'Geospatial Grid and Planetary AI Layering',
+    },
+  },
+  {
+    id: 'routing',
+    num: '03',
+    title: 'Hybrid Cloud & Local VLM Routing',
+    badge: 'STAGE 03 // VLM REASONING',
+    icon: Cpu,
+    description: 'Dispatches high-throughput multimodal spatial inference to Groq Cloud (Qwen3.8-27B Vision) with automatic seamless failover to local Ollama.',
+    techKey: 'Primary Engine',
+    techVal: 'Groq Qwen3.8-27B · Ollama Failover',
+    detail: 'Sub-2-second visual reasoning with continuous latency telemetry and transparent provider failover.',
+    image: {
+      url: 'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1200&q=80',
+      width: 1200,
+      height: 800,
+      alt: 'High-Altitude Remote Sensing and Multimodal Inference',
+    },
+  },
+  {
+    id: 'grounding',
+    num: '04',
+    title: 'Visual Grounding & Spatial Telemetry',
+    badge: 'STAGE 04 // SYNTHESIS',
+    icon: Activity,
+    description: 'Generates bounding box spatial quadrants, temporal difference overlays, and structured JSON contracts with cryptographic UUID tracing.',
+    techKey: 'Telemetry Format',
+    techVal: 'Standard JSON · Bounding Overlays',
+    detail: 'Standardized output schema with normalized confidence metrics, execution traces, and visual grounding maps.',
+    image: {
+      url: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1200&q=80',
+      width: 1200,
+      height: 800,
+      alt: 'Visual Grounding Coordinate Predictions and Surface Terrain',
+    },
+  },
+];
+
+const ANALYSIS_FEATURES = [
+  {
+    id: 'QA',
+    title: 'Visual Question Answering (VQA)',
+    badge: '1 IMAGE // INQUIRY',
+    description: 'Ask arbitrary natural language questions about visible objects, runway status, naval vessels, water bodies, or terrain features with sub-second VLM inference.',
+    image: 'https://images.unsplash.com/photo-1508873696983-2df5293cb395?auto=format&fit=crop&w=1000&q=80',
+    query: 'What is visible in this satellite image?',
+  },
+  {
+    id: 'CAPTION',
+    title: 'Comprehensive Scene Captioning',
+    badge: '1 IMAGE // DESCRIPTION',
+    description: 'Generates structured multi-sentence scene descriptions classifying land use, urban density, vegetation coverage, and marine activities.',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=80',
+    query: 'Describe all terrain, infrastructure, and visible objects in this satellite scene.',
+  },
+  {
+    id: 'GROUNDING',
+    title: 'Visual Grounding & Localization',
+    badge: '1 IMAGE + OVERLAY // SPATIAL',
+    description: 'Detects and localizes specific targets such as aircraft, storage tanks, and bridges with bounding coordinates, quadrant attention maps, and structured JSON.',
+    image: 'https://images.unsplash.com/photo-1528728329032-2972f65dfb3f?auto=format&fit=crop&w=1000&q=80',
+    query: 'Locate and mark all runways and hangars in this airfield image.',
+  },
+  {
+    id: 'CHANGE',
+    title: 'Bi-Temporal Change Detection',
+    badge: '2 IMAGES (PAIR) // DIFFERENCE',
+    description: 'Compares co-registered multi-temporal satellite scenes (baseline vs comparison) to detect deforestation, flood extent, urban expansion, or disaster damage.',
+    image: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000&q=80',
+    query: 'What changed between these two satellite scenes?',
+  },
 ];
 
 export function HomePage({ backendHealth }) {
   const { navigateTo } = useRouter();
   const { selectMissionAndPrompt } = useAnalysis();
   const [activeMode, setActiveMode] = useState(0);
+  const [activePipelineStep, setActivePipelineStep] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const isHealthy = backendHealth?.ok && (backendHealth.status === 'healthy' || backendHealth.status === 'ok');
   const mode = ANALYSIS_MODES[activeMode];
@@ -35,8 +152,8 @@ export function HomePage({ backendHealth }) {
   return (
     <div className="gov-home-root">
       {/* 1. IMMERSIVE HERO — full-bleed image, left-aligned text overlay, ticker footer */}
-      <section className="hero-immersive">
-        <div className="hero-bg">
+      <section className="reference-hero">
+        <div className="hero-video-layer" aria-hidden="true">
           <video
             autoPlay
             loop
@@ -48,190 +165,132 @@ export function HomePage({ backendHealth }) {
           >
             <source src="/hero-satellite-loop.mp4" type="video/mp4" />
           </video>
-          <div className="hero-bg-gradient" />
-          <InteractiveHeroGrid />
         </div>
+        <div className="hero-media-overlay" aria-hidden="true" />
+        <div className="hero-grid-lines" aria-hidden="true" />
 
-        <div className="container hero-immersive-inner">
-          <div className="hero-badge-row">
-            <span className={`status-pill ${isHealthy ? 'healthy' : 'checking'}`}>
-              <span className="status-dot" />
-              <span className="font-mono">{isHealthy ? 'VLM GATEWAY ACTIVE' : 'API CONNECTING'}</span>
-            </span>
+        <div className="container reference-hero-inner">
+          <div className="hero-kicker">
+            <span>REMOTE SENSING</span>
+            <span>VISION INTELLIGENCE</span>
           </div>
 
-          <h1 className="hero-title">
-            Satellite <span className="hero-highlight-orange">Vision &amp; Language</span> Analysis
-          </h1>
+          <div className="hero-main-copy">
+            <div className="hero-badge-wrapper" style={{ marginBottom: '1.25rem' }}>
+              <BadgeTag
+                version="Beta Version (MVP)"
+                text={isHealthy ? 'VLM Gateway Active' : 'API Connecting...'}
+                isHealthy={isHealthy}
+              />
+            </div>
 
-          <p className="hero-subtitle font-mono">
-            Analyze optical and multispectral remote-sensing imagery using conversational queries and AI-powered Vision-Language Models - Automate geospatial intent classification and spatial evidence extraction 🛰️
-          </p>
+            <h1 className="hero-title">
+              SATELLITE INTELLIGENCE THAT MOVES WITH PRECISION.
+            </h1>
 
-          <div className="hero-cta-row">
-            <button type="button" className="hero-primary-orange-btn" onClick={() => navigateTo('/analysis')}>
-              <Play size={16} fill="currentColor" />
+            <button type="button" className="hero-consultation-btn" onClick={() => navigateTo('/analysis')}>
               <span>Start Analysis</span>
-            </button>
-            <button type="button" className="hero-secondary-blue-btn" onClick={() => navigateTo('/about')}>
-              <span>Learn More</span>
-              <ArrowRight size={16} />
+              <span className="hero-consultation-icon">
+                <ArrowRight size={26} />
+              </span>
             </button>
           </div>
-        </div>
 
-        {/* Ticker stat strip along the hero's bottom edge */}
-        <div className="hero-ticker font-mono">
-          <div className="ticker-item">
-            <span className="ticker-value orange">4</span>
-            <span className="ticker-label">Analysis Tasks</span>
-          </div>
-          <div className="ticker-item">
-            <span className="ticker-value blue">50 MB</span>
-            <span className="ticker-label">GeoTIFF / PNG Limit</span>
-          </div>
-          <div className="ticker-item">
-            <span className="ticker-value green">&lt; 2.0s</span>
-            <span className="ticker-label">Average Latency</span>
-          </div>
-          <div className="ticker-item">
-            <span className="ticker-value orange">27B</span>
-            <span className="ticker-label">VLM Backbone</span>
+          <div className="hero-bottom-copy">
+            <button type="button" className="hero-scroll-cue" onClick={() => document.querySelector('.how-it-works-editorial-section')?.scrollIntoView({ behavior: 'smooth' })} aria-label="Scroll to workflow">
+              <ArrowRight size={28} />
+            </button>
+            <p>
+              We turn satellite imagery into structured answers, visual grounding and change insights for faster geospatial decisions.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 2. PIPELINE RUNNER — continuous running stream animation */}
-      <section className="pipeline-runner-section">
+      {/* 2. HOW THE SYSTEM WORKS — EDITORIAL INTRO & PARALLAX PIPELINE ARCHITECTURE */}
+      <section className="how-it-works-editorial-section" id="how-the-system-works">
+        {/* Editorial Headline Block (matches Framer reference layout) */}
         <div className="container">
-          <div className="pipeline-header-row">
-            <div className="section-heading-block left-aligned">
-              <span className="section-category font-mono">PIPELINE ARCHITECTURE</span>
-              <h2 className="section-heading">How the System Works</h2>
-              <p className="section-lead">
-                A 6-step deterministic pipeline that takes raw satellite imagery and natural language instructions, executing automated multimodal intelligence.
+          <div className="editorial-intro-grid">
+            <div className="editorial-left-col">
+              <div className="editorial-kicker">
+                <span className="kicker-green-square" />
+                <span className="kicker-text font-mono">INTRODUCTION</span>
+              </div>
+              <div className="editorial-meta font-mono">
+                <span className="meta-tag">SYS_WORKFLOW // V1.0</span>
+                <span className="meta-sub">AUTONOMOUS VLM ENGINE</span>
+              </div>
+            </div>
+
+            <div className="editorial-right-col">
+              <h2 className="editorial-statement">
+                SatVistaar redefines the geospatial journey with a smarter, faster, and reliable approach to remote sensing intelligence. Combine multimodal Vision-Language models with optimized preprocessing to ensure real-time spatial visibility.
+              </h2>
+              <p className="editorial-subtext">
+                From high-resolution single-scene feature identification to bi-temporal change detection and disaster damage assessment, SatVistaar translates raw multispectral pixels into deterministic geospatial intelligence in under 2 seconds.
               </p>
             </div>
-            <div className="running-status-tag font-mono">
+          </div>
+        </div>
+
+        {/* Pipeline Section Header — constrained width */}
+        <div className="container" style={{ marginTop: '2.5rem', marginBottom: '0' }}>
+          <div className="pipeline-section-header" style={{ marginBottom: '2rem' }}>
+            <div className="pipeline-header-badge font-mono">
               <span className="pulse-dot" />
-              <span>LIVE PIPELINE STREAM // 6 CONCURRENT STAGES</span>
+              <span>LIVE PIPELINE STREAM // 4 CONCURRENT CORE STAGES</span>
             </div>
+            <h3 className="pipeline-subheading">End-to-End System Workflow</h3>
           </div>
         </div>
 
-        {/* Continuous Animated Running Track */}
-        <div className="pipeline-marquee-container">
-          <div className="pipeline-laser-beam" />
-          <div className="pipeline-marquee-track">
-            {/* First Set of 6 Steps */}
-            {PIPELINE_STEPS.map((step, idx) => (
-              <div key={`orig-${step.n}`} className="runner-step-card gov-card">
-                <div className="runner-card-top">
-                  <span className="runner-step-num font-mono">{step.n}</span>
-                  <span className="runner-stage-tag font-mono">STAGE {idx + 1}</span>
-                </div>
-                <h3 className="runner-step-title">{step.t}</h3>
-                <p className="runner-step-desc">{step.d}</p>
-                <div className="runner-card-glow" />
-              </div>
-            ))}
-
-            {/* Cloned Set of 6 Steps for Seamless Loop */}
-            {PIPELINE_STEPS.map((step, idx) => (
-              <div key={`clone-${step.n}`} className="runner-step-card gov-card" aria-hidden="true">
-                <div className="runner-card-top">
-                  <span className="runner-step-num font-mono">{step.n}</span>
-                  <span className="runner-stage-tag font-mono">STAGE {idx + 1}</span>
-                </div>
-                <h3 className="runner-step-title">{step.t}</h3>
-                <p className="runner-step-desc">{step.d}</p>
-                <div className="runner-card-glow" />
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Sticky Scroll Reveal — full-width, seamless transition into Section 3 */}
+        <ScrollRevealContentA
+          contentA={SYSTEM_STAGES[0]}
+          contentB={SYSTEM_STAGES[1]}
+          contentC={SYSTEM_STAGES[2]}
+          contentD={SYSTEM_STAGES[3]}
+        />
       </section>
 
-      {/* 3. MISSION CONSOLE — interactive tab list + detail panel */}
-      <section className="mission-console-section">
-        <div className="container">
-          <div className="section-heading-block left-aligned">
-            <span className="section-category font-mono">CORE CAPABILITIES</span>
-            <h2 className="section-heading">Supported Analysis Tasks</h2>
-            <p className="section-lead">
-              SatVistaar implements four verified analysis workflows strictly supported by the backend pipeline.
-            </p>
-          </div>
+      {/* 3. SUPPORTED ANALYSIS TASKS (Feature72 Component) */}
+      <Feature72
+        category="CORE CAPABILITIES"
+        heading="Supported Analysis Tasks"
+        description="SatVistaar implements four verified analysis workflows strictly supported by our multimodal remote sensing pipeline."
+        linkText="Open Analysis Dashboard"
+        onLinkClick={() => navigateTo('/analysis')}
+        features={ANALYSIS_FEATURES}
+        onFeatureClick={(feature) => handleStartMission(feature.id, feature.query)}
+      />
 
-          <div className="console-shell gov-card">
-            <div className="console-tab-list">
-              {ANALYSIS_MODES.map((m, idx) => {
-                const Icon = m.icon;
-                const isActive = idx === activeMode;
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    className={`console-tab ${isActive ? 'is-active' : ''}`}
-                    onClick={() => setActiveMode(idx)}
-                  >
-                    <span className={`console-tab-icon mode-${m.id.toLowerCase()}`}>
-                      <Icon size={16} />
-                    </span>
-                    <span className="console-tab-title">{m.title}</span>
-                    <span className="console-tab-badge font-mono">{m.badge}</span>
-                  </button>
-                );
-              })}
+      {/* 4. FREQUENTLY ASKED QUESTIONS (FAQSection Component) */}
+      <FAQSection />
+
+      {/* 5. IMMERSIVE THEMED CTA SECTION (Navy Blue & Flame Orange) */}
+      <section className="satvistaar-themed-cta-section">
+        <div className="container framer-cta-container">
+          <div className="framer-cta-content">
+            <h2 className="framer-cta-headline">
+              Ready to accelerate your spatial intelligence with the future of autonomous remote sensing?
+            </h2>
+            <p className="framer-cta-subtext">
+              Join defense, disaster response, and earth observation teams optimizing their mission workflow with SatVistaar.
+            </p>
+
+            <div className="framer-cta-actions">
+              <button
+                type="button"
+                className="framer-pill-cta-btn"
+                onClick={() => navigateTo('/analysis')}
+              >
+                <span>Launch Analysis Mission</span>
+                <span className="framer-pill-arrow-circle">
+                  <ArrowRight size={20} />
+                </span>
+              </button>
             </div>
-
-            {mode && (
-              <div className="console-detail-panel">
-                <div className="console-detail-head">
-                  <div className={`console-detail-icon mode-${mode.id.toLowerCase()}`}>
-                    {ModeIcon && <ModeIcon size={22} />}
-                  </div>
-                  <h3 className="console-detail-title">{mode.title}</h3>
-                </div>
-
-                <p className="console-detail-desc">{mode.description}</p>
-
-                <div className="console-prompt-box">
-                  <span className="prompt-label font-mono">Example Query</span>
-                  <p className="prompt-text">&ldquo;{mode.defaultQuery}&rdquo;</p>
-                </div>
-
-                <button
-                  type="button"
-                  className="console-launch-btn"
-                  onClick={() => handleStartMission(mode.id, mode.defaultQuery)}
-                >
-                  <span>Launch in Dashboard</span>
-                  <ArrowRight size={15} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. DIAGONAL CTA STRIP — asymmetric, left text / right buttons */}
-      <section className="cta-diagonal-section">
-        <div className="container cta-diagonal-inner">
-          <div className="cta-diagonal-copy">
-            <h2 className="cta-heading">Ready to Perform Satellite Analysis?</h2>
-            <p className="cta-subheading">
-              Upload your remote sensing imagery or explore the analysis dashboard with supported queries.
-            </p>
-          </div>
-          <div className="cta-diagonal-btns">
-            <button type="button" className="cta-primary-orange-btn" onClick={() => navigateTo('/analysis')}>
-              <Play size={16} fill="currentColor" />
-              <span>Start Analysis Dashboard</span>
-            </button>
-            <button type="button" className="cta-secondary-blue-btn" onClick={() => navigateTo('/about')}>
-              <span>Read Full Documentation</span>
-            </button>
           </div>
         </div>
       </section>
@@ -240,95 +299,118 @@ export function HomePage({ backendHealth }) {
         .gov-home-root {
           display: flex;
           flex-direction: column;
-          gap: 5rem;
-          padding-bottom: 4rem;
-          background: #08090d;
+          gap: 0;
+          padding-bottom: 0;
+          background: var(--bg-main);
         }
 
-        /* ---------- Immersive Hero ---------- */
-        .hero-immersive {
+        /* ---------- Reference Video Hero ---------- */
+        .reference-hero {
           position: relative;
+          height: 100svh;
+          min-height: 640px;
+          max-height: 980px;
           overflow: hidden;
-          border-bottom: 1px solid var(--border-subtle);
+          background: var(--navy-blue);
+          color: var(--white);
+          isolation: isolate;
         }
-        .hero-bg {
+
+        .hero-video-layer,
+        .hero-media-overlay,
+        .hero-grid-lines {
           position: absolute;
           inset: 0;
+        }
+
+        .hero-video-layer {
           z-index: 0;
         }
+
         .hero-bg-video {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          opacity: 0.5;
-          filter: contrast(1.15) brightness(0.92);
+          opacity: 1;
+          filter: contrast(1.06) saturate(1.02) brightness(0.68);
           transform: scale(1.02);
           pointer-events: none;
         }
-        .hero-bg-gradient {
-          position: absolute;
-          inset: 0;
-          background:
-            linear-gradient(180deg, rgba(8, 9, 13, 0.45) 0%, rgba(8, 9, 13, 0.75) 60%, #08090d 100%),
-            linear-gradient(90deg, #08090d 0%, rgba(8, 9, 13, 0.75) 45%, rgba(8, 9, 13, 0.25) 100%);
-          pointer-events: none;
-        }
-        .hero-interactive-grid-canvas {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
+
+        .hero-media-overlay {
           z-index: 1;
+          background:
+            linear-gradient(180deg, rgba(0, 0, 102, 0.54) 0%, rgba(0, 0, 0, 0.12) 44%, rgba(0, 0, 0, 0.74) 100%),
+            linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.04) 58%, rgba(255, 255, 255, 0.04) 100%);
         }
-        .hero-immersive-inner {
-          position: relative;
+
+        .hero-grid-lines {
           z-index: 2;
+          pointer-events: none;
+          background-image:
+            linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+          background-size: 25vw 100%, 25vw 100%;
+          opacity: 0.55;
+        }
+
+        .reference-hero-inner {
+          position: relative;
+          z-index: 3;
+          min-height: 100%;
+          display: grid;
+          grid-template-columns: 0.35fr 1fr;
+          grid-template-rows: 1fr auto;
+          column-gap: clamp(2rem, 5vw, 5rem);
+          padding-top: clamp(6.4rem, 11vh, 8rem);
+          padding-bottom: clamp(1.4rem, 3vh, 2.2rem);
+        }
+
+        .hero-kicker {
+          align-self: start;
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
-          padding: 5rem 0 3.5rem;
-          max-width: 680px;
-        }
-        .hero-badge-row {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          flex-wrap: wrap;
-        }
-        .gov-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.4rem;
-          padding: 0.25rem 0.65rem;
-          background: rgba(20, 23, 34, 0.85);
-          border: 1px solid #2a3044;
-          border-radius: 4px;
-          font-size: 0.7rem;
+          gap: 0.25rem;
+          color: var(--white);
+          font-family: 'JetBrains Mono', monospace;
+          font-size: clamp(0.9rem, 1.3vw, 1.25rem);
           font-weight: 700;
-          color: var(--accent-orange-text);
-          backdrop-filter: blur(4px);
+          letter-spacing: 0.02em;
+          text-transform: uppercase;
+          padding-top: clamp(2rem, 9vh, 5rem);
         }
-        .badge-icon { color: var(--accent-orange); }
+
+        .hero-main-copy {
+          align-self: start;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: clamp(0.9rem, 2.1vh, 1.6rem);
+          padding-top: clamp(1.8rem, 8vh, 4.8rem);
+        }
+
         .status-pill {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.25rem 0.6rem;
-          border-radius: 4px;
-          font-size: 0.7rem;
+          padding: 0.55rem 0.85rem;
+          border-radius: var(--radius-sm);
+          font-size: 0.75rem;
           font-weight: 700;
-          backdrop-filter: blur(4px);
+          color: var(--success);
+          background: rgba(255, 255, 255, 0.16);
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          backdrop-filter: blur(10px);
         }
         .status-pill.healthy {
-          background: rgba(16, 185, 129, 0.15);
-          border: 1px solid rgba(16, 185, 129, 0.4);
+          background: rgba(34, 197, 94, 0.16);
+          border-color: rgba(34, 197, 94, 0.28);
           color: var(--status-green-text);
         }
         .status-pill.checking {
-          background: rgba(245, 158, 11, 0.15);
-          border: 1px solid rgba(245, 158, 11, 0.4);
-          color: #fbbf24;
+          background: rgba(245, 158, 11, 0.16);
+          border-color: rgba(245, 158, 11, 0.28);
+          color: var(--warning);
         }
         .status-dot {
           width: 6px;
@@ -337,96 +419,123 @@ export function HomePage({ backendHealth }) {
           background: currentColor;
         }
         .hero-title {
-          font-size: 3rem;
-          font-weight: 800;
-          color: #ffffff;
-          letter-spacing: -0.03em;
-          line-height: 1.1;
-        }
-        .hero-highlight-orange { color: var(--accent-orange); }
-        @media (max-width: 768px) {
-          .hero-title { font-size: 2.15rem; }
-        }
-        .hero-subtitle {
-          font-size: 1.05rem;
-          color: var(--text-secondary);
-          line-height: 1.6;
-          max-width: 56ch;
-        }
-        .hero-cta-row {
-          display: flex;
-          align-items: center;
-          gap: 0.85rem;
-          flex-wrap: wrap;
-          padding-top: 0.5rem;
-        }
-        .hero-primary-orange-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.8rem 1.6rem;
-          background: var(--accent-orange);
-          color: #08090d;
-          border-radius: var(--radius-sm);
-          font-size: 0.925rem;
+          max-width: 12ch;
+          font-size: clamp(3.3rem, 7vw, 8.2rem);
           font-weight: 700;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-        }
-        .hero-primary-orange-btn:hover {
-          background: var(--accent-orange-hover);
-          transform: translateY(-1px);
-        }
-        .hero-secondary-blue-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.45rem;
-          padding: 0.8rem 1.35rem;
-          background: rgba(20, 23, 34, 0.7);
-          border: 1px solid var(--border-medium);
-          color: var(--text-main);
-          border-radius: var(--radius-sm);
-          font-size: 0.925rem;
-          font-weight: 600;
-          backdrop-filter: blur(4px);
-        }
-        .hero-secondary-blue-btn:hover {
-          background: #181c28;
-          border-color: var(--accent-blue);
-          color: var(--accent-blue-text);
+          color: var(--white);
+          letter-spacing: 0;
+          line-height: 0.96;
+          text-transform: uppercase;
+          text-wrap: balance;
         }
 
-        /* Ticker footer strip */
-        .hero-ticker {
-          position: relative;
-          z-index: 1;
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          border-top: 1px solid var(--border-subtle);
-          background: rgba(8, 9, 13, 0.85);
-          backdrop-filter: blur(6px);
-        }
-        .ticker-item {
+        .hero-consultation-btn {
           display: flex;
-          align-items: baseline;
-          gap: 0.5rem;
-          padding: 0.9rem 1.5rem;
-          border-right: 1px solid var(--border-subtle);
+          align-items: center;
+          gap: 1.25rem;
+          min-height: 64px;
+          padding: 0.5rem 0.6rem 0.5rem 1.35rem;
+          border-radius: 999px;
+          background: var(--white);
+          color: var(--dark-gray);
+          font-size: clamp(1rem, 1.6vw, 1.35rem);
+          font-weight: 600;
+          box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
         }
-        .ticker-item:last-child { border-right: none; }
-        .ticker-value {
-          font-size: 1.1rem;
-          font-weight: 800;
+
+        .hero-consultation-icon {
+          width: 50px;
+          height: 50px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          color: var(--white);
+          background: var(--flame-orange);
         }
-        .ticker-value.orange { color: var(--accent-orange); }
-        .ticker-value.blue { color: var(--accent-blue-text); }
-        .ticker-value.green { color: var(--status-green-text); }
-        .ticker-label {
-          font-size: 0.7rem;
-          color: var(--text-muted);
+
+        .hero-consultation-btn:hover .hero-consultation-icon {
+          background: var(--accent-orange-hover);
+          transform: translateX(2px);
         }
-        @media (max-width: 700px) {
-          .hero-ticker { grid-template-columns: repeat(2, 1fr); }
-          .ticker-item { padding: 0.75rem 1rem; }
+
+        .hero-bottom-copy {
+          grid-column: 1 / -1;
+          align-self: end;
+          display: grid;
+          grid-template-columns: 0.35fr 1fr;
+          gap: clamp(2rem, 5vw, 5rem);
+          align-items: end;
+        }
+
+        .hero-bottom-copy p {
+          max-width: 760px;
+          color: var(--white);
+          font-family: var(--font-secondary);
+          font-size: clamp(1rem, 1.8vw, 1.5rem);
+          font-weight: 500;
+          line-height: 1.45;
+          text-shadow: 0 2px 20px rgba(0, 0, 0, 0.32);
+        }
+
+        .hero-scroll-cue {
+          width: 44px;
+          height: 44px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: auto;
+          color: var(--white);
+          transform: rotate(90deg);
+        }
+
+        @media (max-width: 860px) {
+          .reference-hero-inner,
+          .hero-bottom-copy {
+            grid-template-columns: 1fr;
+          }
+
+          .hero-kicker {
+            padding-top: 0;
+          }
+
+          .hero-title {
+            font-size: clamp(2.7rem, 12vw, 5.4rem);
+          }
+
+          .hero-consultation-btn {
+            min-height: 66px;
+          }
+
+          .hero-consultation-icon {
+            width: 50px;
+            height: 50px;
+          }
+        }
+
+        @media (max-height: 760px) and (min-width: 861px) {
+          .reference-hero {
+            min-height: 600px;
+          }
+
+          .reference-hero-inner {
+            padding-top: 5.8rem;
+            padding-bottom: 1.25rem;
+          }
+
+          .hero-kicker,
+          .hero-main-copy {
+            padding-top: 1.8rem;
+          }
+
+          .hero-title {
+            font-size: clamp(3rem, 6vw, 6.8rem);
+          }
+
+          .hero-bottom-copy p {
+            font-size: 1.05rem;
+            max-width: 680px;
+          }
         }
 
         /* ---------- Section headings ---------- */
@@ -449,7 +558,7 @@ export function HomePage({ backendHealth }) {
         .section-heading {
           font-size: 2rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
         }
         .section-lead {
@@ -458,163 +567,386 @@ export function HomePage({ backendHealth }) {
           line-height: 1.55;
         }
 
-        /* ---------- Pipeline Runner Animation ---------- */
-        .pipeline-runner-section {
+        /* ---------- How the System Works — Editorial & Parallax Section ---------- */
+        .how-it-works-editorial-section {
           position: relative;
-          overflow: hidden;
-          padding: 1rem 0 2rem 0;
+          background: #ffffff;
+          padding: 5rem 0 0 0;
+          overflow: clip;
+          border-bottom: 1px solid #e2e8f0;
         }
-        .pipeline-header-row {
+
+        .editorial-intro-grid {
+          display: grid;
+          grid-template-columns: 240px 1fr;
+          gap: 3.5rem;
+          align-items: start;
+          margin-bottom: 5.5rem;
+        }
+
+        .editorial-left-col {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+          position: sticky;
+          top: 100px;
+        }
+
+        .editorial-kicker {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.65rem;
+        }
+
+        .kicker-green-square {
+          width: 13px;
+          height: 13px;
+          background: #84cc16; /* lime green from framer reference */
+          border-radius: 2px;
+          display: inline-block;
+          box-shadow: 0 0 10px rgba(132, 204, 22, 0.45);
+        }
+
+        .kicker-text {
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          color: #0f172a;
+          text-transform: uppercase;
+        }
+
+        .editorial-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding-left: 1.45rem;
+          border-left: 2px solid #e2e8f0;
+        }
+
+        .meta-tag {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: var(--navy-blue);
+        }
+
+        .meta-sub {
+          font-size: 0.65rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+
+        .editorial-right-col {
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .editorial-statement {
+          font-size: clamp(2.2rem, 4.2vw, 3.8rem);
+          font-weight: 700;
+          color: #0f172a;
+          line-height: 1.15;
+          letter-spacing: -0.03em;
+          margin: 0;
+          font-family: var(--font-primary);
+          text-wrap: balance;
+        }
+
+        .editorial-subtext {
+          font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+          color: #475569;
+          line-height: 1.65;
+          max-width: 840px;
+          margin: 0;
+        }
+
+        /* Parallax Pipeline Section */
+        .parallax-pipeline-container {
+          position: relative;
+          margin-top: 1rem;
+        }
+
+        .pipeline-section-header {
           display: flex;
           align-items: flex-end;
           justify-content: space-between;
-          gap: 1.5rem;
           margin-bottom: 2rem;
           flex-wrap: wrap;
+          gap: 1rem;
         }
-        .running-status-tag {
+
+        .pipeline-header-badge {
           display: inline-flex;
           align-items: center;
           gap: 0.5rem;
-          background: rgba(249, 115, 22, 0.1);
-          border: 1px solid rgba(249, 115, 22, 0.35);
+          background: rgba(0, 0, 102, 0.06);
+          border: 1px solid rgba(0, 0, 102, 0.15);
           padding: 0.35rem 0.85rem;
-          border-radius: 20px;
-          font-size: 0.7rem;
+          border-radius: 999px;
+          font-size: 0.72rem;
           font-weight: 700;
-          color: var(--accent-orange-text);
-          margin-bottom: 1.5rem;
-        }
-        .pulse-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: var(--accent-orange);
-          box-shadow: 0 0 8px var(--accent-orange);
-          animation: statusPulse 1.5s ease-in-out infinite;
-        }
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.8); }
+          color: var(--navy-blue);
         }
 
-        .pipeline-marquee-container {
-          position: relative;
-          width: 100vw;
-          margin-left: calc(-50vw + 50%);
-          overflow: hidden;
-          padding: 1.5rem 0;
-          mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 1) 6%, rgba(0, 0, 0, 1) 94%, transparent 100%);
-          -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 1) 6%, rgba(0, 0, 0, 1) 94%, transparent 100%);
-        }
-        .pipeline-laser-beam {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, var(--accent-orange), var(--accent-blue), transparent);
-          background-size: 200% 100%;
-          animation: laserScan 4s linear infinite;
-        }
-        @keyframes laserScan {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
+        .pipeline-subheading {
+          font-size: 1.5rem;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: -0.02em;
+          margin: 0;
         }
 
-        .pipeline-marquee-track {
-          display: flex;
+        .parallax-stages-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
           gap: 1.5rem;
-          width: max-content;
-          animation: pipelineRun 32s linear infinite;
-          will-change: transform;
-        }
-        .pipeline-marquee-track:hover {
-          animation-play-state: paused;
-        }
-        @keyframes pipelineRun {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 0.75rem)); }
+          margin-bottom: 2rem;
         }
 
-        .runner-step-card {
-          width: 320px;
-          flex-shrink: 0;
-          background: #12151f;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          padding: 1.5rem;
+        .parallax-stage-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 1.75rem;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+          cursor: pointer;
+          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .parallax-stage-card:hover,
+        .parallax-stage-card.stage-card-active {
+          border-color: var(--navy-blue);
+          box-shadow: 0 16px 36px rgba(0, 0, 102, 0.12);
+        }
+
+        .stage-card-inner {
+          position: relative;
+          z-index: 1;
           display: flex;
           flex-direction: column;
-          gap: 0.65rem;
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-          cursor: pointer;
+          gap: 0.85rem;
         }
-        .runner-step-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(249, 115, 22, 0.5);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(249, 115, 22, 0.15);
-        }
-        .runner-card-top {
+
+        .stage-top-meta {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 0.25rem;
         }
-        .runner-step-num {
-          width: 32px;
-          height: 32px;
-          border-radius: var(--radius-sm);
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.4);
-          color: var(--accent-orange);
+
+        .stage-num {
+          font-size: 1.35rem;
           font-weight: 800;
-          font-size: 0.85rem;
+          color: var(--navy-blue);
+        }
+
+        .stage-tag {
+          font-size: 0.65rem;
+          font-weight: 700;
+          color: #64748b;
+          background: #f1f5f9;
+          padding: 0.2rem 0.5rem;
+          border-radius: 4px;
+        }
+
+        .stage-card-active .stage-tag {
+          background: rgba(0, 0, 102, 0.1);
+          color: var(--navy-blue);
+        }
+
+        .stage-icon-wrap {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: var(--navy-blue);
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: all 0.2s ease;
         }
-        .runner-stage-tag {
-          font-size: 0.65rem;
-          font-weight: 700;
-          color: var(--text-dim);
-          background: #0d0e15;
-          padding: 0.15rem 0.5rem;
-          border-radius: 3px;
-          border: 1px solid var(--border-subtle);
-        }
-        .runner-step-title {
-          font-size: 1.05rem;
-          font-weight: 700;
+
+        .stage-card-active .stage-icon-wrap {
+          background: var(--navy-blue);
           color: #ffffff;
+          border-color: var(--navy-blue);
+        }
+
+        .stage-title {
+          font-size: 1.12rem;
+          font-weight: 700;
+          color: #0f172a;
+          margin: 0;
           letter-spacing: -0.01em;
         }
-        .runner-step-desc {
-          font-size: 0.825rem;
-          color: var(--text-secondary);
+
+        .stage-desc {
+          font-size: 0.85rem;
+          color: #64748b;
           line-height: 1.5;
+          margin: 0;
         }
-        .runner-card-glow {
+
+        .stage-telemetry-chip {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          padding: 0.45rem 0.65rem;
+          font-size: 0.72rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          margin-top: 0.4rem;
+        }
+
+        .chip-label {
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        .chip-value {
+          color: var(--navy-blue);
+          font-weight: 700;
+        }
+
+        .stage-card-backdrop-glow {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
+          inset: 0;
+          background: radial-gradient(circle at top right, rgba(0, 0, 102, 0.04), transparent 70%);
           opacity: 0;
-          transition: opacity 0.2s ease;
+          transition: opacity 0.3s ease;
         }
-        .runner-step-card:hover .runner-card-glow {
+
+        .stage-card-active .stage-card-backdrop-glow {
           opacity: 1;
+        }
+
+        /* Live Inspector Bar */
+        .live-arch-inspector-bar {
+          background: #0b132b;
+          color: #ffffff;
+          border-radius: 14px;
+          padding: 1.1rem 1.6rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5rem;
+          box-shadow: 0 10px 30px rgba(11, 19, 43, 0.15);
+        }
+
+        .inspector-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .inspector-pulse-icon {
+          width: 36px;
+          height: 36px;
+          border-radius: 9px;
+          background: rgba(255, 82, 37, 0.2);
+          color: var(--flame-orange);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .inspector-text {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+
+        .inspector-title {
+          font-weight: 700;
+          font-size: 0.95rem;
+          color: #ffffff;
+        }
+
+        .inspector-detail {
+          font-size: 0.8rem;
+          color: #94a3b8;
+        }
+
+        .inspector-action-btn {
+          background: var(--flame-orange);
+          color: #ffffff;
+          border: none;
+          border-radius: 999px;
+          padding: 0.6rem 1.2rem;
+          font-size: 0.82rem;
+          font-weight: 700;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 14px rgba(255, 82, 37, 0.35);
+        }
+
+        .inspector-action-btn:hover {
+          background: var(--accent-orange-hover);
+          transform: translateY(-1px);
+        }
+
+        /* Framer-style Floating Badge */
+        .framer-style-watermark {
+          position: absolute;
+          bottom: 1.5rem;
+          right: 2rem;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+          border-radius: 8px;
+          padding: 0.4rem 0.8rem;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: #334155;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          z-index: 2;
+        }
+
+        .framer-icon-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #22c55e;
+          box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+        }
+
+        @media (max-width: 860px) {
+          .editorial-intro-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-bottom: 3.5rem;
+          }
+          .editorial-left-col {
+            position: static;
+          }
+          .live-arch-inspector-bar {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .inspector-action-btn {
+            width: 100%;
+            justify-content: center;
+          }
+          .framer-style-watermark {
+            display: none;
+          }
         }
 
         /* ---------- Mission Console ---------- */
         .console-shell {
           display: grid;
           grid-template-columns: 300px 1fr;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           overflow: hidden;
         }
@@ -625,7 +957,7 @@ export function HomePage({ backendHealth }) {
           display: flex;
           flex-direction: column;
           border-right: 1px solid var(--border-subtle);
-          background: #10121a;
+          background: var(--bg-card);
         }
         @media (max-width: 800px) {
           .console-tab-list {
@@ -651,15 +983,15 @@ export function HomePage({ backendHealth }) {
           color: var(--text-secondary);
         }
         .console-tab.is-active {
-          background: #141722;
+          background: var(--bg-card);
           border-left-color: var(--accent-orange);
-          color: #ffffff;
+          color: var(--text-main);
         }
         .console-tab-icon {
           width: 28px;
           height: 28px;
           border-radius: 6px;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           display: flex;
           align-items: center;
@@ -669,7 +1001,7 @@ export function HomePage({ backendHealth }) {
         .console-tab-icon.mode-vqa { color: var(--accent-blue-text); }
         .console-tab-icon.mode-feature_identification { color: var(--accent-orange); }
         .console-tab-icon.mode-captioning { color: var(--status-green-text); }
-        .console-tab-icon.mode-change_analysis { color: #f87171; }
+        .console-tab-icon.mode-change_analysis { color: var(--error); }
         .console-tab-title {
           font-size: 0.85rem;
           font-weight: 600;
@@ -678,7 +1010,7 @@ export function HomePage({ backendHealth }) {
         .console-tab-badge {
           font-size: 0.62rem;
           color: var(--text-dim);
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           padding: 0.1rem 0.35rem;
           border-radius: 4px;
@@ -700,7 +1032,7 @@ export function HomePage({ backendHealth }) {
           width: 44px;
           height: 44px;
           border-radius: var(--radius-sm);
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           display: flex;
           align-items: center;
@@ -708,13 +1040,13 @@ export function HomePage({ backendHealth }) {
           flex-shrink: 0;
         }
         .console-detail-icon.mode-vqa { color: var(--accent-blue-text); border-color: rgba(59, 130, 246, 0.4); }
-        .console-detail-icon.mode-feature_identification { color: var(--accent-orange); border-color: rgba(249, 115, 22, 0.4); }
-        .console-detail-icon.mode-captioning { color: var(--status-green-text); border-color: rgba(16, 185, 129, 0.4); }
-        .console-detail-icon.mode-change_analysis { color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+        .console-detail-icon.mode-feature_identification { color: var(--accent-orange); border-color: rgba(255, 82, 37, 0.4); }
+        .console-detail-icon.mode-captioning { color: var(--status-green-text); border-color: rgba(34, 197, 94, 0.4); }
+        .console-detail-icon.mode-change_analysis { color: var(--error); border-color: rgba(239, 68, 68, 0.4); }
         .console-detail-title {
           font-size: 1.3rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .console-detail-desc {
           font-size: 0.9rem;
@@ -723,7 +1055,7 @@ export function HomePage({ backendHealth }) {
           max-width: 56ch;
         }
         .console-prompt-box {
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 0.75rem 1rem;
@@ -750,7 +1082,7 @@ export function HomePage({ backendHealth }) {
           gap: 0.5rem;
           padding: 0.7rem 1.3rem;
           background: var(--accent-orange);
-          color: #08090d;
+          color: var(--white);
           border-radius: var(--radius-sm);
           font-size: 0.85rem;
           font-weight: 700;
@@ -760,108 +1092,127 @@ export function HomePage({ backendHealth }) {
           background: var(--accent-orange-hover);
         }
 
-        /* ---------- Diagonal CTA ---------- */
-        .cta-diagonal-section {
+        /* ---------- Themed CTA Section (Navy Blue & Flame Orange) ---------- */
+        .satvistaar-themed-cta-section {
           position: relative;
-          background: #12151f;
-          border-top: 1px solid var(--border-medium);
-          border-bottom: 1px solid var(--border-medium);
+          background: linear-gradient(145deg, #000066 0%, #00004d 50%, #000033 100%);
+          color: #ffffff;
+          padding: 8.5rem 1.5rem 8.5rem 1.5rem;
+          min-height: 68vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
           overflow: hidden;
         }
-        .cta-diagonal-section::before {
+
+        .satvistaar-themed-cta-section::before {
           content: '';
           position: absolute;
-          top: 0;
-          right: -10%;
-          width: 45%;
-          height: 100%;
-          background: repeating-linear-gradient(
-            115deg,
-            rgba(249, 115, 22, 0.06),
-            rgba(249, 115, 22, 0.06) 2px,
-            transparent 2px,
-            transparent 14px
-          );
+          inset: 0;
+          background:
+            radial-gradient(circle at 80% 20%, rgba(255, 82, 37, 0.18), transparent 40%),
+            radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.18), transparent 40%);
           pointer-events: none;
         }
-        .cta-diagonal-inner {
+
+        .framer-cta-container {
+          width: 100%;
+          max-width: 1080px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: center;
           position: relative;
-          display: grid;
-          grid-template-columns: 1.4fr 1fr;
-          gap: 2.5rem;
-          align-items: center;
-          padding: 3.5rem 2.5rem;
+          z-index: 1;
         }
-        @media (max-width: 800px) {
-          .cta-diagonal-inner {
-            grid-template-columns: 1fr;
-            padding: 2.5rem 1.25rem;
-          }
-        }
-        .cta-diagonal-copy {
+
+        .framer-cta-content {
           display: flex;
           flex-direction: column;
-          gap: 0.6rem;
-          padding-left: 2rem;
+          align-items: center;
+          text-align: center;
+          max-width: 880px;
         }
-        @media (max-width: 800px) {
-          .cta-diagonal-copy {
-            padding-left: 0;
-          }
-        }
-        .cta-heading {
-          font-size: 1.9rem;
+
+        .framer-cta-headline {
+          font-size: clamp(2.4rem, 5.2vw, 4.3rem);
           font-weight: 800;
-          letter-spacing: -0.02em;
+          line-height: 1.1;
+          letter-spacing: -0.035em;
           color: #ffffff;
+          margin: 0 auto;
+          text-wrap: balance;
+          font-family: var(--font-primary);
         }
-        .cta-subheading {
-          font-size: 0.95rem;
-          color: var(--text-muted);
+
+        .framer-cta-subtext {
+          font-size: clamp(1rem, 1.4vw, 1.25rem);
+          color: rgba(255, 255, 255, 0.82);
           line-height: 1.55;
-          max-width: 48ch;
+          margin: 1.8rem auto 3.2rem auto;
+          max-width: 660px;
+          font-family: var(--font-secondary);
         }
-        .cta-diagonal-btns {
+
+        .framer-cta-actions {
           display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          align-items: flex-start;
+          justify-content: center;
+          align-items: center;
         }
-        @media (max-width: 800px) {
-          .cta-diagonal-btns {
-            flex-direction: row;
-            flex-wrap: wrap;
-          }
-        }
-        .cta-primary-orange-btn {
+
+        .framer-pill-cta-btn {
+          background: #ffffff;
+          color: #000066;
+          border-radius: 999px;
+          padding: 0.45rem 0.55rem 0.45rem 1.75rem;
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
-          padding: 0.75rem 1.5rem;
-          background: var(--accent-orange);
-          color: #08090d;
-          border-radius: var(--radius-sm);
-          font-size: 0.9rem;
+          gap: 1.25rem;
+          font-size: clamp(1rem, 1.3vw, 1.2rem);
           font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .cta-primary-orange-btn:hover {
-          background: var(--accent-orange-hover);
+
+        .framer-pill-cta-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
         }
-        .cta-secondary-blue-btn {
-          display: inline-flex;
+
+        .framer-pill-arrow-circle {
+          width: 48px;
+          height: 48px;
+          border-radius: 999px;
+          background: #ff5225;
+          color: #ffffff;
+          display: flex;
           align-items: center;
-          padding: 0.75rem 1.25rem;
-          background: #141722;
-          color: var(--text-main);
-          border: 1px solid var(--border-medium);
-          border-radius: var(--radius-sm);
-          font-size: 0.9rem;
-          font-weight: 600;
+          justify-content: center;
+          transition: background 0.2s ease, transform 0.2s ease;
         }
-        .cta-secondary-blue-btn:hover {
-          background: #181c28;
-          border-color: var(--accent-blue);
-          color: var(--accent-blue-text);
+
+        .framer-pill-cta-btn:hover .framer-pill-arrow-circle {
+          transform: translateX(3px);
+          background: #e9461d;
+        }
+
+        @media (max-width: 768px) {
+          .satvistaar-themed-cta-section {
+            padding: 5.5rem 1.25rem;
+            min-height: auto;
+          }
+
+          .framer-pill-cta-btn {
+            padding: 0.4rem 0.5rem 0.4rem 1.35rem;
+            gap: 0.85rem;
+            font-size: 0.95rem;
+          }
+
+          .framer-pill-arrow-circle {
+            width: 40px;
+            height: 40px;
+          }
         }
       `}</style>
     </div>

@@ -95,7 +95,11 @@ export function HelpPage({ backendHealth }) {
   const { navigateTo } = useRouter();
   const [openFaq, setOpenFaq] = useState(null);
   const [activeSection, setActiveSection] = useState('getting-started');
-  const sectionRefs = useRef({});
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -109,20 +113,13 @@ export function HelpPage({ backendHealth }) {
       { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
     );
 
-    Object.values(sectionRefs.current).forEach((el) => {
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
   }, []);
-
-  const scrollToSection = (id) => {
-    sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const registerRef = (id) => (el) => {
-    sectionRefs.current[id] = el;
-  };
 
   return (
     <div className="gov-help-page">
@@ -284,7 +281,7 @@ export function HelpPage({ backendHealth }) {
 
       <style>{`
         .gov-help-page {
-          background: #08090d;
+          background: var(--bg-main);
           min-height: 100vh;
         }
 
@@ -320,7 +317,7 @@ export function HelpPage({ backendHealth }) {
         .sidebar-mark-title {
           font-size: 1rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.01em;
         }
         .sidebar-mark-sub {
@@ -351,7 +348,7 @@ export function HelpPage({ backendHealth }) {
           color: var(--text-secondary);
         }
         .sidebar-nav-item.is-active {
-          color: #ffffff;
+          color: var(--text-main);
           border-left-color: var(--accent-orange);
         }
         .sidebar-nav-num {
@@ -412,7 +409,7 @@ export function HelpPage({ backendHealth }) {
         .help-title {
           font-size: 2.5rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
           line-height: 1.05;
         }
@@ -447,7 +444,7 @@ export function HelpPage({ backendHealth }) {
         .section-heading {
           font-size: 1.3rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .t-orange { color: var(--accent-orange-text); }
 
@@ -471,8 +468,8 @@ export function HelpPage({ backendHealth }) {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: var(--radius-sm);
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.35);
+          background: rgba(255, 82, 37, 0.12);
+          border: 1px solid rgba(255, 82, 37, 0.35);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -493,7 +490,7 @@ export function HelpPage({ backendHealth }) {
         .timeline-body h4 {
           font-size: 0.95rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           margin-bottom: 0.25rem;
         }
         .timeline-body p {
@@ -547,7 +544,7 @@ export function HelpPage({ backendHealth }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
         }
         .task-icon-badge.accent-blue { color: var(--accent-blue-text); }
@@ -558,7 +555,7 @@ export function HelpPage({ backendHealth }) {
         .task-guide-copy h3 {
           font-size: 1rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           margin-bottom: 0.35rem;
         }
         .task-what {
@@ -617,7 +614,7 @@ export function HelpPage({ backendHealth }) {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           overflow: hidden;
-          background: #0d0e15;
+          background: var(--bg-main);
         }
         .faq-toggle-btn {
           width: 100%;
@@ -627,12 +624,12 @@ export function HelpPage({ backendHealth }) {
           padding: 0.85rem 1.15rem;
           font-size: 0.875rem;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-main);
           text-align: left;
-          background: #0d0e15;
+          background: var(--bg-main);
         }
         .faq-toggle-btn:hover {
-          background: #141722;
+          background: var(--bg-card);
           color: var(--accent-orange-text);
         }
         .faq-drawer-content {
@@ -642,7 +639,7 @@ export function HelpPage({ backendHealth }) {
           line-height: 1.6;
           border-top: 1px solid var(--border-subtle);
           padding-top: 0.75rem;
-          background: #10121a;
+          background: var(--bg-card);
         }
 
         /* Bottom CTA — only visible where sidebar CTA hides */
@@ -661,7 +658,7 @@ export function HelpPage({ backendHealth }) {
           gap: 0.5rem;
           padding: 0.75rem 1.5rem;
           background: var(--accent-orange);
-          color: #08090d;
+          color: var(--white);
           border-radius: var(--radius-sm);
           font-size: 0.88rem;
           font-weight: 700;

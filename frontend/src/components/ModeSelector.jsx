@@ -96,7 +96,7 @@ export function ModeSelector({ selectedMode, onSelectMode }) {
         .mode-section-title {
           font-size: 0.825rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }
@@ -118,7 +118,7 @@ export function ModeSelector({ selectedMode, onSelectMode }) {
           align-items: flex-start;
           text-align: left;
           padding: 0.85rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           transition: all 0.15s ease;
@@ -126,12 +126,12 @@ export function ModeSelector({ selectedMode, onSelectMode }) {
         }
         .mode-select-card:hover {
           border-color: var(--border-medium);
-          background: #181c28;
+          background: var(--light-gray);
         }
         .mode-select-card.active {
-          background: #191e2c;
+          background: var(--very-light-gray);
           border-color: var(--accent-orange);
-          box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+          box-shadow: 0 0 10px rgba(255, 82, 37, 0.2);
         }
         .mode-card-top {
           display: flex;
@@ -144,33 +144,33 @@ export function ModeSelector({ selectedMode, onSelectMode }) {
           width: 30px;
           height: 30px;
           border-radius: var(--radius-sm);
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: center;
         }
         .mode-icon-box.accent-blue { color: var(--accent-blue-text); border-color: rgba(59, 130, 246, 0.35); }
-        .mode-icon-box.accent-orange { color: var(--accent-orange); border-color: rgba(249, 115, 22, 0.35); }
-        .mode-icon-box.accent-green { color: var(--status-green-text); border-color: rgba(16, 185, 129, 0.35); }
-        .mode-icon-box.accent-red-orange { color: #f87171; border-color: rgba(239, 68, 68, 0.35); }
+        .mode-icon-box.accent-orange { color: var(--accent-orange); border-color: rgba(255, 82, 37, 0.35); }
+        .mode-icon-box.accent-green { color: var(--status-green-text); border-color: rgba(34, 197, 94, 0.35); }
+        .mode-icon-box.accent-red-orange { color: var(--error); border-color: rgba(239, 68, 68, 0.35); }
 
         .mode-icon-box.selected {
-          background: #141722;
+          background: var(--bg-card);
         }
         .mode-badge {
           font-size: 0.65rem;
           font-weight: 600;
           color: var(--text-muted);
-          background: #0d0e15;
+          background: var(--bg-main);
           padding: 0.12rem 0.45rem;
           border-radius: 3px;
           border: 1px solid var(--border-subtle);
         }
         .mode-select-card.active .mode-badge {
-          background: rgba(249, 115, 22, 0.12);
+          background: rgba(255, 82, 37, 0.12);
           color: var(--accent-orange-text);
-          border-color: rgba(249, 115, 22, 0.35);
+          border-color: rgba(255, 82, 37, 0.35);
         }
         .mode-card-info {
           display: flex;
@@ -180,7 +180,7 @@ export function ModeSelector({ selectedMode, onSelectMode }) {
         .mode-title {
           font-size: 0.875rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .mode-desc {
           font-size: 0.75rem;

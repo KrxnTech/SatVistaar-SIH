@@ -41,7 +41,7 @@ export function PageHeader({
         .page-header-root {
           padding: 2.25rem 0 1.75rem 0;
           border-bottom: 1px solid var(--border-subtle);
-          background: linear-gradient(180deg, rgba(18, 18, 26, 0.75) 0%, rgba(10, 10, 15, 0.4) 100%);
+          background: linear-gradient(180deg, rgba(31, 33, 38, 0.75) 0%, rgba(0, 0, 0, 0.4) 100%);
           position: relative;
         }
         .page-header-root::after {
@@ -79,8 +79,8 @@ export function PageHeader({
           font-family: 'JetBrains Mono', monospace;
           font-size: 0.725rem;
           color: var(--tertiary);
-          background: rgba(0, 212, 255, 0.08);
-          border: 1px solid rgba(0, 212, 255, 0.2);
+          background: rgba(59, 130, 246, 0.08);
+          border: 1px solid rgba(59, 130, 246, 0.2);
           padding: 0.2rem 0.6rem;
           border-radius: 4px;
           letter-spacing: 0.05em;
@@ -89,12 +89,12 @@ export function PageHeader({
         .accent-green .terminal-tag {
           color: var(--primary);
           background: var(--primary-subtle);
-          border-color: rgba(0, 255, 136, 0.25);
+          border-color: rgba(34, 197, 94, 0.25);
         }
         .accent-magenta .terminal-tag {
           color: var(--secondary);
           background: var(--secondary-subtle);
-          border-color: rgba(255, 0, 255, 0.25);
+          border-color: rgba(255, 82, 37, 0.25);
         }
         .tag-icon {
           opacity: 0.8;
@@ -116,7 +116,7 @@ export function PageHeader({
           font-size: 2rem;
           font-weight: 800;
           letter-spacing: -0.03em;
-          color: #ffffff;
+          color: var(--text-main);
           line-height: 1.15;
         }
         .page-subtitle {

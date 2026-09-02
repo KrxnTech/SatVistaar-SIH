@@ -65,7 +65,7 @@ export function RawJsonViewer({ rawData }) {
         .gov-json-viewer {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          background: #141722;
+          background: var(--bg-card);
           overflow: hidden;
           margin-top: 0.75rem;
         }
@@ -78,12 +78,12 @@ export function RawJsonViewer({ rawData }) {
           font-size: 0.725rem;
           font-weight: 700;
           color: var(--text-secondary);
-          background: #10121a;
+          background: var(--bg-card);
           min-height: 38px;
         }
         .json-toggle-header:hover {
-          color: #ffffff;
-          background: #181c28;
+          color: var(--text-main);
+          background: var(--light-gray);
         }
         .btn-left {
           display: flex;
@@ -105,7 +105,7 @@ export function RawJsonViewer({ rawData }) {
           padding: 0.2rem 0.5rem;
           font-size: 0.65rem;
           font-weight: 700;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: 3px;
           color: var(--text-secondary);
@@ -120,7 +120,7 @@ export function RawJsonViewer({ rawData }) {
         }
         .json-pre-box {
           padding: 0.85rem;
-          background: #08090d;
+          background: var(--bg-main);
           border-top: 1px solid var(--border-subtle);
           max-height: 380px;
           overflow-y: auto;

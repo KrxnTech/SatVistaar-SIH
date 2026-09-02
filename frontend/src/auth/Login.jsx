@@ -161,13 +161,13 @@ export function Login({ onNavigateToRegister, onSuccess }) {
           align-items: center;
           justify-content: center;
           padding: 2.5rem 1rem;
-          background: #08090d;
+          background: var(--bg-main);
         }
         .gov-auth-card {
           width: 100%;
           max-width: 420px;
           padding: 2.25rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
@@ -183,7 +183,7 @@ export function Login({ onNavigateToRegister, onSuccess }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #0d0e15;
+          background: var(--bg-main);
           color: var(--accent-orange);
           border: 1px solid var(--border-medium);
           border-radius: var(--radius-sm);
@@ -191,7 +191,7 @@ export function Login({ onNavigateToRegister, onSuccess }) {
         .auth-title {
           font-size: 1.35rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
           margin-bottom: 0.25rem;
         }
@@ -244,17 +244,17 @@ export function Login({ onNavigateToRegister, onSuccess }) {
         .gov-dark-input {
           width: 100%;
           padding: 0.65rem 0.75rem 0.65rem 2.35rem;
-          background: #0a0c12;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           border-radius: var(--radius-sm);
           font-size: 0.875rem;
-          color: #ffffff;
+          color: var(--text-main);
           outline: none;
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .gov-dark-input:focus {
           border-color: var(--accent-orange);
-          box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+          box-shadow: 0 0 0 2px rgba(255, 82, 37, 0.25);
         }
         .password-toggle {
           position: absolute;
@@ -267,14 +267,14 @@ export function Login({ onNavigateToRegister, onSuccess }) {
           min-height: auto;
         }
         .password-toggle:hover {
-          color: #ffffff;
+          color: var(--text-main);
         }
         .gov-auth-submit-orange-btn {
           width: 100%;
           padding: 0.75rem 1.25rem;
           margin-top: 0.25rem;
           background: var(--accent-orange);
-          color: #08090d;
+          color: var(--white);
           border-radius: var(--radius-sm);
           font-weight: 700;
           font-size: 0.9rem;
@@ -288,8 +288,8 @@ export function Login({ onNavigateToRegister, onSuccess }) {
           background: var(--accent-orange-hover);
         }
         .gov-auth-submit-orange-btn:disabled {
-          background: #1e2230;
-          color: #525f76;
+          background: var(--border-subtle);
+          color: var(--slate-gray);
           cursor: not-allowed;
         }
         .btn-content, .btn-loading-state {
@@ -301,8 +301,8 @@ export function Login({ onNavigateToRegister, onSuccess }) {
         .btn-spinner {
           width: 14px;
           height: 14px;
-          border: 2px solid rgba(8, 9, 13, 0.3);
-          border-top-color: #08090d;
+          border: 2px solid rgba(0, 0, 102, 0.18);
+          border-top-color: var(--navy-blue);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }

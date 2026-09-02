@@ -44,7 +44,7 @@ export function AnalyzeButton({ loading, onClick, disabled, selectedMode }) {
           gap: 0.5rem;
           padding: 0.8rem 1.25rem;
           background: var(--accent-orange);
-          color: #08090d;
+          color: var(--white);
           border-radius: var(--radius-sm);
           font-size: 0.925rem;
           font-weight: 700;
@@ -57,8 +57,8 @@ export function AnalyzeButton({ loading, onClick, disabled, selectedMode }) {
           transform: translateY(-1px);
         }
         .gov-run-analysis-orange-btn:disabled {
-          background: #1e2230;
-          color: #525f76;
+          background: var(--border-subtle);
+          color: var(--slate-gray);
           cursor: not-allowed;
           box-shadow: none;
           transform: none;

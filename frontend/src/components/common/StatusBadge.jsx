@@ -34,57 +34,57 @@ export function StatusBadge({
 
         /* Success / Green */
         .badge-success {
-          background: rgba(0, 255, 136, 0.12);
-          border-color: rgba(0, 255, 136, 0.35);
-          color: #00ff88;
+          background: rgba(34, 197, 94, 0.12);
+          border-color: rgba(34, 197, 94, 0.35);
+          color: var(--success);
         }
         .badge-success .status-badge-dot {
-          background: #00ff88;
-          box-shadow: 0 0 8px #00ff88;
+          background: var(--success);
+          box-shadow: 0 0 8px var(--success);
         }
 
         /* Cyan */
         .badge-cyan {
-          background: rgba(0, 212, 255, 0.12);
-          border-color: rgba(0, 212, 255, 0.35);
-          color: #00d4ff;
+          background: rgba(59, 130, 246, 0.12);
+          border-color: rgba(59, 130, 246, 0.35);
+          color: var(--info);
         }
         .badge-cyan .status-badge-dot {
-          background: #00d4ff;
-          box-shadow: 0 0 8px #00d4ff;
+          background: var(--info);
+          box-shadow: 0 0 8px var(--info);
         }
 
         /* Magenta */
         .badge-magenta {
-          background: rgba(255, 0, 255, 0.12);
-          border-color: rgba(255, 0, 255, 0.35);
-          color: #ff00ff;
+          background: rgba(255, 82, 37, 0.12);
+          border-color: rgba(255, 82, 37, 0.35);
+          color: var(--flame-orange);
         }
         .badge-magenta .status-badge-dot {
-          background: #ff00ff;
-          box-shadow: 0 0 8px #ff00ff;
+          background: var(--flame-orange);
+          box-shadow: 0 0 8px var(--flame-orange);
         }
 
         /* Warning / Amber */
         .badge-warning {
-          background: rgba(251, 191, 36, 0.12);
-          border-color: rgba(251, 191, 36, 0.35);
-          color: #fbbf24;
+          background: rgba(245, 158, 11, 0.12);
+          border-color: rgba(245, 158, 11, 0.35);
+          color: var(--warning);
         }
         .badge-warning .status-badge-dot {
-          background: #fbbf24;
-          box-shadow: 0 0 8px #fbbf24;
+          background: var(--warning);
+          box-shadow: 0 0 8px var(--warning);
         }
 
         /* Danger / Red */
         .badge-danger {
-          background: rgba(255, 51, 102, 0.12);
-          border-color: rgba(255, 51, 102, 0.35);
-          color: #ff3366;
+          background: rgba(239, 68, 68, 0.12);
+          border-color: rgba(239, 68, 68, 0.35);
+          color: var(--error);
         }
         .badge-danger .status-badge-dot {
-          background: #ff3366;
-          box-shadow: 0 0 8px #ff3366;
+          background: var(--error);
+          box-shadow: 0 0 8px var(--error);
         }
 
         /* Neutral */

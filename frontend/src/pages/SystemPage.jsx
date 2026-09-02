@@ -379,7 +379,7 @@ export function SystemPage({ backendHealth }) {
         .system-sec-title {
           font-size: 1.35rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
 
         /* 1. Diagnostics Grid */
@@ -446,7 +446,7 @@ export function SystemPage({ backendHealth }) {
         }
         .layer-tech-tags span {
           font-size: 0.675rem;
-          background: rgba(10, 10, 15, 0.7);
+          background: rgba(255, 255, 255, 0.7);
           border: 1px solid var(--border-subtle);
           color: var(--tertiary);
           padding: 0.15rem 0.45rem;
@@ -478,7 +478,7 @@ export function SystemPage({ backendHealth }) {
         }
         .spec-header h4 {
           font-size: 0.95rem;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .mission-spec-card p {
           font-size: 0.8rem;
