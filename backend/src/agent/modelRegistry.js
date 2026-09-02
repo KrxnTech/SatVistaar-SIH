@@ -64,6 +64,21 @@ export const MODEL_REGISTRY = [
       FEATURE_IDENTIFICATION: 4,
       CHANGE_ANALYSIS: 4
     }
+  },
+  {
+    id: 'python-ml-vlm',
+    name: 'Python PyTorch ML Engine',
+    provider: 'python_ml',
+    model: 'python-ml-vlm',
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    supportsMultipleImages: true,
+    enabled: true,
+    taskPriority: {
+      VQA: 1.5,
+      CAPTIONING: 1.5,
+      FEATURE_IDENTIFICATION: 1.5,
+      CHANGE_ANALYSIS: 1.5
+    }
   }
 ];
 
