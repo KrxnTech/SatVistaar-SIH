@@ -11,6 +11,8 @@ import HomePage from './pages/HomePage.jsx';
 import AnalysisPage from './pages/AnalysisPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import HelpPage from './pages/HelpPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
+import EmptyState from './components/common/EmptyState.jsx';
 import { checkBackendHealth } from './services/api.js';
 
 function AppContent() {
@@ -82,8 +84,26 @@ function AppContent() {
         );
 
       case '/':
-      default:
         return <HomePage backendHealth={backendHealth} />;
+
+      case '/empty':
+        return (
+          <div className="container" style={{ padding: '3.5rem 1rem' }}>
+            <EmptyState
+              tag="MISSION READINESS"
+              title="No Active Intelligence Dossier"
+              description="No analysis mission has been executed in this session yet. Upload your satellite raster or configure a task in the workspace to synthesize high-precision observations."
+              primaryActionLabel="Return to Home"
+              primaryActionRoute="/"
+              secondaryActionLabel="Launch Workspace"
+              secondaryActionRoute="/analysis"
+            />
+          </div>
+        );
+
+      case '/404':
+      default:
+        return <NotFoundPage />;
     }
   };
 
@@ -102,7 +122,7 @@ function AppContent() {
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #08090d;
+          background: var(--bg-main);
           position: relative;
         }
         .gov-app-main {

@@ -82,7 +82,7 @@ export function MetadataPanel({ result }) {
           display: flex;
           flex-direction: column;
           padding: 0.45rem 0.65rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           gap: 0.1rem;
@@ -97,7 +97,7 @@ export function MetadataPanel({ result }) {
         .chip-val {
           font-size: 0.775rem;
           font-weight: 600;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .chip-val.t-blue {
           color: var(--accent-blue-text);
@@ -113,7 +113,7 @@ export function MetadataPanel({ result }) {
           text-transform: uppercase;
         }
         .status-text.success { color: var(--status-green-text); }
-        .status-text.abstained { color: #fbbf24; }
+        .status-text.abstained { color: var(--warning); }
         .status-text.failed { color: var(--status-red-text); }
 
         .warnings-alert-box {
@@ -122,7 +122,7 @@ export function MetadataPanel({ result }) {
           border-radius: var(--radius-sm);
           padding: 0.6rem 0.85rem;
           font-size: 0.75rem;
-          color: #fde68a;
+          color: var(--warning);
         }
         .alert-header {
           display: flex;

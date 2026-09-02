@@ -14,6 +14,9 @@ export function InteractiveHeroGrid() {
     let width = 0;
     let height = 0;
     const cellSize = 44;
+    const flameOrange = '#ff5225';
+    const infoBlue = '#3b82f6';
+    const white = '#ffffff';
     const activeCells = new Map();
     let mouse = { x: -1000, y: -1000, isHovering: false };
     let lastHoveredKey = '';
@@ -69,7 +72,7 @@ export function InteractiveHeroGrid() {
                 x: c * cellSize,
                 y: r * cellSize,
                 alpha: Math.max(existing?.alpha || 0, intensity),
-                color: isCenter ? '#f97316' : (c + r) % 2 === 0 ? '#38bdf8' : '#f97316',
+                color: isCenter ? flameOrange : (c + r) % 2 === 0 ? infoBlue : flameOrange,
                 // "Coming up" spring elevation scale
                 scale: isCenter ? 1.18 : 1.06,
                 isCenter,
@@ -116,8 +119,8 @@ export function InteractiveHeroGrid() {
           mouse.x, mouse.y, 0,
           mouse.x, mouse.y, 190
         );
-        spotGrad.addColorStop(0, 'rgba(249, 115, 22, 0.14)');
-        spotGrad.addColorStop(0.45, 'rgba(56, 189, 248, 0.04)');
+        spotGrad.addColorStop(0, 'rgba(255, 82, 37, 0.14)');
+        spotGrad.addColorStop(0.45, 'rgba(59, 130, 246, 0.04)');
         spotGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = spotGrad;
         ctx.fillRect(0, 0, width, height);
@@ -137,13 +140,13 @@ export function InteractiveHeroGrid() {
           if (cell.scale < 1.0) cell.scale = 1.0;
         }
 
-        const isOrange = cell.color === '#f97316';
+        const isOrange = cell.color === flameOrange;
         const fillRgba = isOrange
-          ? `rgba(249, 115, 22, ${cell.alpha * 0.35})`
-          : `rgba(56, 189, 248, ${cell.alpha * 0.32})`;
+          ? `rgba(255, 82, 37, ${cell.alpha * 0.35})`
+          : `rgba(59, 130, 246, ${cell.alpha * 0.32})`;
         const strokeRgba = isOrange
-          ? `rgba(249, 115, 22, ${cell.alpha * 0.95})`
-          : `rgba(56, 189, 248, ${cell.alpha * 0.95})`;
+          ? `rgba(255, 82, 37, ${cell.alpha * 0.95})`
+          : `rgba(59, 130, 246, ${cell.alpha * 0.95})`;
 
         const pad = 1.5;
         const cx = cell.x + pad;
@@ -177,7 +180,7 @@ export function InteractiveHeroGrid() {
 
         // Corner target reticle markers on the central hovered square
         if (cell.isCenter && cell.alpha > 0.3) {
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = white;
           ctx.lineWidth = 1.5;
           const tick = 4;
           // Top-left

@@ -138,14 +138,14 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
         .visualizer-title {
           font-size: 0.8rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .region-count-badge {
           font-size: 0.65rem;
           font-weight: 700;
           color: var(--accent-orange-text);
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.35);
+          background: rgba(255, 82, 37, 0.12);
+          border: 1px solid rgba(255, 82, 37, 0.35);
           padding: 0.1rem 0.45rem;
           border-radius: 4px;
         }
@@ -157,19 +157,19 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
           border-radius: var(--radius-sm);
           font-size: 0.7rem;
           font-weight: 700;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           color: var(--text-secondary);
           min-height: auto;
         }
         .annotation-toggle-btn.active {
-          background: rgba(249, 115, 22, 0.15);
+          background: rgba(255, 82, 37, 0.15);
           border-color: var(--accent-orange);
           color: var(--accent-orange-text);
         }
         .canvas-frame {
           position: relative;
-          background: #08090d;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           overflow: hidden;
@@ -206,7 +206,7 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
         }
         .bounding-box-item.theme-orange {
           border: 2px solid var(--accent-orange);
-          background: rgba(249, 115, 22, 0.18);
+          background: rgba(255, 82, 37, 0.18);
         }
         .bounding-box-item.theme-blue {
           border: 2px solid var(--accent-blue);
@@ -214,19 +214,19 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
         }
         .bounding-box-item:hover, .bounding-box-item.hovered {
           z-index: 20;
-          box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
+          box-shadow: 0 0 12px rgba(255, 82, 37, 0.4);
         }
         .box-pill {
           position: absolute;
           top: -22px;
           left: -2px;
-          background: #08090d;
+          background: var(--bg-main);
           border: 1px solid currentColor;
           border-radius: 2px;
           padding: 0.05rem 0.35rem;
           font-size: 0.625rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           white-space: nowrap;
           display: flex;
           align-items: center;
@@ -249,14 +249,14 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
           align-items: center;
           gap: 0.6rem;
           padding: 0.45rem 0.65rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           transition: all 0.15s ease;
         }
         .region-item-row.highlighted {
           border-color: var(--accent-orange);
-          background: #141722;
+          background: var(--bg-card);
         }
         .region-indicator-dot {
           width: 7px;
@@ -273,7 +273,7 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
         .region-label-text {
           font-size: 0.8rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .region-coords-text {
           font-size: 0.675rem;
@@ -285,7 +285,7 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
           gap: 0.45rem;
           font-size: 0.725rem;
           color: var(--text-secondary);
-          background: #10121a;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           padding: 0.5rem 0.75rem;
           border-radius: var(--radius-sm);

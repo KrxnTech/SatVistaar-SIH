@@ -60,7 +60,7 @@ export function ExecutionTraceViewer({ trace }) {
         .gov-trace-viewer {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          background: #141722;
+          background: var(--bg-card);
           overflow: hidden;
           margin-top: 0.5rem;
         }
@@ -73,12 +73,12 @@ export function ExecutionTraceViewer({ trace }) {
           font-size: 0.725rem;
           font-weight: 700;
           color: var(--text-secondary);
-          background: #10121a;
+          background: var(--bg-card);
           min-height: 38px;
         }
         .trace-toggle-btn:hover {
-          color: #ffffff;
-          background: #181c28;
+          color: var(--text-main);
+          background: var(--light-gray);
         }
         .btn-left {
           display: flex;
@@ -90,7 +90,7 @@ export function ExecutionTraceViewer({ trace }) {
         }
         .trace-content-body {
           padding: 0.85rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           border-top: 1px solid var(--border-subtle);
         }
         .timeline-list {
@@ -137,7 +137,7 @@ export function ExecutionTraceViewer({ trace }) {
         .event-type {
           font-size: 0.725rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .event-time {
           font-size: 0.65rem;
@@ -147,7 +147,7 @@ export function ExecutionTraceViewer({ trace }) {
           display: flex;
           flex-direction: column;
           gap: 0.15rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           padding: 0.35rem 0.55rem;
           border-radius: 3px;

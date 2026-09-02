@@ -243,7 +243,7 @@ export function ChangeVisualizer({
           font-size: 0.82rem;
           font-weight: 800;
           letter-spacing: 0.05em;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .region-count-badge {
           display: inline-flex;
@@ -252,8 +252,8 @@ export function ChangeVisualizer({
           font-size: 0.65rem;
           font-weight: 700;
           color: var(--accent-orange-text);
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.4);
+          background: rgba(255, 82, 37, 0.12);
+          border: 1px solid rgba(255, 82, 37, 0.4);
           padding: 0.15rem 0.5rem;
           border-radius: 4px;
         }
@@ -265,14 +265,14 @@ export function ChangeVisualizer({
           border-radius: var(--radius-sm);
           font-size: 0.7rem;
           font-weight: 700;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           color: var(--text-secondary);
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .annotation-toggle-btn.active {
-          background: rgba(249, 115, 22, 0.15);
+          background: rgba(255, 82, 37, 0.15);
           border-color: var(--accent-orange);
           color: var(--accent-orange-text);
         }
@@ -280,7 +280,7 @@ export function ChangeVisualizer({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 0.45rem 0.75rem;
@@ -323,7 +323,7 @@ export function ChangeVisualizer({
           .dual-comparison-grid { grid-template-columns: 1fr; }
         }
         .comparison-slot {
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: 6px;
           overflow: hidden;
@@ -341,7 +341,7 @@ export function ChangeVisualizer({
           align-items: center;
           justify-content: space-between;
           padding: 0.55rem 0.75rem;
-          background: #141722;
+          background: var(--bg-card);
           border-bottom: 1px solid var(--border-subtle);
         }
         .slot-badge {
@@ -368,7 +368,7 @@ export function ChangeVisualizer({
           color: var(--text-muted);
         }
         .canvas-frame {
-          background: #08090d;
+          background: var(--bg-main);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -395,51 +395,51 @@ export function ChangeVisualizer({
         }
         .change-box-ref {
           position: absolute;
-          border: 2px dashed #38bdf8;
-          background: rgba(56, 189, 248, 0.16);
+          border: 2px dashed var(--info);
+          background: rgba(59, 130, 246, 0.16);
           box-sizing: border-box;
           pointer-events: auto;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
         }
         .change-box-ref.hovered {
-          border-color: #60a5fa;
-          background: rgba(56, 189, 248, 0.3);
-          box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
+          border-color: var(--info);
+          background: rgba(59, 130, 246, 0.3);
+          box-shadow: 0 0 16px rgba(59, 130, 246, 0.55);
         }
         .change-box-comp {
           position: absolute;
-          border: 2.5px solid #f97316;
-          background: rgba(249, 115, 22, 0.24);
+          border: 2.5px solid var(--flame-orange);
+          background: rgba(255, 82, 37, 0.24);
           box-sizing: border-box;
           pointer-events: auto;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 0 16px rgba(249, 115, 22, 0.45);
+          box-shadow: 0 0 16px rgba(255, 82, 37, 0.45);
           animation: pulse-glow 2.5s ease-in-out infinite;
         }
         .change-box-comp.hovered {
-          border-color: #fb923c;
-          background: rgba(249, 115, 22, 0.38);
-          box-shadow: 0 0 24px rgba(249, 115, 22, 0.75);
+          border-color: var(--flame-orange);
+          background: rgba(255, 82, 37, 0.38);
+          box-shadow: 0 0 24px rgba(255, 82, 37, 0.75);
         }
         @keyframes pulse-glow {
           0%, 100% {
-            box-shadow: 0 0 12px rgba(249, 115, 22, 0.35);
+            box-shadow: 0 0 12px rgba(255, 82, 37, 0.35);
           }
           50% {
-            box-shadow: 0 0 22px rgba(249, 115, 22, 0.65);
+            box-shadow: 0 0 22px rgba(255, 82, 37, 0.65);
           }
         }
         .corner-tick {
           position: absolute;
           width: 8px;
           height: 8px;
-          border-color: #38bdf8;
+          border-color: var(--info);
         }
         .corner-tick.orange {
-          border-color: #ffffff;
+          border-color: var(--text-main);
         }
         .corner-tick.top-left {
           top: -2px; left: -2px;
@@ -465,7 +465,7 @@ export function ChangeVisualizer({
           position: absolute;
           top: -22px;
           left: -2px;
-          background: #08090d;
+          background: var(--bg-main);
           color: var(--accent-blue-text);
           border: 1px solid var(--accent-blue);
           padding: 0.1rem 0.4rem;
@@ -479,9 +479,9 @@ export function ChangeVisualizer({
           position: absolute;
           top: -24px;
           left: -2px;
-          background: #08090d;
-          color: #ffffff;
-          border: 1px solid #f97316;
+          background: var(--bg-main);
+          color: var(--text-main);
+          border: 1px solid var(--flame-orange);
           padding: 0.12rem 0.45rem;
           font-size: 0.64rem;
           font-weight: 800;
@@ -496,8 +496,8 @@ export function ChangeVisualizer({
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #f97316;
-          box-shadow: 0 0 6px #f97316;
+          background: var(--flame-orange);
+          box-shadow: 0 0 6px var(--flame-orange);
           display: inline-block;
         }
         .no-image-placeholder {
@@ -506,7 +506,7 @@ export function ChangeVisualizer({
           color: var(--text-dim);
         }
         .change-legend-panel {
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: 6px;
           padding: 0.65rem 0.85rem;
@@ -531,7 +531,7 @@ export function ChangeVisualizer({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: #12151f;
+          background: var(--very-light-gray);
           border: 1px solid var(--border-subtle);
           padding: 0.4rem 0.65rem;
           border-radius: 4px;
@@ -540,7 +540,7 @@ export function ChangeVisualizer({
         }
         .legend-item:hover, .legend-item.active {
           border-color: var(--accent-orange);
-          background: rgba(249, 115, 22, 0.08);
+          background: rgba(255, 82, 37, 0.08);
         }
         .legend-left {
           display: flex;
@@ -554,7 +554,7 @@ export function ChangeVisualizer({
         }
         .legend-name {
           font-size: 0.75rem;
-          color: #ffffff;
+          color: var(--text-main);
           font-weight: 600;
         }
         .legend-meta {
@@ -569,7 +569,7 @@ export function ChangeVisualizer({
         .legend-conf {
           color: var(--status-green-text);
           font-weight: 700;
-          background: rgba(16, 185, 129, 0.1);
+          background: rgba(34, 197, 94, 0.1);
           padding: 0.1rem 0.35rem;
           border-radius: 3px;
         }

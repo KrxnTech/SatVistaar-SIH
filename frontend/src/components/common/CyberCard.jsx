@@ -41,7 +41,7 @@ export function CyberCard({
 
       <style>{`
         .cyber-card-root {
-          background: rgba(18, 18, 26, 0.92);
+          background: var(--bg-card);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
           box-shadow: var(--shadow-sm);
@@ -55,16 +55,16 @@ export function CyberCard({
           border-color: var(--border-medium);
         }
         .cyber-card-root.glow-cyan {
-          border-color: rgba(0, 212, 255, 0.35);
-          box-shadow: 0 0 20px rgba(0, 212, 255, 0.12);
+          border-color: var(--accent-blue-border);
+          box-shadow: var(--shadow-blue-glow);
         }
         .cyber-card-root.glow-green {
-          border-color: rgba(0, 255, 136, 0.35);
-          box-shadow: 0 0 20px rgba(0, 255, 136, 0.12);
+          border-color: var(--status-green-border);
+          box-shadow: 0 0 20px rgba(34, 197, 94, 0.12);
         }
         .cyber-card-root.glow-magenta {
-          border-color: rgba(255, 0, 255, 0.35);
-          box-shadow: 0 0 20px rgba(255, 0, 255, 0.12);
+          border-color: var(--accent-orange-border);
+          box-shadow: var(--shadow-orange-glow);
         }
         .cyber-card-header {
           display: flex;
@@ -72,7 +72,7 @@ export function CyberCard({
           justify-content: space-between;
           padding: 0.875rem 1.15rem;
           border-bottom: 1px solid var(--border-subtle);
-          background: rgba(14, 14, 22, 0.6);
+          background: rgba(0, 0, 102, 0.32);
         }
         .header-text-group {
           display: flex;
@@ -82,7 +82,7 @@ export function CyberCard({
         .cyber-card-title {
           font-size: 0.95rem;
           font-weight: 700;
-          color: var(--text-bright);
+          color: var(--text-main);
           letter-spacing: -0.01em;
         }
         .cyber-card-subtitle {
@@ -105,22 +105,22 @@ export function CyberCard({
         .badge-primary {
           color: var(--primary);
           background: var(--primary-subtle);
-          border: 1px solid rgba(0, 255, 136, 0.3);
+          border: 1px solid var(--status-green-border);
         }
         .badge-secondary {
           color: var(--secondary);
           background: var(--secondary-subtle);
-          border: 1px solid rgba(255, 0, 255, 0.3);
+          border: 1px solid var(--accent-orange-border);
         }
         .badge-tertiary {
           color: var(--tertiary);
           background: var(--tertiary-subtle);
-          border: 1px solid rgba(0, 212, 255, 0.3);
+          border: 1px solid var(--accent-blue-border);
         }
         .badge-warning {
           color: var(--status-warning);
           background: var(--status-warning-bg);
-          border: 1px solid rgba(251, 191, 36, 0.3);
+          border: 1px solid var(--status-warning-border);
         }
         .cyber-card-body {
           padding: 1.15rem;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Satellite,
   User,
@@ -15,6 +15,26 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const { currentRoute, navigateTo } = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
+
+  const isHomeRoute = currentRoute === '/';
+
+  useEffect(() => {
+    if (!isHomeRoute) {
+      setScrolledPastHero(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      const heroEl = document.querySelector('.reference-hero') || document.querySelector('.hero-section');
+      const heroHeight = heroEl ? heroEl.offsetHeight - 80 : 450;
+      setScrolledPastHero(window.scrollY > heroHeight);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isHomeRoute]);
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -28,25 +48,25 @@ export function Navbar() {
     setMobileMenuOpen(false);
   };
 
+  const isTransparent = isHomeRoute && !scrolledPastHero;
+
   return (
-    <header className="gov-navbar-root">
-      {/* Main Dark Navbar */}
-      <div className="navbar-main">
-        <div className="container navbar-inner">
-          {/* Brand Group */}
+    <header className={`sat-navbar-unified ${isTransparent ? 'navbar-transparent' : 'navbar-solid'}`}>
+      {/* Main Navbar Bar */}
+      <div className="navbar-main-row">
+        <div className="container navbar-content-container">
+          {/* Brand Logo & Title */}
           <div className="brand-group" onClick={() => handleNavClick('/')}>
             <div className="brand-logo-badge">
               <Satellite className="brand-icon" size={20} />
             </div>
             <div className="brand-text">
-              <div className="brand-title-row">
-                <span className="brand-title">SatVistaar</span>
-              </div>
+              <span className="brand-title">SatVistaar</span>
               <span className="brand-subtitle">Remote Sensing Vision Intelligence</span>
             </div>
           </div>
 
-          {/* Desktop Nav Links */}
+          {/* Center Navigation Links */}
           <nav className="desktop-nav" aria-label="Main Navigation">
             {navItems.map((item) => {
               const isActive = currentRoute === item.path;
@@ -64,9 +84,9 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Right Action Group */}
+          {/* Right Actions Group */}
           <div className="navbar-actions">
-            {/* Primary Action Button (ORANGE) */}
+            {/* Start Analysis Quick CTA (shown if not on /analysis) */}
             {currentRoute !== '/analysis' && (
               <button
                 type="button"
@@ -78,7 +98,7 @@ export function Navbar() {
               </button>
             )}
 
-            {/* Auth Controls */}
+            {/* Auth Buttons */}
             {isAuthenticated && user ? (
               <div className="user-profile-group">
                 <div className="user-badge" title={`Signed in as ${user.email}`}>
@@ -99,7 +119,7 @@ export function Navbar() {
               <div className="auth-btn-group">
                 <button
                   type="button"
-                  className="gov-signin-btn"
+                  className={`gov-signin-btn ${currentRoute === '/login' ? 'active-auth' : ''}`}
                   onClick={() => handleNavClick('/login')}
                 >
                   <LogIn size={14} />
@@ -107,7 +127,7 @@ export function Navbar() {
                 </button>
                 <button
                   type="button"
-                  className="gov-register-btn"
+                  className={`gov-register-btn ${currentRoute === '/register' ? 'active-auth' : ''}`}
                   onClick={() => handleNavClick('/register')}
                 >
                   <span>Register</span>
@@ -120,7 +140,7 @@ export function Navbar() {
               type="button"
               className="mobile-toggle-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -128,7 +148,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
           <div className="container mobile-drawer-inner">
@@ -198,56 +218,44 @@ export function Navbar() {
       )}
 
       <style>{`
-        .gov-navbar-root {
+        .sat-navbar-unified {
           width: 100%;
-          background: #08090d;
-          border-bottom: 1px solid var(--border-subtle);
           position: sticky;
           top: 0;
-          z-index: 100;
-        }
-        .gov-top-banner {
-          background: #040507;
-          border-bottom: 1px solid #141722;
-          padding: 0.3rem 0;
-          font-size: 0.7rem;
-        }
-        .top-banner-inner {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .gov-flag-text {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: #94a3b8;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-        }
-        .telemetry-live-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--accent-orange);
-        }
-        .top-banner-meta {
-          color: #525f76;
-          font-size: 0.65rem;
-        }
-        @media (max-width: 640px) {
-          .top-banner-meta { display: none; }
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
         }
 
-        .navbar-main {
-          padding: 0.65rem 0;
+        .sat-navbar-unified.navbar-transparent {
+          position: fixed;
+          background: transparent;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
         }
-        .navbar-inner {
+
+        .sat-navbar-unified.navbar-solid {
+          background: rgba(0, 0, 102, 0.95);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          box-shadow: 0 8px 32px rgba(0, 0, 70, 0.4);
+        }
+
+        .navbar-main-row {
+          padding: 0.85rem 0;
+        }
+
+        .navbar-content-container {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 1rem;
+          gap: 1.5rem;
         }
+
+        /* Brand Group */
         .brand-group {
           display: flex;
           align-items: center;
@@ -255,268 +263,322 @@ export function Navbar() {
           cursor: pointer;
           user-select: none;
         }
+
         .brand-logo-badge {
-          width: 36px;
-          height: 36px;
-          border-radius: var(--radius-sm);
-          background: #141722;
-          border: 1px solid #2a3044;
-          color: var(--accent-orange);
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: transform 0.2s ease, background 0.2s ease;
         }
+
+        .brand-group:hover .brand-logo-badge {
+          background: #ff5225;
+          border-color: #ff5225;
+          transform: scale(1.05);
+        }
+
         .brand-text {
           display: flex;
           flex-direction: column;
         }
-        .brand-title-row {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
+
         .brand-title {
-          font-size: 1.15rem;
+          font-size: 1.35rem;
           font-weight: 800;
           color: #ffffff;
-          letter-spacing: -0.02em;
-        }
-        .brand-tag {
-          font-size: 0.6rem;
-          font-weight: 700;
-          padding: 0.1rem 0.35rem;
-          border-radius: 3px;
-          background: rgba(249, 115, 22, 0.12);
-          border: 1px solid rgba(249, 115, 22, 0.35);
-          color: var(--accent-orange-text);
-        }
-        .brand-subtitle {
-          font-size: 0.7rem;
-          color: var(--text-muted);
+          letter-spacing: -0.01em;
+          line-height: 1.15;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* Desktop Nav */
+        .brand-subtitle {
+          font-size: 0.68rem;
+          color: rgba(255, 255, 255, 0.72);
+          letter-spacing: 0.02em;
+        }
+
+        /* Center Nav Links */
         .desktop-nav {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-        }
-        @media (max-width: 840px) {
-          .desktop-nav { display: none; }
-        }
-        .nav-link-btn {
-          position: relative;
-          padding: 0.5rem 0.95rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--text-secondary);
-          border-radius: var(--radius-sm);
-          min-height: 36px;
-        }
-        .nav-link-btn:hover {
-          color: #ffffff;
-          background: #12151f;
-        }
-        .nav-link-btn.active {
-          color: #ffffff;
-          background: #141722;
-        }
-        .active-orange-underline {
-          position: absolute;
-          bottom: 0;
-          left: 15%;
-          right: 15%;
-          height: 2px;
-          background: var(--accent-orange);
-          border-radius: 2px;
-          box-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+          gap: 0.75rem;
         }
 
-        /* Actions */
+        @media (max-width: 860px) {
+          .desktop-nav {
+            display: none;
+          }
+        }
+
+        .nav-link-btn {
+          position: relative;
+          padding: 0.5rem 1rem;
+          font-size: 0.9375rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.88);
+          background: transparent;
+          border: none;
+          border-radius: 999px;
+          cursor: pointer;
+          min-height: 38px;
+          transition: all 0.2s ease;
+          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .nav-link-btn:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.14);
+        }
+
+        .nav-link-btn.active {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.16);
+        }
+
+        .active-orange-underline {
+          position: absolute;
+          bottom: -2px;
+          left: 20%;
+          right: 20%;
+          height: 2.5px;
+          background: #ff5225;
+          border-radius: 999px;
+          box-shadow: 0 0 10px rgba(255, 82, 37, 0.8);
+        }
+
+        /* Right Actions */
         .navbar-actions {
           display: flex;
           align-items: center;
           gap: 0.75rem;
         }
 
-        /* Primary Orange CTA */
         .gov-cta-orange-btn {
           display: inline-flex;
           align-items: center;
           gap: 0.45rem;
-          padding: 0.5rem 1rem;
-          background: var(--accent-orange);
-          color: #08090d;
-          border-radius: var(--radius-sm);
-          font-size: 0.825rem;
+          padding: 0.6rem 1.15rem;
+          background: #ff5225;
+          color: #ffffff;
+          border: none;
+          border-radius: 999px;
+          font-size: 0.875rem;
           font-weight: 700;
-          min-height: 36px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-        }
-        .gov-cta-orange-btn:hover {
-          background: var(--accent-orange-hover);
-          transform: translateY(-1px);
-        }
-        @media (max-width: 720px) {
-          .gov-cta-orange-btn { display: none; }
+          min-height: 38px;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(255, 82, 37, 0.4);
+          transition: all 0.2s ease;
         }
 
-        /* Auth */
+        .gov-cta-orange-btn:hover {
+          background: #e6451a;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 18px rgba(255, 82, 37, 0.5);
+        }
+
+        .auth-btn-group {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .gov-signin-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.55rem 1rem;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          color: #ffffff;
+          border-radius: 999px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          min-height: 38px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .gov-signin-btn:hover, .gov-signin-btn.active-auth {
+          background: rgba(255, 255, 255, 0.22);
+          border-color: rgba(255, 255, 255, 0.4);
+          color: #ffffff;
+        }
+
+        .gov-register-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.55rem 1rem;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: rgba(255, 255, 255, 0.9);
+          border-radius: 999px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          min-height: 38px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .gov-register-btn:hover, .gov-register-btn.active-auth {
+          background: rgba(255, 255, 255, 0.18);
+          border-color: rgba(255, 255, 255, 0.35);
+          color: #ffffff;
+        }
+
+        /* User Profile Badge */
         .user-profile-group {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
         }
+
         .user-badge {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          padding: 0.3rem 0.65rem;
-          background: #141722;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          font-size: 0.8rem;
+          gap: 0.45rem;
+          padding: 0.4rem 0.8rem;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          border-radius: 999px;
+          font-size: 0.8125rem;
           font-weight: 600;
-          color: var(--text-main);
+          color: #ffffff;
         }
+
         .user-icon {
-          color: var(--accent-blue-text);
+          color: #ff5225;
         }
+
         .gov-logout-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 34px;
-          height: 34px;
-          border-radius: var(--radius-sm);
-          background: #141722;
-          border: 1px solid var(--border-subtle);
-          color: var(--text-muted);
-          min-height: auto;
-        }
-        .gov-logout-btn:hover {
-          background: rgba(239, 68, 68, 0.15);
-          color: var(--status-red);
-          border-color: rgba(239, 68, 68, 0.4);
-        }
-        .auth-btn-group {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-        .gov-signin-btn {
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
-          padding: 0.4rem 0.75rem;
-          background: #12151f;
-          border: 1px solid var(--border-medium);
-          border-radius: var(--radius-sm);
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: var(--text-main);
-          min-height: 36px;
-        }
-        .gov-signin-btn:hover {
-          background: #181c28;
-          border-color: var(--accent-blue);
-          color: var(--accent-blue-text);
-        }
-        .gov-register-btn {
-          padding: 0.4rem 0.8rem;
-          background: #181c28;
-          border: 1px solid var(--border-medium);
-          color: var(--text-secondary);
-          border-radius: var(--radius-sm);
-          font-size: 0.8rem;
-          font-weight: 600;
-          min-height: 36px;
-        }
-        .gov-register-btn:hover {
-          background: #202535;
-          color: #ffffff;
-          border-color: var(--border-strong);
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          color: rgba(255, 255, 255, 0.85);
+          cursor: pointer;
+          transition: all 0.15s ease;
         }
 
-        /* Mobile */
+        .gov-logout-btn:hover {
+          background: rgba(239, 68, 68, 0.25);
+          border-color: rgba(239, 68, 68, 0.5);
+          color: #ff6b6b;
+        }
+
+        /* Mobile Menu Button */
         .mobile-toggle-btn {
           display: none;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
-          border-radius: var(--radius-sm);
-          background: #141722;
-          border: 1px solid var(--border-subtle);
-          color: var(--text-main);
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.24);
+          color: #ffffff;
+          cursor: pointer;
         }
-        @media (max-width: 840px) {
-          .mobile-toggle-btn { display: flex; }
+
+        @media (max-width: 860px) {
+          .mobile-toggle-btn {
+            display: flex;
+          }
+          .auth-btn-group, .gov-cta-orange-btn {
+            display: none;
+          }
         }
+
+        /* Mobile Drawer */
         .mobile-nav-drawer {
-          background: #0d0e15;
-          border-top: 1px solid var(--border-subtle);
-          border-bottom: 1px solid var(--border-medium);
-          padding: 1rem 0 1.5rem 0;
+          background: rgba(0, 0, 102, 0.98);
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+          padding: 1.25rem 0 1.75rem 0;
+          backdrop-filter: blur(16px);
         }
+
         .mobile-drawer-inner {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 1.25rem;
         }
+
         .mobile-links-list {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.35rem;
         }
+
         .mobile-link-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0.75rem 1rem;
-          font-size: 0.95rem;
+          font-size: 0.9375rem;
           font-weight: 600;
-          color: var(--text-main);
-          border-radius: var(--radius-sm);
+          color: rgba(255, 255, 255, 0.9);
+          background: transparent;
+          border: none;
+          border-radius: 8px;
           text-align: left;
+          cursor: pointer;
+          transition: background 0.15s ease;
         }
+
         .mobile-link-item:hover, .mobile-link-item.active {
-          background: #141722;
-          color: var(--accent-orange);
+          background: rgba(255, 255, 255, 0.14);
+          color: #ffffff;
         }
+
         .mobile-active-dot {
-          width: 6px;
-          height: 6px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
-          background: var(--accent-orange);
+          background: #ff5225;
+          box-shadow: 0 0 8px #ff5225;
         }
+
         .mobile-drawer-actions {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
           padding-top: 0.75rem;
-          border-top: 1px solid var(--border-subtle);
+          border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
+
         .mobile-auth-row {
           display: flex;
           gap: 0.5rem;
         }
+
         .full-w {
           width: 100%;
           justify-content: center;
         }
+
         .gov-logout-mobile-btn {
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
           padding: 0.65rem 1rem;
-          background: rgba(239, 68, 68, 0.12);
-          border: 1px solid rgba(239, 68, 68, 0.35);
-          color: var(--status-red-text);
-          border-radius: var(--radius-sm);
-          font-size: 0.85rem;
+          background: rgba(239, 68, 68, 0.2);
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          color: #ff8080;
+          border-radius: 8px;
+          font-size: 0.875rem;
           font-weight: 600;
+          cursor: pointer;
         }
       `}</style>
     </header>

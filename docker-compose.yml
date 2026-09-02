@@ -1,0 +1,103 @@
+services:
+  # ==========================================================
+  # 1. Python Geospatial Preprocessing Microservice (Rasterio/GDAL)
+  # ==========================================================
+  preprocessing:
+    build:
+      context: ./backend/services/preprocessing
+      dockerfile: Dockerfile
+    container_name: satvistaar-preprocessing
+    restart: unless-stopped
+    ports:
+      - "${PREPROCESSING_PORT:-5001}:5001"
+    environment:
+      - PREPROCESSING_PORT=5001
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - satvistaar-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================
+  # 2. Node.js Express Backend API
+  # ==========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: satvistaar-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - CLIENT_URL=${CLIENT_URL:-http://localhost}
+      - API_PREFIX=/api/v1
+      - MAX_UPLOAD_SIZE_MB=${MAX_UPLOAD_SIZE_MB:-100}
+      - UPLOAD_DIR=uploads
+      - PREPROCESSING_SERVICE_URL=http://preprocessing:5001
+      - PREPROCESSING_TIMEOUT_MS=${PREPROCESSING_TIMEOUT_MS:-15000}
+      - ML_MODE=${ML_MODE:-mock}
+      - MODEL_PROVIDER=${MODEL_PROVIDER:-auto}
+      - MODEL_ROUTER_MODE=${MODEL_ROUTER_MODE:-priority}
+      - VLM_TIMEOUT_MS=${VLM_TIMEOUT_MS:-30000}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_MODEL=${GROQ_MODEL:-qwen/qwen3.6-27b}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2-vl}
+      - JWT_SECRET=${JWT_SECRET:-satvistaar_production_secret_key_change_me_2026}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - COOKIE_SECRET=${COOKIE_SECRET:-satvistaar_cookie_secret_2026}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      preprocessing:
+        condition: service_healthy
+    networks:
+      - satvistaar-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ==========================================================
+  # 3. React Frontend + Nginx Reverse Proxy
+  # ==========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=
+    container_name: satvistaar-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - satvistaar-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/healthz > /dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  uploads_data:
+    driver: local
+
+networks:
+  satvistaar-net:
+    driver: bridge

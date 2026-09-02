@@ -22,7 +22,10 @@ const SECTIONS = [
 export function AboutPage({ backendHealth }) {
   const { navigateTo } = useRouter();
   const [activeSection, setActiveSection] = useState('about');
-  const sectionRefs = useRef({});
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,20 +39,15 @@ export function AboutPage({ backendHealth }) {
       { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
     );
 
-    Object.values(sectionRefs.current).forEach((el) => {
+    SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
   }, []);
 
-  const scrollToSection = (id) => {
-    sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const registerRef = (id) => (el) => {
-    sectionRefs.current[id] = el;
-  };
+  const registerRef = () => undefined;
 
   return (
     <div className="gov-about-page">
@@ -104,20 +102,20 @@ export function AboutPage({ backendHealth }) {
               <svg viewBox="0 0 240 240" className="orbit-svg">
                 <defs>
                   <radialGradient id="core-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#f97316" stopOpacity="0.7" />
-                    <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+                    <stop offset="0%" stopColor="var(--flame-orange)" stopOpacity="0.7" />
+                    <stop offset="100%" stopColor="var(--flame-orange)" stopOpacity="0" />
                   </radialGradient>
                   <radialGradient id="node1-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#f97316" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
+                    <stop offset="0%" stopColor="var(--flame-orange)" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="var(--flame-orange)" stopOpacity="0" />
                   </radialGradient>
                   <radialGradient id="node2-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+                    <stop offset="0%" stopColor="var(--info)" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="var(--info)" stopOpacity="0" />
                   </radialGradient>
                   <radialGradient id="node3-glow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#34d399" stopOpacity="0.85" />
-                    <stop offset="100%" stopColor="#34d399" stopOpacity="0" />
+                    <stop offset="0%" stopColor="var(--success)" stopOpacity="0.85" />
+                    <stop offset="100%" stopColor="var(--success)" stopOpacity="0" />
                   </radialGradient>
                 </defs>
 
@@ -386,7 +384,7 @@ export function AboutPage({ backendHealth }) {
 
       <style>{`
         .gov-about-page {
-          background: #08090d;
+          background: var(--bg-main);
           min-height: 100vh;
         }
 
@@ -422,7 +420,7 @@ export function AboutPage({ backendHealth }) {
         .sidebar-mark-title {
           font-size: 1rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.01em;
         }
         .sidebar-mark-sub {
@@ -453,7 +451,7 @@ export function AboutPage({ backendHealth }) {
           color: var(--text-secondary);
         }
         .sidebar-nav-item.is-active {
-          color: #ffffff;
+          color: var(--text-main);
           border-left-color: var(--accent-orange);
         }
         .sidebar-nav-num {
@@ -519,7 +517,7 @@ export function AboutPage({ backendHealth }) {
         .about-title {
           font-size: 2.5rem;
           font-weight: 800;
-          color: #ffffff;
+          color: var(--text-main);
           letter-spacing: -0.02em;
           line-height: 1.05;
         }
@@ -538,7 +536,7 @@ export function AboutPage({ backendHealth }) {
           max-width: 210px;
           height: auto;
           overflow: visible;
-          filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.12));
+          filter: drop-shadow(0 0 16px rgba(255, 82, 37, 0.12));
         }
         .orbit-ring {
           fill: none;
@@ -564,7 +562,7 @@ export function AboutPage({ backendHealth }) {
 
         .orbit-core {
           fill: var(--accent-orange);
-          filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.9));
+          filter: drop-shadow(0 0 6px rgba(255, 82, 37, 0.9));
         }
         .orbit-core-pulse {
           animation: core-pulse 2.4s ease-in-out infinite;
@@ -578,15 +576,15 @@ export function AboutPage({ backendHealth }) {
         }
         .orbit-node-1 {
           fill: var(--accent-orange);
-          filter: drop-shadow(0 0 6px #f97316);
+          filter: drop-shadow(0 0 6px var(--flame-orange));
         }
         .orbit-node-2 {
-          fill: #38bdf8;
-          filter: drop-shadow(0 0 6px #38bdf8);
+          fill: var(--info);
+          filter: drop-shadow(0 0 6px var(--info));
         }
         .orbit-node-3 {
-          fill: #34d399;
-          filter: drop-shadow(0 0 6px #34d399);
+          fill: var(--success);
+          filter: drop-shadow(0 0 6px var(--success));
         }
         .orbit-node-glow {
           opacity: 0.75;
@@ -665,7 +663,7 @@ export function AboutPage({ backendHealth }) {
         .section-title {
           font-size: 1.3rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .section-text {
           font-size: 0.92rem;
@@ -699,7 +697,7 @@ export function AboutPage({ backendHealth }) {
         .problem-item h4 {
           font-size: 0.88rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
         }
         .problem-item p {
           font-size: 0.85rem;
@@ -730,7 +728,7 @@ export function AboutPage({ backendHealth }) {
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 50%;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-medium);
           display: flex;
           align-items: center;
@@ -751,7 +749,7 @@ export function AboutPage({ backendHealth }) {
         .timeline-body h4 {
           font-size: 0.95rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           margin-bottom: 0.25rem;
         }
         .timeline-body p {
@@ -764,7 +762,7 @@ export function AboutPage({ backendHealth }) {
         .process-flow-container {
           position: relative;
           overflow: hidden;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 1rem 0;
@@ -797,7 +795,7 @@ export function AboutPage({ backendHealth }) {
           display: inline-flex;
           align-items: center;
           gap: 0.5rem;
-          background: #141722;
+          background: var(--bg-card);
           border: 1px solid var(--border-medium);
           padding: 0.45rem 0.75rem;
           border-radius: 4px;
@@ -808,7 +806,7 @@ export function AboutPage({ backendHealth }) {
         }
         .flow-node:hover {
           border-color: var(--accent-orange);
-          box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+          box-shadow: 0 0 10px rgba(255, 82, 37, 0.2);
         }
         .flow-node-num {
           color: var(--accent-orange-text, var(--accent-orange));
@@ -817,7 +815,7 @@ export function AboutPage({ backendHealth }) {
         }
         .flow-node-title {
           font-weight: 600;
-          color: #f1f5f9;
+          color: var(--light-gray);
         }
         .flow-arrow {
           color: var(--accent-orange);
@@ -880,7 +878,7 @@ export function AboutPage({ backendHealth }) {
         .t-green { color: var(--status-green-text); }
         .arch-impl {
           font-size: 0.88rem;
-          color: #ffffff;
+          color: var(--text-main);
           font-weight: 600;
           margin-bottom: 0.2rem;
         }
@@ -914,7 +912,7 @@ export function AboutPage({ backendHealth }) {
         .task-row h4 {
           font-size: 0.95rem;
           font-weight: 700;
-          color: #ffffff;
+          color: var(--text-main);
           margin-bottom: 0.25rem;
         }
         .task-row p {
@@ -934,7 +932,7 @@ export function AboutPage({ backendHealth }) {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: #0d0e15;
+          background: var(--bg-main);
           border: 1px solid var(--border-subtle);
           padding: 0.45rem 0.8rem;
           border-radius: 999px;
@@ -942,7 +940,7 @@ export function AboutPage({ backendHealth }) {
           color: var(--text-secondary);
         }
         .tech-tag strong {
-          color: #ffffff;
+          color: var(--text-main);
         }
 
         /* Limitations */
@@ -975,7 +973,7 @@ export function AboutPage({ backendHealth }) {
           gap: 0.5rem;
           padding: 0.75rem 1.5rem;
           background: var(--accent-orange);
-          color: #08090d;
+          color: var(--white);
           border-radius: var(--radius-sm);
           font-size: 0.88rem;
           font-weight: 700;

@@ -4,12 +4,13 @@ const RouterContext = createContext(null);
 
 function normalizePath(pathname) {
   const lower = (pathname || '/').toLowerCase().replace(/\/$/, '') || '/';
+  if (lower === '' || lower === '/') return '/';
   if (lower.startsWith('/analysis') || lower.startsWith('/results') || lower.startsWith('/workspace') || lower.startsWith('/dashboard')) return '/analysis';
   if (lower.startsWith('/about') || lower.startsWith('/project') || lower.startsWith('/system')) return '/about';
   if (lower.startsWith('/help') || lower.startsWith('/docs') || lower.startsWith('/documentation')) return '/help';
   if (lower.startsWith('/login')) return '/login';
   if (lower.startsWith('/register')) return '/register';
-  return '/';
+  return lower;
 }
 
 export function RouterProvider({ children }) {
