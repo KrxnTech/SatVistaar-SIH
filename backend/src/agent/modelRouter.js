@@ -51,11 +51,8 @@ export const routeModel = ({ task, imageCount = 1, query = '', forceMock = false
   let primaryModel = null;
   let fallbackModel = null;
 
-  if (preferredProvider === 'groq') {
-    primaryModel = candidateModels.find(m => m.provider === 'groq') || candidateModels[0];
-    fallbackModel = candidateModels.find(m => m.id !== primaryModel.id) || null;
-  } else if (preferredProvider === 'ollama') {
-    primaryModel = candidateModels.find(m => m.provider === 'ollama') || candidateModels[0];
+  if (preferredProvider && preferredProvider !== 'auto') {
+    primaryModel = candidateModels.find(m => m.provider === preferredProvider) || candidateModels[0];
     fallbackModel = candidateModels.find(m => m.id !== primaryModel.id) || null;
   } else {
     // Auto Mode: Highest benchmark priority candidate
