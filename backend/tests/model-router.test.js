@@ -34,6 +34,10 @@ const asyncTest = async (name, fn) => {
 };
 
 (async () => {
+  // Store initial config mode
+  const origMlMode = config.mlMode;
+  config.mlMode = 'real'; // Enable live router testing
+
   // Test 1: VQA selects top benchmark-priority model
   test('1. VQA routing selects top benchmark priority model (qwen3.8-27b)', () => {
     const route = routeModel({ task: 'VQA', imageCount: 1 });
@@ -66,11 +70,11 @@ const asyncTest = async (name, fn) => {
 
   // Test 5: Disabled model is ignored
   test('5. Disabled model is ignored by router', () => {
-    const targetModel = MODEL_REGISTRY.find(m => m.id === 'groq-qwen36');
+    const targetModel = MODEL_REGISTRY.find(m => m.id === 'groq-qwen38');
     targetModel.enabled = false;
 
     const route = routeModel({ task: 'VQA', imageCount: 1 });
-    assert.strictEqual(route.selectedModel.id, 'groq-qwen38');
+    assert.strictEqual(route.selectedModel.id, 'python-ml-vlm');
 
     targetModel.enabled = true; // Restore
   });
@@ -84,13 +88,17 @@ const asyncTest = async (name, fn) => {
     assert.strictEqual(route.selectedModel, null);
   });
 
-  // Test 7: Provider preference override
-  test('7. Model Router respects explicit MODEL_PROVIDER configuration', () => {
+  // Test 7: Provider preference override for Groq and Python ML
+  test('7. Model Router respects explicit MODEL_PROVIDER configuration (groq & python_ml)', () => {
     const origProvider = config.modelProvider;
+    
     config.modelProvider = 'groq';
-
-    const route = routeModel({ task: 'VQA', imageCount: 1 });
+    let route = routeModel({ task: 'VQA', imageCount: 1 });
     assert.strictEqual(route.selectedModel.provider, 'groq');
+
+    config.modelProvider = 'python_ml';
+    route = routeModel({ task: 'VQA', imageCount: 1 });
+    assert.strictEqual(route.selectedModel.provider, 'python_ml');
 
     config.modelProvider = origProvider;
   });
@@ -157,6 +165,18 @@ const asyncTest = async (name, fn) => {
     assert.strictEqual(route.isMock, false);
     assert.notStrictEqual(route.selectedModel.provider, 'mock');
   });
+
+  // Test 13: Python ML Provider resolution & fallback candidate verification
+  test('13. Python ML Engine is registered as valid candidate for all tasks', () => {
+    const tasks = ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'];
+    for (const t of tasks) {
+      const candidates = getCandidateModels(t, t === 'CHANGE_ANALYSIS' ? 2 : 1);
+      assert(candidates.some(m => m.provider === 'python_ml'), `Task ${t} missing python_ml candidate`);
+    }
+  });
+
+  // Restore original ML mode
+  config.mlMode = origMlMode;
 
   console.log('\n====================================================');
   console.log(`📊 ROUTER TEST SUMMARY: ${passed}/${total} Passed (${Math.round((passed / total) * 100)}%)`);

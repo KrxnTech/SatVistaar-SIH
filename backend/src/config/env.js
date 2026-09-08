@@ -19,14 +19,14 @@ const config = {
   preprocessingTimeoutMs: parseInt(process.env.PREPROCESSING_TIMEOUT_MS || '5000', 10),
   mlServiceUrl: process.env.ML_SERVICE_URL || 'http://localhost:5002',
   mlServiceTimeoutMs: parseInt(process.env.ML_SERVICE_TIMEOUT_MS || '10000', 10),
-  mlMode: (process.env.ML_MODE || 'mock').toLowerCase(),
+  mlMode: (process.env.MOCK_MODE === 'false' ? 'real' : (process.env.ML_MODE || 'real')).toLowerCase(),
   
   // VLM Provider & Model Configurations
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'qwen/qwen3.6-27b',
   ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
   ollamaModel: process.env.OLLAMA_MODEL || 'qwen2-vl',
-  modelProvider: (process.env.MODEL_PROVIDER || 'auto').toLowerCase(), // 'auto' | 'groq' | 'ollama' | 'mock'
+  modelProvider: (process.env.DEFAULT_MODEL_PROVIDER || process.env.MODEL_PROVIDER || 'python_ml').toLowerCase(), // 'python_ml' | 'groq' | 'ollama' | 'auto'
   modelRouterMode: (process.env.MODEL_ROUTER_MODE || 'priority').toLowerCase(), // 'priority' | 'fallback'
   vlmTimeoutMs: parseInt(process.env.VLM_TIMEOUT_MS || '30000', 10),
 
