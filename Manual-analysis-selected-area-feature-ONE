@@ -1,0 +1,257 @@
+# Implementation Plan: Universal Selected Area / ROI Analysis Across All SatVistaar-SIH Tasks
+
+Add a **Universal Selected Area / ROI Analysis** capability that operates as a **secondary analytical layer directly after primary image analysis** across all five analysis workflows:
+1. **VQA**
+2. **Scene Description / Captioning**
+3. **Bi-Temporal Change Analysis**
+4. **Grounding**
+5. **Optical + SAR Fusion Analysis**
+
+This capability enables the user to:
+**Run Analysis → Select ROI (Rectangle, Polygon, Freehand, Point) → View Instant GIS Information → Ask Task-Specific or Custom Questions → Receive Structured Quantitative & Qualitative ROI Intelligence (without overwriting the original analysis).**
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Key Architecture Decisions:**
+> 1. **Not a 6th Analysis Mode**: The ROI system is accessible *after* any of the 5 primary analyses complete, rendered right on the results interface.
+> 2. **Multi-Image Geographic Synchronization**: For paired workflows (`Bi-Temporal` T1/T2 and `Optical + SAR`), selecting an ROI on one image automatically and synchronously projects the exact same geographic region onto the paired image.
+> 3. **Non-Destructive Scope Switching**: Users can toggle between **[ Full Image Analysis ]** and **[ Selected Area Analysis ]** with zero loss of state or primary analysis results.
+> 4. **Factual & Honest Metrics**: Land cover percentages (Vegetation, Built-up, Water, Bare Soil) and km² calculations are computed using genuine spectral/backscatter raster analysis; if qualitative interpretation is used, the system displays an explicit transparency disclaimer.
+> 5. **Sub-Window Processing Performance**: Large GeoTIFFs are cropped to the ROI window on the backend before heavy ML inference, preventing high-resolution memory bloat.
+
+---
+
+## Proposed Changes
+
+```
+SatVistaar Architecture (Post-Analysis Secondary ROI Layer)
+├── Frontend
+│   ├── src/components/roi/
+│   │   ├── RoiDrawingCanvas.jsx        [NEW]  Interactive SVG/Canvas (Rect, Poly, Freehand, Point, Edit, Clear)
+│   │   ├── RoiToolbar.jsx              [NEW]  Sleek GIS-themed selection tool controls
+│   │   ├── RoiGisPanel.jsx             [NEW]  Live GIS metrics (Area, Perimeter, Bounds, Center, CRS, Resolution)
+│   │   ├── RoiPreview.jsx              [NEW]  Visual sub-window crop (Single, T1/T2 paired, Optical/SAR paired)
+│   │   ├── RoiQuestionPanel.jsx        [NEW]  Task-specific question presets + custom natural language prompt
+│   │   ├── RoiResultView.jsx           [NEW]  7 result tabs (Overview, GIS, Findings, Stats, Evidence, Q&A, Trace)
+│   │   └── RoiScopeIndicator.jsx       [NEW]  Active scope pill (Full Image vs Selected Area toggle)
+│   ├── src/context/AnalysisContext.jsx [MODIFY] Add ROI state, geographic sync, activeScope, and handleAnalyzeRoi
+│   ├── src/components/AnalysisResult.jsx [MODIFY] Mount ROI controls, GIS panel, question panel, and result tabs
+│   ├── src/components/FusionImageViewer.jsx [MODIFY] Mount synchronized ROI canvas across Optical & SAR panes
+│   ├── src/components/ChangeVisualizer.jsx  [MODIFY] Mount synchronized ROI canvas across T1 & T2 panes
+│   ├── src/components/GroundingVisualizer.jsx [MODIFY] Mount ROI canvas & clip detections to selected ROI
+│   └── src/services/api.js             [MODIFY] Add analyzeRoiApi method
+│
+├── Backend
+│   ├── src/services/roi.service.js     [NEW]  Geodesic area/perimeter math, pixel window translation, raster crop
+│   ├── src/services/analysis.service.js [MODIFY] Support scope: 'ROI', integrate ROI pipeline & trace
+│   ├── src/controllers/analysis.controller.js [MODIFY] Accept and validate ROI payload
+│   └── services/ml_inference/
+│       ├── app.py                      [MODIFY] Add /predict/roi endpoint
+│       ├── roi_analyzer.py             [NEW]  Spectral NDVI, SAR backscatter dB, land cover %, and change within ROI
+│       └── fusion_analyzer.py          [MODIFY] Allow ROI sub-window analysis
+└── Tests
+    ├── backend/tests/roi-analysis.test.js [NEW] Comprehensive unit & integration tests for ROI across all 5 tasks
+    └── regression tests (ensure all existing 15+ tests pass)
+```
+
+---
+
+### Component 1: Frontend Interactive ROI Engine (`frontend/src/components/roi/`)
+
+#### [NEW] [RoiDrawingCanvas.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiDrawingCanvas.jsx)
+- **Universal Drawing Engine**:
+  - Overlays directly on image container with normalized coordinate space `[0..1]`, making it immune to resize/zoom/pan discrepancies.
+  - **Modes**:
+    - `rectangle`: Drag-and-drop bounding box with 8 resize handles.
+    - `polygon`: Point-and-click vertices, dynamic cursor guideline, double-click or click start point to close.
+    - `freehand`: Smooth path drawing with continuous point sampling and automatic closure on mouse up.
+    - `point`: Single click with adjustable buffer radius.
+    - `edit`: Drag vertices to reshape or drag center to translate.
+  - **Multi-Image Sync**: Emits geometry updates to `AnalysisContext` so paired viewers (T1/T2, Optical/SAR) render identical ROI boundaries simultaneously.
+
+#### [NEW] [RoiToolbar.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiToolbar.jsx)
+- Floating GIS tool strip styled to match dark glassmorphic UI:
+  - Tools: `[ Rectangle ]` `[ Polygon ]` `[ Freehand ]` `[ Point ]` `[ Edit ]` `[ Clear ]` `[ Zoom to ROI ]`
+  - Active tool state highlighting and keyboard shortcuts (`Esc` to cancel, `Delete` to clear).
+
+#### [NEW] [RoiGisPanel.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiGisPanel.jsx)
+- Dedicated GIS information panel calculating in real time:
+  - **Geometry**: Polygon / Rectangle / Freehand / Point.
+  - **Area**: Calculated in km² and m² (using spherical geodesic formula if bounds/CRS present, or calibrated pixel resolution).
+  - **Perimeter**: Calculated in km and m.
+  - **Center**: Latitude / Longitude (or normalized pixel coordinates if non-georeferenced).
+  - **Bounding Box**: North, South, East, West coordinates.
+  - **CRS**: e.g., `EPSG:4326`, `EPSG:32643`, or "Geospatial coordinates unavailable (pixel metrics)".
+  - **Pixel Dimensions**: Width × Height px, Approx. Ground Resolution, Image Coverage %.
+
+#### [NEW] [RoiPreview.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiPreview.jsx)
+- Displays an instant visual sub-crop of the selected area:
+  - Single mode: Cropped ROI + dimension badges.
+  - Bi-Temporal: T1 ROI Crop alongside T2 ROI Crop.
+  - Optical + SAR: Optical ROI Crop alongside SAR ROI Crop.
+
+#### [NEW] [RoiQuestionPanel.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiQuestionPanel.jsx)
+- **"What do you want to know about this area?"**
+- Dynamic preset chips strictly tailored to the primary task:
+  - **VQA**: "What objects are present in this region?", "What is the dominant land cover?", "How much vegetation is visible?", "Are there buildings in this region?", "Are there water bodies?", "Describe this selected area."
+  - **SCENE DESCRIPTION**: "Describe this selected region.", "What is the dominant land cover?", "What major objects are visible?", "Is this region urban, agricultural, forested, or water-dominated?", "What are the main characteristics of this region?"
+  - **BI-TEMPORAL**: "What changed inside this selected region?", "Did the built-up area increase?", "Did vegetation decrease?", "Did water coverage change?", "Which objects disappeared?", "Which new objects appeared?", "Estimate the changed area."
+  - **GROUNDING**: "Find buildings in this region.", "Find roads in this region.", "Find water bodies.", "Find vegetation.", "Find industrial structures.", "Show the location of the requested object."
+  - **OPTICAL + SAR FUSION**: "What is the dominant land cover?", "How much of this area is built-up?", "How much vegetation is present?", "Where is water detected?", "What does SAR reveal that Optical does not?", "Where do Optical and SAR agree?", "Where do Optical and SAR disagree?", "Describe this region using both modalities."
+- Custom natural language text input with `[ Analyze Selected Area ]` action.
+
+#### [NEW] [RoiResultView.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiResultView.jsx)
+- Structured 7-Tab result container:
+  1. **Overview**: Executive summary of ROI findings and dominant class.
+  2. **GIS**: Comprehensive geospatial coordinate and bounding table.
+  3. **Findings**: AI interpretation (Optical vs SAR findings for Fusion, Temporal changes for Bi-Temporal, Clipped detections for Grounding, Detailed description for VQA/Captioning).
+  4. **Statistics**: Calculated Land Cover breakdown (Vegetation %, Built-up %, Water %, Bare Soil %, Other %) with animated progress bars and km² values.
+  5. **Evidence**:
+     - Fusion: Multimodal Comparison Table (`Optical %` vs `SAR %` vs `Fusion %` + Evidence & Agreement).
+     - Bi-Temporal: Temporal Change Table (`Date 1 %` vs `Date 2 %` vs `Δ %` + Net change area).
+     - Grounding: Spatial detection list clipped strictly to the ROI.
+  6. **Question Answer**: Dedicated answer to the user's specific ROI query.
+  7. **Execution Trace**: Verified step-by-step execution pipeline.
+- Export Button: `[ Download ROI Analysis Report ]` (Printable Dossier / PDF / JSON).
+
+#### [NEW] [RoiScopeIndicator.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/roi/RoiScopeIndicator.jsx)
+- Top banner indicating active scope:
+  - `🟢 ANALYSIS SCOPE: Selected Area (2.84 km²)` vs `FULL IMAGE ANALYSIS`.
+  - Non-destructive toggle buttons allowing seamless switching without re-running primary analysis.
+
+---
+
+### Component 2: Frontend Integration & State Management
+
+#### [MODIFY] [AnalysisContext.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/context/AnalysisContext.jsx)
+- Add ROI state:
+  - `roiGeometry`: `{ type, coordinates, pixelWindow, bounds, areaKm2, perimeterKm, crs, ... }`
+  - `activeRoiTool`: `'rectangle' | 'polygon' | 'freehand' | 'point' | null`
+  - `isDrawingRoi`: boolean
+  - `activeScope`: `'FULL' | 'ROI'`
+  - `roiAnalysisResult`: structured result of ROI execution
+  - `roiLoading`: boolean
+  - `roiError`: string | null
+- Add action methods:
+  - `updateRoiGeometry(geo)`: Updates geometry, triggers GIS metrics calculation.
+  - `clearRoi()`: Resets ROI and returns view to FULL scope.
+  - `handleAnalyzeRoi(roiQuery)`: Dispatches request to backend with `{ ...primaryParams, scope: 'ROI', roi: roiGeometry }`.
+
+#### [MODIFY] [AnalysisResult.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/AnalysisResult.jsx)
+- Integrate `RoiScopeIndicator` at top of results dossier.
+- Integrate `RoiToolbar` and `RoiDrawingCanvas` for single-image modes (`VQA`, `CAPTIONING`).
+- Mount `RoiGisPanel`, `RoiPreview`, and `RoiQuestionPanel` alongside visual evidence.
+- Render `RoiResultView` when `activeScope === 'ROI'` or when ROI results are available.
+- Keep full image analysis completely intact and accessible via the scope switcher.
+
+#### [MODIFY] [FusionImageViewer.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/FusionImageViewer.jsx)
+- Mount `RoiDrawingCanvas` synchronized across both Optical and SAR views.
+- Drawing on either the Optical or SAR pane immediately updates the shared geographic ROI on both frames.
+- Add ROI toggle in viewer toolbar.
+
+#### [MODIFY] [ChangeVisualizer.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/ChangeVisualizer.jsx)
+- Mount `RoiDrawingCanvas` synchronized across both Image A (T1) and Image B (T2).
+- Drawing on either baseline or post-event pane updates both frames in sync.
+
+#### [MODIFY] [GroundingVisualizer.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/GroundingVisualizer.jsx)
+- Mount `RoiDrawingCanvas`.
+- Filter and clip bounding boxes so that only detections within the ROI are displayed when ROI mode is active.
+
+#### [MODIFY] [api.js](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/services/api.js)
+- Add `analyzeRoiRegion({ query, fileIds, requestedTask, roi, timestamps })` calling `POST /api/v1/analysis` with `scope: 'ROI'`.
+
+---
+
+### Component 3: Backend Python ML & Sub-Window Analytics (`backend/services/ml_inference/`)
+
+#### [NEW] [roi_analyzer.py](file:///c:/Users/krish/Desktop/SatVistaar/backend/services/ml_inference/roi_analyzer.py)
+- Specializes in sub-window and masked polygon raster analytics:
+  - Computes exact pixel statistics inside the ROI mask:
+    - Optical NDVI / greenness distribution -> Vegetation percentage & area
+    - SAR backscatter intensity (dB proxy) + optical edge contrast -> Built-up percentage & area
+    - Water spectral absorption & SAR specular reflection (<70 dB) -> Water percentage & area
+    - Remaining reflectance -> Bare soil & other
+  - Modality comparison within ROI (Optical vs SAR) for Fusion tasks.
+  - Pixel difference & contour analysis within ROI for Bi-Temporal change.
+  - Bounding box intersection & clipping for Grounding tasks.
+  - Synthesizes grounded natural-language findings tailored to the user's specific ROI query.
+
+#### [MODIFY] [app.py](file:///c:/Users/krish/Desktop/SatVistaar/backend/services/ml_inference/app.py)
+- Add endpoint `@app.route("/predict/roi", methods=["POST"])`:
+  - Inputs: `imagePaths`, `roi` (`coordinates`, `pixelWindow`, `type`), `query`, `task`.
+  - Dispatches to `roi_analyzer` to compute quantitative metrics and qualitative synthesis.
+  - Returns structured ROI response.
+
+---
+
+### Component 4: Backend Node.js Service & Routing
+
+#### [NEW] [roi.service.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/services/roi.service.js)
+- Validates ROI geometry (`coordinates`, `type`).
+- Calculates geodesic area (Shoelace formula on ellipsoid coordinates or UTM projection), perimeter, center, and bounding box from raster metadata and CRS.
+- Handles raster sub-window cropping (using Python ML service or image stream) to ensure large GeoTIFFs do not saturate memory.
+
+#### [MODIFY] [analysis.service.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/services/analysis.service.js)
+- Support `scope === 'ROI'` in `processAnalysisRequest`:
+  - When `scope === 'ROI'`, routes execution through `roi.service.js` and calls Python ML `/predict/roi`.
+  - Integrates trace steps (`ROI_SELECTED`, `ROI_GEOMETRY_VALIDATED`, `SUBWINDOW_EXTRACTED`, `QUANTITATIVE_METRICS_COMPUTED`, `ROI_SYNTHESIZED`).
+  - Returns normalized ROI payload alongside execution trace.
+
+#### [MODIFY] [analysis.controller.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/controllers/analysis.controller.js)
+- Validate optional `scope` ('FULL' | 'ROI') and `roi` object.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+1. **Unit & Integration Test Suite (`backend/tests/roi-analysis.test.js`)**:
+   ```bash
+   cd c:\Users\krish\Desktop\SatVistaar\backend
+   npm test -- tests/roi-analysis.test.js
+   ```
+   - Test ROI geometry validation (Rectangle, Polygon, Freehand, Point).
+   - Test geodesic area, perimeter, and bounding box calculations for georeferenced and non-georeferenced images.
+   - Test multi-image ROI synchronization logic.
+   - Test `/predict/roi` Python ML service endpoint across all 5 tasks (`VQA`, `CAPTIONING`, `CHANGE_ANALYSIS`, `FEATURE_IDENTIFICATION`, `OPTICAL_SAR_FUSION`).
+   - Test quantitative land cover percentages (Vegetation %, Built-up %, Water %, Bare Soil %).
+   - Test grounding bounding box clipping to ROI.
+
+2. **Full System Regression Tests**:
+   ```bash
+   npm test -- tests/optical-sar-fusion.test.js
+   npm test -- tests/model-router.test.js
+   npm test -- tests/e2e-fusion-and-regression.test.js
+   ```
+   - Ensure all existing test suites pass with 0 regressions.
+
+3. **Frontend Production Build**:
+   ```bash
+   cd c:\Users\krish\Desktop\SatVistaar\frontend
+   npm run build
+   ```
+   - Confirm 0 syntax errors, 0 lint warnings, and clean bundle creation.
+
+### Manual Verification (Browser Subagent / Interactive Inspection)
+1. **Primary Analysis → ROI Activation**:
+   - Open `http://localhost:5173`.
+   - Run Optical + SAR Fusion analysis with test scenes.
+   - Confirm primary analysis completes and displays full-image results.
+   - Click **[ Select Area ]** in toolbar and draw a polygon.
+2. **Verify Instant GIS Panel**:
+   - Verify area (km²), perimeter (km), center lat/lon, bounding box, CRS, and pixel dimensions appear immediately.
+3. **Verify Multi-Image Synchronization**:
+   - Verify the exact same polygon appears on both Optical and SAR frames synchronously.
+   - Switch to Bi-Temporal Change Analysis; verify ROI appears on both T1 and T2 frames synchronously.
+4. **Verify Suggested Questions & Custom Query**:
+   - Click a suggested question chip (e.g. "What is the dominant land cover?").
+   - Click **[ Analyze Selected Area ]**.
+   - Verify loader shows "Analyzing selected region...".
+5. **Verify Structured ROI Results & Tabs**:
+   - Verify 7 tabs: Overview, GIS, Findings, Statistics (progress bars for Vegetation, Built-up, Water, Bare Soil), Evidence (Multimodal table), Question Answer, Execution Trace.
+   - Verify switching between **[ Full Image Analysis ]** and **[ Selected Area Analysis ]** is non-destructive.
+6. **Verify Report Download**:
+   - Click **[ Download ROI Analysis Report ]** and verify generated printable dossier.

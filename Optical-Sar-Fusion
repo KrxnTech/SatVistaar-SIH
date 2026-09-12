@@ -1,0 +1,243 @@
+# Implementation Plan: Advanced Optical + SAR Fusion Analysis System for SatVistaar-SIH
+
+Extend the existing **SatVistaar-SIH** multimodal satellite intelligence platform with a production-grade **Optical + SAR Fusion Analysis System**. This system accepts co-registered optical/multispectral imagery and synthetic aperture radar (SAR) imagery of the same geographic area to synthesize joint multimodal intelligence that exploits complementary spectral context (vegetation, visual land cover, water color) and radar structural backscatter (surface roughness, double-bounce built structures, specular smooth water, cloud-penetrating observation).
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Zero Breaking Changes**: All 4 existing missions (`VQA`, `CAPTIONING`, `FEATURE_IDENTIFICATION`, `CHANGE_ANALYSIS`) remain 100% operational and backward-compatible. Optical + SAR Fusion will be introduced as a first-class 5th analysis mission (`OPTICAL_SAR_FUSION`) seamlessly integrated into the existing agentic pipeline, model router, and UI.
+
+> [!NOTE]
+> **Model Agnostic & Dual-Engine Fusion**:
+> 1. **Python ML Specialist Engine** (`/predict/fusion`): Performs real raster processing (OpenCV/NumPy/PIL) including SAR speckle filtering, log backscatter transformation, optical NDVI/spectral proxy estimation, cross-modal agreement matrix calculation, and fusion map generation.
+> 2. **Cloud/Local VLM Engine** (Groq / Ollama): Provides natural language reasoning using specialized remote-sensing fusion prompt contracts.
+> 3. **Deterministic Fallback**: If the primary engine is unavailable, the system gracefully falls back while preserving the structured JSON contract.
+
+---
+
+## Proposed Architecture Overview
+
+```mermaid
+flowchart TD
+    User(["Analyst / User"]) --> Inputs["Optical GeoTIFF + SAR Radar GeoTIFF + NL Query"]
+    Inputs --> Preproc["Metadata Extraction & Pair Compatibility Check"]
+    
+    Preproc --> IntentRouter{"SatVistaar Agentic Pipeline"}
+    IntentRouter -->|Task = OPTICAL_SAR_FUSION| Compat["Spatial & Sensor Compatibility Engine"]
+    
+    Compat -->|Validation Passes (READY)| FusionTool["Optical-SAR Fusion Specialist Tool"]
+    Compat -->|Overlap / Sensor Mismatch| Abstain["ABSTAIN with Diagnostics"]
+    
+    FusionTool --> Router["Model Router (Python ML / Groq / Ollama)"]
+    Router --> OptAnalysis["Optical Spectral Analyzer"]
+    Router --> SarAnalysis["SAR Structural Backscatter Analyzer"]
+    
+    OptAnalysis & SarAnalysis --> FusionEngine["Cross-Modal Fusion & Agreement Engine"]
+    FusionEngine --> EvidenceGen["Visual Evidence & Fusion Map Generator"]
+    
+    EvidenceGen --> Normalizer["Response Normalizer & Trace Logger"]
+    Normalizer --> Output["Normalized Multi-Modal Dossier"]
+    
+    Output --> UI["SatVistaar Mission Control"]
+    UI --> Slider["Interactive Slider / Split / Overlay Viewer"]
+    UI --> AgreementUI["Modality Agreement & Uncertainty Cards"]
+    UI --> ReportGen["Exportable PDF Dossier & Fusion Map PNG"]
+```
+
+---
+
+## Proposed Changes
+
+### Backend Architecture & Agentic Pipeline
+
+#### [MODIFY] [intents.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/intents.js)
+- Add `OPTICAL_SAR_FUSION: 'OPTICAL_SAR_FUSION'` to `INTENTS`.
+- Add `INTENTS.OPTICAL_SAR_FUSION` to `VALID_REQUESTED_TASKS`.
+
+#### [MODIFY] [intentRequirements.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/intentRequirements.js)
+- Define requirements for `OPTICAL_SAR_FUSION`:
+  - `minImages: 2`, `maxImages: 2`
+  - `modalities: ['OPTICAL', 'SAR']`
+  - `description: 'Optical + SAR Cross-Modal Fusion Analysis (strictly 1 Optical and 1 SAR image)'`
+
+#### [MODIFY] [intentClassifier.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/intentClassifier.js)
+- Add pattern matching for Optical + SAR queries (keywords: `optical and sar`, `sar and optical`, `radar`, `backscatter`, `fusion`, `fuse`, `sentinel-1`, `sentinel-2`, `double bounce`, `surface roughness`, etc.).
+- Set high confidence (0.95) when query mentions both optical and SAR or when explicit `requestedTask === 'OPTICAL_SAR_FUSION'`.
+
+#### [MODIFY] [compatibilityEngine.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/compatibilityEngine.js)
+- Add specific validation checks for `OPTICAL_SAR_FUSION`:
+  - Enforce strictly 2 input images.
+  - Verify spatial overlap between the two rasters.
+  - Check CRS compatibility and issue warnings if reprojection is required.
+  - Check dimension/resolution compatibility.
+  - Return `COMPATIBILITY_STATUS.READY` or `COMPATIBILITY_STATUS.ABSTAIN` with explicit reasons.
+
+#### [MODIFY] [modelRegistry.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/modelRegistry.js)
+- Add `OPTICAL_SAR_FUSION` capability to registered models (`python-ml-vlm`, `groq-qwen38`, `groq-qwen36`, `ollama-qwen-vl`).
+- Set benchmark task priorities for fusion inference.
+
+#### [NEW] [opticalSarFusion.tool.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/tools/opticalSarFusion.tool.js)
+- Specialist Tool implementing `BaseTool`:
+  - Validates optical and SAR inputs.
+  - Coordinates dual-stream inference: dispatches to Python ML `/predict/fusion` (or VLM with structured remote-sensing fusion prompt).
+  - Formats structured outputs:
+    - `opticalFindings`: bullet points of spectral, land-cover, and vegetation context.
+    - `sarFindings`: bullet points of structural backscatter, roughness, and surface characteristics.
+    - `fusedFindings`: joint conclusions exploiting cross-modal synergy.
+    - `modalityAgreement`: per-region classification (`OPTICAL + SAR AGREEMENT`, `OPTICAL-DOMINANT`, `SAR-DOMINANT`, `MODALITY DISAGREEMENT`, `INSUFFICIENT EVIDENCE`).
+    - `confidenceBreakdown`: Estimated Confidence for Overall, Optical, SAR, and Cross-modal Agreement.
+    - `uncertaintyAnalysis`: explicit documentation of sensor ambiguities.
+    - `grounding`: bounding boxes and fusion regions.
+
+#### [MODIFY] [toolRegistry.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/agent/toolRegistry.js)
+- Register `opticalSarFusionTool` under `INTENTS.OPTICAL_SAR_FUSION`.
+
+#### [MODIFY] [pairValidation.service.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/services/pairValidation.service.js)
+- Extend pair validation to support Optical + SAR pair verification:
+  - Distinguish optical vs SAR modality tags.
+  - Calculate spatial bounding box intersection and overlap percentage.
+  - Resolution and CRS compatibility checks.
+  - Generate a standardized `fusionReadiness` report (`READY` / `NOT READY`).
+
+#### [MODIFY] [metadata_extractor.py](file:///c:/Users/krish/Desktop/SatVistaar/backend/services/preprocessing/metadata_extractor.py)
+- Detect SAR vs Optical characteristics:
+  - Polarization detection from TIFF tags/bands (e.g. `VV`, `VH`, `HH`, `HV`).
+  - Radar platform heuristics (Sentinel-1, RISAT, TerraSAR-X, ALOS).
+  - Optical platform heuristics (Sentinel-2, Landsat).
+  - Extract nodata values, data type, and band radiometric statistics.
+
+---
+
+### Python ML Specialist Fusion Engine
+
+#### [NEW] [fusion_analyzer.py](file:///c:/Users/krish/Desktop/SatVistaar/backend/services/ml_inference/fusion_analyzer.py)
+- Dedicated Python ML fusion service:
+  - **SAR Preprocessing**: intensity log-transformation ($10 \cdot \log_{10}(I)$ for dB representation), speckle noise reduction via adaptive median/Lee filtering, texture variance estimation.
+  - **Optical Preprocessing**: band normalization, RGB synthesis, vegetation index (NDVI proxy) and water index (NDWI proxy) extraction.
+  - **Cross-Modal Fusion Core**:
+    - High SAR backscatter + High optical edge density $\rightarrow$ High-confidence Built-up / Infrastructure.
+    - Low SAR backscatter (specular reflection) + Low optical reflectance / high NDWI $\rightarrow$ High-confidence Water body.
+    - Moderate diffuse SAR backscatter + High optical greenness $\rightarrow$ Agriculture / Dense Vegetation.
+    - Low optical visibility (clouds/shadows) + Clear SAR structure $\rightarrow$ SAR-dominant penetrating observation.
+    - Mismatch (e.g. smooth concrete dark in SAR vs bright in optical) $\rightarrow$ Modality Disagreement / Uncertainty.
+  - **Visual Fusion Output**: Generates an evidence-based fusion raster / overlay layer.
+  - Supports Modes A through G (Joint Semantic, Built-up, Water, Flood, Agriculture, Infrastructure, NL Query).
+
+#### [MODIFY] [app.py](file:///c:/Users/krish/Desktop/SatVistaar/backend/services/ml_inference/app.py)
+- Add `/predict/fusion` POST endpoint accepting `opticalImagePath`, `sarImagePath`, `query`, and `mode`.
+
+#### [MODIFY] [python_ml.provider.js](file:///c:/Users/krish/Desktop/SatVistaar/backend/src/providers/python_ml.provider.js)
+- Route `OPTICAL_SAR_FUSION` requests to `/predict/fusion` with fallback to Groq VLM.
+
+---
+
+### Frontend UI & User Experience
+
+#### [MODIFY] [ModeSelector.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/ModeSelector.jsx)
+- Add `OPTICAL_SAR_FUSION` to `ANALYSIS_MODES`:
+  - Title: **Optical + SAR Fusion**
+  - Description: *Joint analysis combining optical spectral features with radar backscatter.*
+  - Default query: *Use the optical and SAR images together to identify built-up and water-covered regions.*
+  - Requirements: 2 images (1 Optical, 1 SAR).
+
+#### [NEW] [FusionImageViewer.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/FusionImageViewer.jsx)
+- Advanced interactive viewer supporting:
+  - **Optical View**: Pure optical RGB scene.
+  - **SAR View**: Radar backscatter grayscale/colorized scene.
+  - **Split View**: Side-by-side synchronized comparison.
+  - **Slider View**: Interactive before/after split slider with draggable divider.
+  - **Overlay View**: Dynamic alpha blending with sliders for Optical opacity, SAR opacity, and fusion blend.
+  - **Difference / Fusion View**: Evidence overlay highlighting built-up, water, vegetation, and uncertainty zones.
+  - **Navigation Controls**: Synchronized pan and zoom, mouse-wheel zoom, fit-to-screen, 1:1 view, reset, fullscreen.
+  - **Layer Controls**: Toggles for Optical, SAR, Bounding Boxes, Fusion Map, Agreement Highlights, Coordinates grid.
+  - **Coordinate Display**: Geographic lat/long or raster pixel coordinates when georeferenced.
+
+#### [NEW] [FusionMetadataPanel.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/FusionMetadataPanel.jsx)
+- Collapsible metadata comparison drawer displaying actual metadata side-by-side:
+  - Optical: Filename, dimensions, bands, CRS, resolution, bounds, acquisition date, platform, nodata.
+  - SAR: Filename, dimensions, polarization (VV/VH), CRS, resolution, bounds, acquisition date, platform, nodata.
+
+#### [NEW] [PairCompatibilityCard.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/PairCompatibilityCard.jsx)
+- Real-time compatibility indicator:
+  - Checklist: Raster Format, Spatial Overlap, CRS Compatibility, Resolution Compatibility, Temporal Delta.
+  - Status banner: **FUSION READINESS: READY** (Green) or **NOT READY** (Amber) with detailed diagnostics.
+
+#### [NEW] [AnalysisHistoryDrawer.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/AnalysisHistoryDrawer.jsx)
+- Session analysis history sidebar/drawer:
+  - Stores past runs with timestamp, query, task, thumbnail previews, confidence, and status.
+  - One-click restore of any previous analysis.
+
+#### [MODIFY] [ImageUploader.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/ImageUploader.jsx)
+- In `OPTICAL_SAR_FUSION` mode:
+  - Slot 1 designated for **Optical / Multispectral Image** (with sensor tag & band preview).
+  - Slot 2 designated for **SAR Radar Image** (with radar backscatter tag & polarization preview).
+  - Sample pair loader button (*"Load Demo Optical + SAR Pair"* for instant testing).
+  - Embeds real-time `PairCompatibilityCard` and `FusionMetadataPanel`.
+
+#### [MODIFY] [QueryInput.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/QueryInput.jsx)
+- Add specialized preset query chips for Modes A-F when in Fusion mode:
+  - *Mode A: Joint Semantic Overview*
+  - *Mode B: Built-up Area Detection*
+  - *Mode C: Water Body Detection*
+  - *Mode D: Flood Inundation Analysis*
+  - *Mode E: Agricultural & Vegetation Extent*
+  - *Mode F: Major Infrastructure & Transport*
+
+#### [MODIFY] [AnalysisResult.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/components/AnalysisResult.jsx)
+- Render expert remote-sensing intelligence dossier when task is `OPTICAL_SAR_FUSION`:
+  - **Executive Summary**
+  - **Optical Observations** (bullet points)
+  - **SAR Observations** (bullet points)
+  - **Fused Conclusions** (joint findings)
+  - **Modality Agreement Analysis**: Badges for `OPTICAL + SAR AGREEMENT`, `OPTICAL-DOMINANT`, `SAR-DOMINANT`, `MODALITY DISAGREEMENT`, `INSUFFICIENT EVIDENCE`.
+  - **Estimated Confidence Scorecards**: Overall Confidence, Optical Evidence, SAR Evidence, Cross-Modal Agreement.
+  - **Uncertainty & Ambiguity Section**: Highlighting conflicting sensor returns.
+  - Embedded **`FusionImageViewer`** with all layer controls.
+  - **Auditable Execution Trace**: Inputs, metadata, tools invoked, latencies, and status.
+  - **Export Report**:
+    - Downloadable PDF analysis report formatted with SatVistaar header, query, Optical+SAR metadata, compatibility, findings, and execution trace.
+    - Export highlighted Fusion Map as PNG.
+
+#### [MODIFY] [AnalysisContext.jsx](file:///c:/Users/krish/Desktop/SatVistaar/frontend/src/context/AnalysisContext.jsx)
+- Support optical/SAR state, pair validation, session history logging, and mode selection.
+
+---
+
+### Remote-Sensing Adaptation & Benchmark Manifest
+
+#### [NEW] [BigEarthNet_MM.md](file:///c:/Users/krish/Desktop/SatVistaar/backend/docs/BigEarthNet_MM.md)
+- Complete remote-sensing adaptation documentation:
+  - Detail multimodal dataset adaptation using BigEarthNet-MM (Sentinel-1 SAR + Sentinel-2 MSI).
+  - Define data preparation pipeline: 12 Sentinel-2 multispectral bands + 2 Sentinel-1 dual-polarization SAR channels (VV/VH).
+  - Benchmark evaluation metrics and clear distinction: **Adapted / Pretrained**.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+1. **Backend Agent & Model Router Validation**:
+   - Run unit/integration tests verifying `INTENTS.OPTICAL_SAR_FUSION` routing, compatibility engine behavior (1 vs 2 images, spatial overlap pass/fail), and model registry resolution.
+   - Command: `node backend/tests/model-router.test.js`
+2. **Specialist Tool & Provider Test**:
+   - Execute test analysis with simulated optical + SAR inputs and verify structured response contract (optical findings, SAR findings, fused findings, agreement classifications).
+3. **End-to-End Test Suite**:
+   - Run existing test suite `node backend/tests/final-backend-validation.test.js` to ensure zero regression across all 4 existing missions.
+
+### Manual Verification
+1. **Interactive UI Verification**:
+   - Navigate to the SatVistaar UI at `http://localhost:5173`.
+   - Select **Optical + SAR Fusion** task from `ModeSelector`.
+   - Upload an Optical image and a SAR image (or click *"Load Demo Optical + SAR Pair"*).
+   - Inspect the **Pair Compatibility Card** and collapsible **Metadata Panel**.
+   - Test the **Image Slider / Comparison View**:
+     - Toggle between Optical, SAR, Split, Slider, Overlay, and Fusion views.
+     - Drag the comparison slider back and forth.
+     - Test pan, mouse-wheel zoom, and reset.
+     - Toggle layers (Optical, SAR, Detection, Fusion Map, Bounding Boxes).
+   - Submit queries across Modes A through G (e.g. *"Use optical and SAR together to identify built-up and water-covered regions"*).
+   - Verify structured response: Optical Findings, SAR Findings, Fused Findings, Modality Agreement tags, Estimated Confidence, Uncertainty section, and Execution Summary.
+   - Test session history drawer (restore previous analysis).
+   - Test **Export Analysis Report** (PDF generation) and **Export Fusion Map** (PNG canvas export).
