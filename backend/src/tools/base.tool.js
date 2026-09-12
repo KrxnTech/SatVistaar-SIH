@@ -39,7 +39,8 @@ export class BaseTool {
     provider = 'vlm',
     parametersUsed = {},
     warnings = [],
-    status = 'success'
+    status = 'success',
+    ...rest
   }) {
     return {
       task: this.task,
@@ -52,7 +53,8 @@ export class BaseTool {
       provider,
       parametersUsed,
       warnings,
-      status
+      status,
+      ...rest
     };
   }
 }

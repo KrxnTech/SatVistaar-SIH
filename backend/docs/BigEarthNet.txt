@@ -1,0 +1,39 @@
+# BigEarthNet-MM Remote Sensing Adaptation Manifest
+# Dataset: BigEarthNet-MM (Sentinel-1 SAR Dual-Pol VV/VH + Sentinel-2 Multispectral 12 Bands)
+# Purpose: Image-Text Multimodal Cross-Modal Adaptation for Satellite Intelligence
+
+[DATASET SPECIFICATION]
+Name: BigEarthNet-MM
+Sensors:
+  1. Sentinel-2 Multi-Spectral Instrument (Level-2A Bottom-Of-Atmosphere reflectance)
+     Bands: B01 (Aerosols), B02 (Blue), B03 (Green), B04 (Red), B05-B07 (Red Edge), B08 (NIR), B8A (Narrow NIR), B09 (Water Vapour), B11 (SWIR-1), B12 (SWIR-2)
+     Ground Resolution: 10m / 20m / 60m
+  2. Sentinel-1 Synthetic Aperture Radar (C-band 5.405 GHz, Interferometric Wide Swath)
+     Polarizations: VV (Vertical transmit, Vertical receive), VH (Vertical transmit, Horizontal receive)
+     Format: Ground Range Detected (GRD) amplitude converted to decibel (dB) backscatter
+
+[PREPROCESSING PIPELINE]
+1. Optical:
+   - Rescaling top-of-canopy reflectance [0, 10000] -> [0.0, 1.0]
+   - Normalized Difference Vegetation Index (NDVI) proxy: (NIR - Red) / (NIR + Red)
+   - Normalized Difference Water Index (NDWI) proxy: (Green - NIR) / (Green + NIR)
+   - Canny edge texture and high-frequency structural gradient mapping
+2. SAR:
+   - Radiometric calibration & speckle noise reduction via adaptive spatial median filtering
+   - Logarithmic transformation: sigma0_dB = 10 * log10(max(intensity, 1e-5))
+   - Thresholding:
+     * Specular surface reflection: sigma0_dB < -18 dB (smooth calm water)
+     * Double-bounce reflection: sigma0_dB > -6 dB (perpendicular building walls and metallic infrastructure)
+     * Diffuse volume scattering: -18 dB <= sigma0_dB <= -6 dB (vegetation, crops, rough terrain)
+
+[CROSS-MODAL FUSION ADAPTATION]
+Model Architecture:
+  Optical Feature Stream + SAR Structural Stream -> Modality Agreement Classifier -> VLM Context Integrator
+Taxonomy Mapping:
+  - Built-up Areas: Optical high-density edges + SAR double-bounce backscatter
+  - Hydrological Bodies: Optical spectral absorption + SAR specular reflection
+  - Agricultural & Vegetation: Optical greenness + SAR canopy volume scattering
+  - Infrastructure & Transport: Optical linear connectivity + SAR point target corner reflection
+  - Surface Ambiguity / Disagreement: Smooth dry pavement vs water (Optical disambiguation)
+
+Status: ADAPTED benchmark configuration with Pretrained Vision-Language Model fallback.

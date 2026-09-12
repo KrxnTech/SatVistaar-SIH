@@ -10,14 +10,15 @@ export const MODEL_REGISTRY = [
     name: 'Groq Qwen3.8-27B Vision',
     provider: 'groq',
     model: config.groqModel || 'qwen/qwen3.8-27b',
-    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'],
     supportsMultipleImages: true,
     enabled: true,
     taskPriority: {
       VQA: 1,
       CAPTIONING: 1,
       FEATURE_IDENTIFICATION: 1,
-      CHANGE_ANALYSIS: 1
+      CHANGE_ANALYSIS: 1,
+      OPTICAL_SAR_FUSION: 1
     }
   },
   {
@@ -25,14 +26,15 @@ export const MODEL_REGISTRY = [
     name: 'Groq Qwen3.6-27B Vision',
     provider: 'groq',
     model: 'qwen/qwen3.6-27b',
-    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'],
     supportsMultipleImages: true,
     enabled: true,
     taskPriority: {
       VQA: 2,
       CAPTIONING: 2,
       FEATURE_IDENTIFICATION: 2,
-      CHANGE_ANALYSIS: 2
+      CHANGE_ANALYSIS: 2,
+      OPTICAL_SAR_FUSION: 2
     }
   },
   {
@@ -40,14 +42,15 @@ export const MODEL_REGISTRY = [
     name: 'Ollama Qwen2-VL Local',
     provider: 'ollama',
     model: config.ollamaModel || 'qwen2-vl',
-    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'],
     supportsMultipleImages: true,
     enabled: true,
     taskPriority: {
       VQA: 3,
       CAPTIONING: 3,
       FEATURE_IDENTIFICATION: 3,
-      CHANGE_ANALYSIS: 3
+      CHANGE_ANALYSIS: 3,
+      OPTICAL_SAR_FUSION: 3
     }
   },
   {
@@ -55,14 +58,15 @@ export const MODEL_REGISTRY = [
     name: 'Ollama Llama-3.2 Vision Local',
     provider: 'ollama',
     model: 'llama3.2-vision',
-    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'],
     supportsMultipleImages: true,
     enabled: true,
     taskPriority: {
       VQA: 4,
       CAPTIONING: 4,
       FEATURE_IDENTIFICATION: 4,
-      CHANGE_ANALYSIS: 4
+      CHANGE_ANALYSIS: 4,
+      OPTICAL_SAR_FUSION: 4
     }
   },
   {
@@ -70,14 +74,15 @@ export const MODEL_REGISTRY = [
     name: 'Python PyTorch ML Engine',
     provider: 'python_ml',
     model: 'python-ml-vlm',
-    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'],
+    capabilities: ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'],
     supportsMultipleImages: true,
     enabled: true,
     taskPriority: {
       VQA: 1.5,
       CAPTIONING: 1.5,
       FEATURE_IDENTIFICATION: 1.5,
-      CHANGE_ANALYSIS: 1.5
+      CHANGE_ANALYSIS: 1.5,
+      OPTICAL_SAR_FUSION: 1.2
     }
   }
 ];

@@ -70,6 +70,8 @@ const asyncTest = async (name, fn) => {
 
   // Test 5: Disabled model is ignored
   test('5. Disabled model is ignored by router', () => {
+    const prevProv = config.modelProvider;
+    config.modelProvider = 'auto';
     const targetModel = MODEL_REGISTRY.find(m => m.id === 'groq-qwen38');
     targetModel.enabled = false;
 
@@ -77,6 +79,7 @@ const asyncTest = async (name, fn) => {
     assert.strictEqual(route.selectedModel.id, 'python-ml-vlm');
 
     targetModel.enabled = true; // Restore
+    config.modelProvider = prevProv;
   });
 
   // Test 6: Unsupported task model is ignored
@@ -167,12 +170,21 @@ const asyncTest = async (name, fn) => {
   });
 
   // Test 13: Python ML Provider resolution & fallback candidate verification
-  test('13. Python ML Engine is registered as valid candidate for all tasks', () => {
-    const tasks = ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS'];
+  test('13. Python ML Engine is registered as valid candidate for all tasks including fusion', () => {
+    const tasks = ['VQA', 'CAPTIONING', 'FEATURE_IDENTIFICATION', 'CHANGE_ANALYSIS', 'OPTICAL_SAR_FUSION'];
     for (const t of tasks) {
-      const candidates = getCandidateModels(t, t === 'CHANGE_ANALYSIS' ? 2 : 1);
+      const candidates = getCandidateModels(t, (t === 'CHANGE_ANALYSIS' || t === 'OPTICAL_SAR_FUSION') ? 2 : 1);
       assert(candidates.some(m => m.provider === 'python_ml'), `Task ${t} missing python_ml candidate`);
     }
+  });
+
+  // Test 14: Optical + SAR Fusion Model Routing
+  test('14. Optical + SAR Fusion routes to valid dual-image capable model', () => {
+    const route = routeModel({ task: 'OPTICAL_SAR_FUSION', imageCount: 2 });
+    assert.strictEqual(route.isMock, false);
+    assert(route.selectedModel !== null);
+    assert.strictEqual(route.selectedModel.supportsMultipleImages, true);
+    assert(route.selectedModel.capabilities.includes('OPTICAL_SAR_FUSION'));
   });
 
   // Restore original ML mode

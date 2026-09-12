@@ -45,9 +45,44 @@ def extract_metadata(file_path: str) -> dict:
                 t = src.transform
                 transform_list = [float(t.a), float(t.b), float(t.c), float(t.d), float(t.e), float(t.f)]
 
+            # Resolution & Datatype & NoData
+            resolution = None
+            if hasattr(src, "res") and src.res and src.res[0] is not None:
+                resolution = f"{abs(float(src.res[0])):.1f} m"
+
+            datatype = src.dtypes[0] if hasattr(src, "dtypes") and src.dtypes else None
+            nodata_val = src.nodata if hasattr(src, "nodata") else None
+
+            # Polarization & Sensor Platform tags
+            polarization = None
+            sensor = None
+            tags = src.tags()
+            tags_lower = {k.lower(): str(v) for k, v in tags.items()}
+
+            for pol_key in ["polarization", "polarisation", "polarization_channels", "radar_polarization", "pols"]:
+                if pol_key in tags_lower:
+                    polarization = tags_lower[pol_key].upper()
+                    break
+
+            if not polarization:
+                # Check for VV/VH or HH/HV in tag values
+                combined_tag_str = " ".join(tags_lower.values()).upper()
+                if "VV+VH" in combined_tag_str or ("VV" in combined_tag_str and "VH" in combined_tag_str):
+                    polarization = "VV / VH (Dual-pol)"
+                elif "HH+HV" in combined_tag_str or ("HH" in combined_tag_str and "HV" in combined_tag_str):
+                    polarization = "HH / HV (Dual-pol)"
+                elif "VV" in combined_tag_str:
+                    polarization = "VV (Single-pol)"
+                elif "HH" in combined_tag_str:
+                    polarization = "HH (Single-pol)"
+
+            for sensor_key in ["satellite", "spacecraft_name", "platform", "mission", "mission_name", "sensor_id"]:
+                if sensor_key in tags_lower:
+                    sensor = tags_lower[sensor_key]
+                    break
+
             # Timestamp extraction from tags
             timestamp = None
-            tags = src.tags()
             if "TIFFTAG_DATETIME" in tags:
                 timestamp = tags["TIFFTAG_DATETIME"]
             elif "DATETIME" in tags:
@@ -55,6 +90,17 @@ def extract_metadata(file_path: str) -> dict:
 
             if not is_georeferenced or not crs_str:
                 warnings.append("CRS information is not available for this image.")
+
+            # Modality hint if detectable from sensor/bands
+            modality_hint = None
+            if sensor:
+                s_up = sensor.upper()
+                if any(k in s_up for k in ["SENTINEL-1", "S1", "RISAT", "TERRASAR", "ALOS", "RADARSAT"]):
+                    modality_hint = "SAR"
+                elif any(k in s_up for k in ["SENTINEL-2", "S2", "LANDSAT", "SPOT", "PLANET"]):
+                    modality_hint = "OPTICAL"
+            if not modality_hint and polarization:
+                modality_hint = "SAR"
 
             return {
                 "format": driver_format,
@@ -64,8 +110,13 @@ def extract_metadata(file_path: str) -> dict:
                 "crs": crs_str,
                 "bounds": bounds_dict,
                 "transform": transform_list,
+                "resolution": resolution,
+                "datatype": str(datatype) if datatype else None,
+                "nodata": nodata_val,
+                "polarization": polarization,
+                "sensor": sensor,
                 "timestamp": timestamp,
-                "modality": None, # Never inferred from filename
+                "modality": modality_hint,
                 "isGeoreferenced": is_georeferenced,
                 "warnings": warnings
             }
@@ -90,6 +141,11 @@ def extract_metadata(file_path: str) -> dict:
                     "crs": None,
                     "bounds": None,
                     "transform": None,
+                    "resolution": None,
+                    "datatype": str(mode),
+                    "nodata": None,
+                    "polarization": None,
+                    "sensor": None,
                     "timestamp": None,
                     "modality": None,
                     "isGeoreferenced": False,

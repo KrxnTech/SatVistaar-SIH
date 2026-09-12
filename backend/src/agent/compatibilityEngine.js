@@ -47,6 +47,12 @@ export const evaluateCompatibility = ({ analysisRequest, intentResult, pairValid
       isCompatible = false;
       reasons.push('Vision-Language change analysis requires exactly two image inputs (Image A and Image B).');
     }
+  } else if (intentName === INTENTS.OPTICAL_SAR_FUSION) {
+    if (inputs.length !== 2) {
+      status = COMPATIBILITY_STATUS.ABSTAIN;
+      isCompatible = false;
+      reasons.push('Optical + SAR fusion requires strictly two image inputs (one Optical raster and one SAR radar raster).');
+    }
   } else if ((intentName === INTENTS.CAPTIONING || intentName === INTENTS.FEATURE_IDENTIFICATION) && inputs.length > 1) {
     status = COMPATIBILITY_STATUS.ABSTAIN;
     isCompatible = false;
@@ -62,7 +68,19 @@ export const evaluateCompatibility = ({ analysisRequest, intentResult, pairValid
 
     const boundsCheck = pairValidation.checks.find(c => c.name === 'bounds');
     if (boundsCheck && boundsCheck.status === 'fail') {
-      warnings.push('Spatial extents do not overlap according to bounding box metadata.');
+      if (intentName === INTENTS.OPTICAL_SAR_FUSION) {
+        status = COMPATIBILITY_STATUS.ABSTAIN;
+        isCompatible = false;
+        reasons.push('Optical and SAR images do not share sufficient spatial overlap for co-registered fusion analysis.');
+      } else {
+        warnings.push('Spatial extents do not overlap according to bounding box metadata.');
+      }
+    }
+
+    if (intentName === INTENTS.OPTICAL_SAR_FUSION && pairValidation.fusionReadiness) {
+      if (pairValidation.fusionReadiness.status === 'NOT_READY') {
+        warnings.push(...(pairValidation.fusionReadiness.reasons || []));
+      }
     }
   }
 
