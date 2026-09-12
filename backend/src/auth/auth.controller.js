@@ -7,8 +7,8 @@ export const AUTH_COOKIE_NAME = 'satvistaar_token';
 /**
  * Helper to get standard cookie configuration
  */
-export function getCookieOptions() {
-  const isProduction = config.isProduction;
+export function getCookieOptions(req) {
+  const isProduction = config.isProduction || Boolean(process.env.RENDER) || (req && (req.secure || req.headers['x-forwarded-proto'] === 'https'));
   return {
     httpOnly: true,
     secure: isProduction,
@@ -21,8 +21,8 @@ export function getCookieOptions() {
 /**
  * Helper to get clear-cookie configuration matching the original creation options
  */
-export function getClearCookieOptions() {
-  const isProduction = config.isProduction;
+export function getClearCookieOptions(req) {
+  const isProduction = config.isProduction || Boolean(process.env.RENDER) || (req && (req.secure || req.headers['x-forwarded-proto'] === 'https'));
   return {
     httpOnly: true,
     secure: isProduction,
@@ -39,10 +39,11 @@ export async function register(req, res, next) {
     const { user, token } = await registerUser(req.body);
 
     // Set secure HTTP-only authentication cookie
-    res.cookie(AUTH_COOKIE_NAME, token, getCookieOptions());
+    res.cookie(AUTH_COOKIE_NAME, token, getCookieOptions(req));
 
     return sendSuccess(res, 201, 'User registered successfully', {
-      user
+      user,
+      token
     });
   } catch (error) {
     next(error);
@@ -57,10 +58,11 @@ export async function login(req, res, next) {
     const { user, token } = await loginUser(req.body);
 
     // Set secure HTTP-only authentication cookie
-    res.cookie(AUTH_COOKIE_NAME, token, getCookieOptions());
+    res.cookie(AUTH_COOKIE_NAME, token, getCookieOptions(req));
 
     return sendSuccess(res, 200, 'Logged in successfully', {
-      user
+      user,
+      token
     });
   } catch (error) {
     next(error);

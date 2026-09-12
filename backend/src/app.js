@@ -15,14 +15,30 @@ const app = express();
 // 1. Security middleware
 app.use(helmet());
 
-// 2. CORS configuration using CLIENT_URL from environment
+// 2. CORS configuration supporting localhost, Vercel deployments, and custom domains
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-        return callback(null, origin || config.clientUrl);
+      // Allow requests with no origin (e.g. mobile apps, curl, uptime monitors)
+      if (!origin) return callback(null, true);
+
+      // Allow local development
+      if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+        return callback(null, origin);
       }
-      return callback(null, config.clientUrl);
+
+      // Allow any Vercel deployment (*.vercel.app or sat-vistaar.vercel.app)
+      if (origin.endsWith('.vercel.app') || origin.includes('vercel.app')) {
+        return callback(null, origin);
+      }
+
+      // Allow explicitly configured clientUrl
+      if (config.clientUrl && (origin.toLowerCase() === config.clientUrl.toLowerCase() || config.clientUrl === '*')) {
+        return callback(null, origin);
+      }
+
+      // Fallback: reflect the origin to allow credentials
+      return callback(null, origin);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -50,6 +66,20 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.resolve(config.uploadDir || 'uploads')));
+
+// Root status endpoint for deployment health verification
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    name: 'SatVistaar Remote Sensing AI Backend',
+    version: '1.0.0',
+    status: 'operational',
+    health: `${config.apiPrefix}/health`,
+    apiPrefix: config.apiPrefix,
+    environment: config.nodeEnv,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // 6. API Route mounting
 // Primary prefix: e.g. /api/v1

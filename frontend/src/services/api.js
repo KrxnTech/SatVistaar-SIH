@@ -3,13 +3,90 @@
  * Centralized service for all HTTP communication with the backend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL !== undefined ? import.meta.env.VITE_API_BASE_URL : (import.meta.env.DEV ? 'http://localhost:5000' : '');
+// 1. API Base URL resolution: Environment variable or production Render fallback
+const envApiUrl = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_BACKEND_URL ||
+  ''
+).trim().replace(/\/+$/, '');
+
+export const API_BASE_URL = envApiUrl || (import.meta.env.DEV ? 'http://localhost:5000' : 'https://satvistaar.onrender.com');
 const API_PREFIX = '/api/v1';
 
 /**
  * Helper to build full endpoint URL
  */
-const getUrl = (endpoint) => `${API_BASE_URL}${API_PREFIX}${endpoint}`;
+export const getUrl = (endpoint) => `${API_BASE_URL}${API_PREFIX}${endpoint}`;
+
+/**
+ * Persistent JWT Bearer token management (for resilient cross-origin auth between Vercel & Render)
+ */
+export const AUTH_TOKEN_KEY = 'satvistaar_auth_token';
+
+export function getStoredToken() {
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token) {
+  try {
+    if (token) {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+  } catch {
+    // Ignore storage quota or access errors in restricted browser modes
+  }
+}
+
+export function getAuthHeaders(customHeaders = {}) {
+  const headers = { ...customHeaders };
+  const token = getStoredToken();
+  if (token && !headers['Authorization']) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+/**
+ * Robust response parser: handles both valid JSON and server/proxy HTML error responses
+ */
+async function parseResponse(res, defaultErrMsg = 'Request failed') {
+  const contentType = res.headers.get('content-type') || '';
+  let data;
+
+  if (contentType.includes('application/json')) {
+    data = await res.json();
+  } else {
+    const text = await res.text();
+    if (!res.ok) {
+      const cleanSnippet = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150);
+      const err = new Error(`Server error (${res.status}): ${cleanSnippet || res.statusText || 'Endpoint unavailable'}`);
+      err.statusCode = res.status;
+      throw err;
+    }
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { success: true, message: text };
+    }
+  }
+
+  if (!res.ok) {
+    const errMsg = data.message || data.error?.message || `${defaultErrMsg} (${res.status})`;
+    const err = new Error(errMsg);
+    err.statusCode = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data;
+}
 
 /**
  * Check backend health status
@@ -19,10 +96,11 @@ export async function checkBackendHealth() {
   try {
     const res = await fetch(getUrl('/health'), {
       credentials: 'include',
-      signal: AbortSignal.timeout(3000)
+      headers: getAuthHeaders(),
+      signal: AbortSignal.timeout(4000)
     });
     if (res.ok) {
-      const data = await res.json();
+      const data = await parseResponse(res);
       return {
         ok: true,
         status: data.data?.status || 'healthy',
@@ -32,10 +110,11 @@ export async function checkBackendHealth() {
     // Fallback prefix alias
     const fallbackRes = await fetch(`${API_BASE_URL}/api/health`, {
       credentials: 'include',
-      signal: AbortSignal.timeout(3000)
+      headers: getAuthHeaders(),
+      signal: AbortSignal.timeout(4000)
     });
     if (fallbackRes.ok) {
-      const data = await fallbackRes.json();
+      const data = await parseResponse(fallbackRes);
       return { ok: true, status: data.data?.status || 'healthy', message: data.message };
     }
     return { ok: false, status: 'unhealthy' };
@@ -55,19 +134,17 @@ export async function checkBackendHealth() {
 export async function registerUser({ name, email, password }) {
   const res = await fetch(getUrl('/auth/register'), {
     method: 'POST',
-    headers: {
+    headers: getAuthHeaders({
       'Content-Type': 'application/json'
-    },
+    }),
     credentials: 'include',
     body: JSON.stringify({ name, email, password })
   });
 
-  const data = await res.json();
-  if (!res.ok || !data.success) {
-    const err = new Error(data.message || data.error?.message || 'Registration failed');
-    err.statusCode = res.status;
-    err.data = data;
-    throw err;
+  const data = await parseResponse(res, 'Registration failed');
+  const token = data.data?.token || data.token;
+  if (token) {
+    setStoredToken(token);
   }
 
   return data.data || data;
@@ -83,19 +160,17 @@ export async function registerUser({ name, email, password }) {
 export async function loginUser({ email, password }) {
   const res = await fetch(getUrl('/auth/login'), {
     method: 'POST',
-    headers: {
+    headers: getAuthHeaders({
       'Content-Type': 'application/json'
-    },
+    }),
     credentials: 'include',
     body: JSON.stringify({ email, password })
   });
 
-  const data = await res.json();
-  if (!res.ok || !data.success) {
-    const err = new Error(data.message || data.error?.message || 'Invalid email or password');
-    err.statusCode = res.status;
-    err.data = data;
-    throw err;
+  const data = await parseResponse(res, 'Invalid email or password');
+  const token = data.data?.token || data.token;
+  if (token) {
+    setStoredToken(token);
   }
 
   return data.data || data;
@@ -109,13 +184,16 @@ export async function logoutUser() {
   try {
     const res = await fetch(getUrl('/auth/logout'), {
       method: 'POST',
+      headers: getAuthHeaders(),
       credentials: 'include'
     });
-    const data = await res.json();
+    const data = await parseResponse(res, 'Logout failed');
     return data;
   } catch (err) {
     console.warn('[API logoutUser Warning]:', err);
     return { success: true };
+  } finally {
+    setStoredToken(null);
   }
 }
 
@@ -127,15 +205,19 @@ export async function getCurrentUser() {
   try {
     const res = await fetch(getUrl('/auth/me'), {
       method: 'GET',
+      headers: getAuthHeaders(),
       credentials: 'include'
     });
 
     if (!res.ok) {
+      if (res.status === 401) {
+        setStoredToken(null);
+      }
       return null;
     }
 
-    const data = await res.json();
-    return data.data?.user || null;
+    const data = await parseResponse(res, 'Failed to fetch current user');
+    return data.data?.user || data.user || null;
   } catch (err) {
     console.warn('[API getCurrentUser Warning]:', err);
     return null;
@@ -154,16 +236,12 @@ export async function uploadImageFile(file) {
   try {
     const res = await fetch(getUrl('/uploads'), {
       method: 'POST',
+      headers: getAuthHeaders(),
       credentials: 'include',
       body: formData
     });
 
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || data.error?.message || `Upload failed with status ${res.status}`);
-    }
-
+    const data = await parseResponse(res, 'Upload failed');
     const uploaded = data.data?.files?.[0];
     if (!uploaded) {
       throw new Error('No uploaded file metadata returned by server.');
@@ -193,9 +271,10 @@ export async function uploadImageFile(file) {
 export async function getImageMetadata(fileId) {
   try {
     const res = await fetch(getUrl(`/uploads/${fileId}/metadata`), {
+      headers: getAuthHeaders(),
       credentials: 'include'
     });
-    const data = await res.json();
+    const data = await parseResponse(res, 'Could not fetch image metadata');
     return data.data || data;
   } catch (err) {
     console.warn(`[API getImageMetadata Warning] Could not fetch metadata for ${fileId}:`, err);
@@ -230,23 +309,14 @@ export async function analyzeSatelliteImages({ query, fileIds, requestedTask = n
   try {
     const res = await fetch(getUrl('/analysis'), {
       method: 'POST',
-      headers: {
+      headers: getAuthHeaders({
         'Content-Type': 'application/json'
-      },
+      }),
       credentials: 'include',
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      const errMsg = data.message || data.error?.message || `Analysis request failed (${res.status})`;
-      const err = new Error(errMsg);
-      err.statusCode = res.status;
-      err.data = data;
-      throw err;
-    }
-
+    const data = await parseResponse(res, 'Analysis request failed');
     return data;
   } catch (err) {
     console.error('[API analyzeSatelliteImages Error]:', err);
@@ -289,23 +359,14 @@ export async function analyzeRoiRegion({ query, fileIds, requestedTask, roi, tim
   try {
     const res = await fetch(getUrl('/analysis'), {
       method: 'POST',
-      headers: {
+      headers: getAuthHeaders({
         'Content-Type': 'application/json'
-      },
+      }),
       credentials: 'include',
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      const errMsg = data.message || data.error?.message || `ROI analysis failed (${res.status})`;
-      const err = new Error(errMsg);
-      err.statusCode = res.status;
-      err.data = data;
-      throw err;
-    }
-
+    const data = await parseResponse(res, 'ROI analysis failed');
     return data;
   } catch (err) {
     console.error('[API analyzeRoiRegion Error]:', err);
@@ -338,23 +399,14 @@ export async function analyzeGeointSuite({
   try {
     const res = await fetch(getUrl('/analysis'), {
       method: 'POST',
-      headers: {
+      headers: getAuthHeaders({
         'Content-Type': 'application/json'
-      },
+      }),
       credentials: 'include',
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      const errMsg = data.message || data.error?.message || `Geospatial Suite analysis failed (${res.status})`;
-      const err = new Error(errMsg);
-      err.statusCode = res.status;
-      err.data = data;
-      throw err;
-    }
-
+    const data = await parseResponse(res, 'Geospatial Suite analysis failed');
     return data;
   } catch (err) {
     console.error('[API analyzeGeointSuite Error]:', err);
@@ -395,23 +447,14 @@ export async function analyzeDisaster({
   try {
     const res = await fetch(getUrl('/analysis'), {
       method: 'POST',
-      headers: {
+      headers: getAuthHeaders({
         'Content-Type': 'application/json'
-      },
+      }),
       credentials: 'include',
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      const errMsg = data.message || data.error?.message || `Disaster Response analysis failed (${res.status})`;
-      const err = new Error(errMsg);
-      err.statusCode = res.status;
-      err.data = data;
-      throw err;
-    }
-
+    const data = await parseResponse(res, 'Disaster Response analysis failed');
     return data;
   } catch (err) {
     console.error('[API analyzeDisaster Error]:', err);
@@ -431,5 +474,7 @@ export default {
   analyzeRoiRegion,
   analyzeGeointSuite,
   analyzeDisaster,
+  getStoredToken,
+  setStoredToken,
   API_BASE_URL
 };
