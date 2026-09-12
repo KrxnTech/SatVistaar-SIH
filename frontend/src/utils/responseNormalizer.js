@@ -169,6 +169,13 @@ export function normalizeAnalysisResponse(rawResponse) {
     durationMs,
     grounding,
     evidence: result.evidence || [],
+    opticalFindings: result.opticalFindings || [],
+    sarFindings: result.sarFindings || [],
+    fusionFindings: result.fusionFindings || [],
+    modalityAgreement: result.modalityAgreement || {},
+    confidenceBreakdown: result.confidenceBreakdown || null,
+    uncertaintyAnalysis: result.uncertaintyAnalysis || null,
+    statistics: result.statistics || null,
     warnings,
     compatibility: {
       status: compatibility.status || 'READY',

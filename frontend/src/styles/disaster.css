@@ -1,0 +1,947 @@
+/* ==========================================================================
+   🚨 SATVISTAAR DISASTER RESPONSE INTELLIGENCE MODE - DESIGN SYSTEM & STYLES
+   ========================================================================== */
+
+:root {
+  --disaster-bg: #070b14;
+  --disaster-surface: #0e1526;
+  --disaster-surface-elevated: #141f36;
+  --disaster-surface-hover: #1b2a47;
+  --disaster-border: rgba(255, 255, 255, 0.1);
+  --disaster-border-glow: rgba(239, 68, 68, 0.4);
+  
+  --disaster-red: #ef4444;
+  --disaster-red-subtle: rgba(239, 68, 68, 0.15);
+  --disaster-orange: #f97316;
+  --disaster-orange-subtle: rgba(249, 115, 22, 0.15);
+  --disaster-amber: #f59e0b;
+  --disaster-cyan: #06b6d4;
+  --disaster-cyan-subtle: rgba(6, 182, 212, 0.15);
+  --disaster-emerald: #10b981;
+  --disaster-emerald-subtle: rgba(16, 185, 129, 0.15);
+  --disaster-purple: #8b5cf6;
+  --disaster-text-primary: #f8fafc;
+  --disaster-text-secondary: #94a3b8;
+  --disaster-text-muted: #64748b;
+}
+
+/* Master Mode Switcher Bar */
+.master-mode-switcher-bar {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 15, 29, 0.98) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.65rem 0;
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 40;
+}
+
+.master-mode-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.master-mode-segmented {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.master-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.15rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #94a3b8;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.master-mode-tab:hover {
+  color: #f8fafc;
+}
+
+.master-mode-tab.active-normal {
+  background: rgba(37, 99, 235, 0.25);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.3);
+}
+
+.master-mode-tab.active-disaster {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.28) 0%, rgba(249, 115, 22, 0.22) 100%);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  animation: disasterBeaconGlow 2.5s infinite alternate;
+}
+
+@keyframes disasterBeaconGlow {
+  0% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.25); }
+  100% { box-shadow: 0 0 24px rgba(239, 68, 68, 0.55); }
+}
+
+.disaster-badge-pulse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  position: relative;
+}
+
+.disaster-badge-pulse::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: inherit;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   DISASTER COMMAND CENTER WRAPPER
+   ========================================================================== */
+.sat-analysis-workspace.disaster-mode-active {
+  background: var(--disaster-bg) !important;
+}
+
+.disaster-command-center {
+  min-height: 100vh;
+  background: var(--disaster-bg);
+  color: var(--disaster-text-primary);
+  font-family: inherit;
+  padding-bottom: 5rem;
+}
+
+/* Operational Header */
+.disaster-header-banner {
+  background: linear-gradient(180deg, #10192d 0%, #0a0f1d 100%);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 1.25rem 0;
+  position: relative;
+}
+
+.disaster-header-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 35%, #06b6d4 70%, #10b981 100%);
+}
+
+.disaster-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.disaster-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.disaster-icon-halo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.25);
+}
+
+.disaster-title-main {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.disaster-tag {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  font-size: 0.68rem;
+  font-family: monospace;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.disaster-subtitle {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin: 0.2rem 0 0 0;
+}
+
+.disaster-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.disaster-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+
+.disaster-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.disaster-action-btn.primary {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+}
+
+.disaster-action-btn.primary:hover {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.6);
+}
+
+/* ==========================================================================
+   KPI STRIP
+   ========================================================================== */
+.disaster-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+  margin: 1.5rem 0;
+}
+
+.disaster-kpi-card {
+  background: var(--disaster-surface);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.disaster-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.disaster-kpi-card.accent-red {
+  border-left: 3px solid #ef4444;
+}
+
+.disaster-kpi-card.accent-orange {
+  border-left: 3px solid #f97316;
+}
+
+.disaster-kpi-card.accent-amber {
+  border-left: 3px solid #f59e0b;
+}
+
+.disaster-kpi-card.accent-cyan {
+  border-left: 3px solid #06b6d4;
+}
+
+.disaster-kpi-card.accent-emerald {
+  border-left: 3px solid #10b981;
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-label {
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--disaster-text-secondary);
+  font-weight: 600;
+}
+
+.kpi-icon {
+  opacity: 0.7;
+}
+
+.kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.kpi-value {
+  font-size: 1.55rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #ffffff;
+}
+
+.kpi-unit {
+  font-size: 0.78rem;
+  color: var(--disaster-text-muted);
+}
+
+.kpi-subtext {
+  font-size: 0.72rem;
+  color: var(--disaster-text-secondary);
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ==========================================================================
+   EVENT SETUP PANEL
+   ========================================================================== */
+.disaster-setup-card {
+  background: var(--disaster-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.disaster-type-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.disaster-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--disaster-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.disaster-type-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.disaster-type-btn.active {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+
+.disaster-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .disaster-upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.disaster-upload-slot {
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.disaster-upload-slot:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.disaster-upload-slot.loaded {
+  border-style: solid;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+/* Sensor Badges */
+.sensor-pills {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.sensor-pill {
+  font-size: 0.7rem;
+  font-family: monospace;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.sensor-pill.active {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: #06b6d4;
+  color: #67e8f9;
+}
+
+.sensor-pill.nisar-confirmed {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+/* ==========================================================================
+   INTERACTIVE MAP & LAYER CONTROLLER
+   ========================================================================== */
+.disaster-map-container {
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.disaster-map-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  display: flex;
+  gap: 0.4rem;
+  background: rgba(14, 21, 38, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 4px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.map-tool-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.map-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.map-tool-btn.active {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Floating Layer Manager */
+.disaster-layer-manager {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  background: rgba(14, 21, 38, 0.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.75rem;
+  width: 220px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.layer-manager-title {
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.layer-item:hover {
+  color: #f8fafc;
+}
+
+.layer-item input[type="checkbox"] {
+  accent-color: #ef4444;
+  cursor: pointer;
+}
+
+/* Swipe Comparison Slider */
+.swipe-slider-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 440px;
+  user-select: none;
+  overflow: hidden;
+}
+
+.swipe-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swipe-divider-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  cursor: ew-resize;
+}
+
+.swipe-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   SITUATIONAL AWARENESS 6 QUESTIONS
+   ========================================================================== */
+.situational-awareness-card {
+  background: var(--disaster-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.qa-grid-6 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.qa-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.85rem;
+}
+
+.qa-question {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #60a5fa;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.qa-answer {
+  font-size: 0.84rem;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   HAZARD MODULE (4-CLASS FLOOD PARTITION)
+   ========================================================================== */
+.hazard-panel {
+  background: var(--disaster-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.flood-partition-bar {
+  display: flex;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1rem 0;
+  background: #1e293b;
+}
+
+.part-stable {
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.part-preexisting {
+  background: #0284c7;
+  transition: width 0.3s ease;
+}
+
+.part-inundated {
+  background: #ef4444;
+  transition: width 0.3s ease;
+}
+
+.part-saturated {
+  background: #f59e0b;
+  transition: width 0.3s ease;
+}
+
+.flood-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.flood-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.flood-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   NISAR / SAR INTELLIGENCE PANEL
+   ========================================================================== */
+.nisar-panel {
+  background: linear-gradient(180deg, #091a18 0%, #081418 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.nisar-header-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.nisar-provenance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: bold;
+}
+
+.nisar-provenance-badge.confirmed {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+}
+
+.nisar-provenance-badge.generic-sar {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid #3b82f6;
+  color: #93c5fd;
+}
+
+.insar-gating-banner {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+  color: #fde68a;
+}
+
+/* ==========================================================================
+   DAMAGE ASSESSMENT (5-LEVEL) & INFRASTRUCTURE
+   ========================================================================== */
+.damage-level-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.damage-level-1 { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid #10b981; }
+.damage-level-2 { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
+.damage-level-3 { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid #f97316; }
+.damage-level-4 { background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid #ef4444; }
+.damage-level-5 { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid #a855f7; }
+
+.infrastructure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.infrastructure-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+/* Road Accessibility Breakdown */
+.road-status-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+  background: #1e293b;
+}
+
+.road-passable { background: #10b981; }
+.road-disrupted { background: #ef4444; }
+.road-uncertain { background: #f59e0b; }
+
+/* ==========================================================================
+   PRIORITY ZONES & FUTURE SCENARIOS
+   ========================================================================== */
+.priority-card {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid transparent;
+}
+
+.priority-p1 {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.priority-p2 {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.priority-p3 {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.scenario-disclaimer-banner {
+  background: rgba(147, 51, 234, 0.12);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.76rem;
+  color: #e9d5ff;
+}
+
+/* ==========================================================================
+   FIELD VERIFICATION QUEUE
+   ========================================================================== */
+.verification-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+.verification-table th {
+  text-align: left;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--disaster-text-secondary);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.verification-status-btn {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s ease;
+}
+
+.verification-status-btn.needs-check {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fde047;
+}
+
+.verification-status-btn.verified {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+
+.verification-status-btn.false-positive {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   DISASTER ASSISTANT QUERY INTERFACE
+   ========================================================================== */
+.disaster-query-box {
+  background: var(--disaster-surface);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.disaster-query-chips {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.disaster-query-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.73rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.disaster-query-chip:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* ==========================================================================
+   PRINT / DOSSIER EXPORT STYLES
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .master-mode-switcher-bar,
+  .disaster-action-btn,
+  .disaster-map-toolbar,
+  .disaster-layer-manager {
+    display: none !important;
+  }
+  .disaster-command-center {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+  }
+  .disaster-kpi-card,
+  .situational-awareness-card,
+  .hazard-panel,
+  .nisar-panel {
+    border: 1px solid #ccc !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    break-inside: avoid;
+  }
+}

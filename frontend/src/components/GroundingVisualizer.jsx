@@ -1,11 +1,37 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Crosshair, AlertTriangle } from 'lucide-react';
+import { RoiDrawingCanvas } from './roi/RoiDrawingCanvas.jsx';
 
-export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) {
+export function GroundingVisualizer({
+  imagePreviewUrl,
+  grounding,
+  answerText,
+  roiGeometry = null,
+  activeRoiTool = null,
+  onSelectRoiTool = null,
+  onChangeRoi = null,
+  activeScope = 'FULL'
+}) {
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [hoveredRegion, setHoveredRegion] = useState(null);
 
-  const regions = grounding?.regions || [];
+  const rawRegions = grounding?.regions || [];
+
+  // Filter regions clipped to ROI when ROI scope is active
+  const regions = (activeScope === 'ROI' && roiGeometry?.coordinates)
+    ? rawRegions.filter(reg => {
+        const xs = roiGeometry.coordinates.map(c => c.x);
+        const ys = roiGeometry.coordinates.map(c => c.y);
+        const minX = Math.min(...xs) - 0.05;
+        const maxX = Math.max(...xs) + 0.05;
+        const minY = Math.min(...ys) - 0.05;
+        const maxY = Math.max(...ys) + 0.05;
+        const cx = reg.x + (reg.width || 0) / 2;
+        const cy = reg.y + (reg.height || 0) / 2;
+        return cx >= minX && cx <= maxX && cy >= minY && cy <= maxY;
+      })
+    : rawRegions;
+
   const hasRegions = regions.length > 0;
 
   return (
@@ -74,6 +100,16 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
                   );
                 })}
               </div>
+            )}
+
+            {/* Universal ROI Selection & Clipping Overlay */}
+            {(activeRoiTool || roiGeometry) && (
+              <RoiDrawingCanvas
+                activeTool={activeRoiTool}
+                roiGeometry={roiGeometry}
+                onChangeRoi={onChangeRoi}
+                onSelectTool={onSelectRoiTool}
+              />
             )}
           </div>
         ) : (
@@ -180,16 +216,17 @@ export function GroundingVisualizer({ imagePreviewUrl, grounding, answerText }) 
         }
         .image-relative-container {
           position: relative;
-          width: 100%;
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
+          max-width: 100%;
           line-height: 0;
         }
         .grounding-image {
-          width: 100%;
-          height: auto;
+          max-width: 100%;
           max-height: 480px;
+          width: auto;
+          height: auto;
           object-fit: contain;
           display: block;
         }

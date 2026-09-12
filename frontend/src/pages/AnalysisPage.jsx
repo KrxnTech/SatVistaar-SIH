@@ -10,7 +10,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Sparkles,
-  ArrowDown
+  ArrowDown,
+  History
 } from 'lucide-react';
 import { useRouter } from '../context/RouterContext.jsx';
 import { useAnalysis } from '../context/AnalysisContext.jsx';
@@ -19,8 +20,18 @@ import ImageUploader from '../components/ImageUploader.jsx';
 import QueryInput from '../components/QueryInput.jsx';
 import AnalyzeButton from '../components/AnalyzeButton.jsx';
 import AnalysisResult from '../components/AnalysisResult.jsx';
+import AnalysisHistoryDrawer from '../components/AnalysisHistoryDrawer.jsx';
+import ErrorBoundary from '../components/ErrorBoundary.jsx';
+import DisasterCommandCenter from '../components/disaster/DisasterCommandCenter.jsx';
 
-export function AnalysisPage({ backendHealth }) {
+export function AnalysisPage({ backendHealth, defaultOperationalMode = 'NORMAL' }) {
+  const [operationalMode, setOperationalMode] = useState(defaultOperationalMode);
+
+  React.useEffect(() => {
+    if (defaultOperationalMode) {
+      setOperationalMode(defaultOperationalMode);
+    }
+  }, [defaultOperationalMode]);
   const {
     selectedMode,
     handleSelectMode,
@@ -40,6 +51,10 @@ export function AnalysisPage({ backendHealth }) {
     analysisResult,
     handleAnalyze,
     resetWorkspace,
+    history,
+    historyDrawerOpen,
+    setHistoryDrawerOpen,
+    restoreAnalysisFromHistory,
     isAnalyzeDisabled
   } = useAnalysis();
 
@@ -63,9 +78,51 @@ export function AnalysisPage({ backendHealth }) {
   }, [analysisResult]);
 
   return (
-    <div className="sat-analysis-workspace">
-      {/* Workspace Header Bar */}
-      <div className="workspace-header-bar">
+    <div className={`sat-analysis-workspace ${operationalMode === 'DISASTER' ? 'disaster-mode-active' : ''}`}>
+      {/* MASTER OPERATIONAL SYSTEM MODE SWITCHER BAR */}
+      <div className="master-mode-switcher-bar">
+        <div className="container master-mode-container">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              OPERATIONAL SYSTEM MODE:
+            </span>
+            <div className="master-mode-segmented">
+              <button
+                type="button"
+                className={`master-mode-tab ${operationalMode === 'NORMAL' ? 'active-normal' : ''}`}
+                onClick={() => setOperationalMode('NORMAL')}
+              >
+                <Sparkles size={13} />
+                <span>NORMAL ANALYSIS (5 TASKS)</span>
+              </button>
+
+              <button
+                type="button"
+                className={`master-mode-tab ${operationalMode === 'DISASTER' ? 'active-disaster' : ''}`}
+                onClick={() => setOperationalMode('DISASTER')}
+              >
+                <span className="disaster-badge-pulse" />
+                <span>🚨 DISASTER RESPONSE MODE</span>
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '0.72rem', color: operationalMode === 'DISASTER' ? '#fca5a5' : '#64748b', fontFamily: 'monospace' }}>
+              {operationalMode === 'DISASTER' ? 'NISAR L/S-BAND RADAR ACTIVATED' : 'STANDARD MULTISPECTRAL AGENT'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {operationalMode === 'DISASTER' ? (
+        <ErrorBoundary>
+          <DisasterCommandCenter initialPreImage={imageA} initialPostImage={imageB} />
+        </ErrorBoundary>
+      ) : (
+        <>
+          {/* Workspace Header Bar */}
+          <div className="workspace-header-bar">
         <div className="container header-container">
           <div className="header-titles">
             <div className="title-row">
@@ -89,6 +146,17 @@ export function AnalysisPage({ backendHealth }) {
                 </>
               )}
             </div>
+
+            {/* Session History Drawer Trigger */}
+            <button
+              type="button"
+              className="workspace-reset-btn font-mono"
+              onClick={() => setHistoryDrawerOpen(true)}
+              title="Open recent session history and past multimodal analyses"
+            >
+              <History size={13} />
+              <span>History {history?.length > 0 ? `(${history.length})` : ''}</span>
+            </button>
 
             {/* Reset Workspace */}
             <button
@@ -189,15 +257,17 @@ export function AnalysisPage({ backendHealth }) {
             )}
             {analysisResult && (
               <div className="workflow-card-block results-block" ref={resultRef}>
-                <AnalysisResult
-                  analysisResult={analysisResult}
-                  loading={loading}
-                  error={error}
-                  selectedMode={selectedMode}
-                  imageA={enrichedImageA}
-                  imageB={enrichedImageB}
-                  query={query}
-                />
+                <ErrorBoundary onReset={resetWorkspace}>
+                  <AnalysisResult
+                    analysisResult={analysisResult}
+                    loading={loading}
+                    error={error}
+                    selectedMode={selectedMode}
+                    imageA={enrichedImageA}
+                    imageB={enrichedImageB}
+                    query={query}
+                  />
+                </ErrorBoundary>
               </div>
             )}
           </div>
@@ -298,15 +368,15 @@ export function AnalysisPage({ backendHealth }) {
 
               <div className="sb-pipeline-list">
                 {[
-                  { num: 1, title: 'Input Ingestion', sub: imageA?.fileId ? 'Raster Ingested' : 'Awaiting Image',
-                    state: imageA?.fileId ? 'completed' : 'active' },
-                  { num: 2, title: 'Intent Classifier', sub: `Task: ${selectedMode}`,
+                  { num: 1, title: 'Input Ingestion', sub: imageA?.fileId ? (selectedMode === 'OPTICAL_SAR_FUSION' ? 'Dual Rasters Ingested' : 'Raster Ingested') : 'Awaiting Image',
+                    state: (selectedMode === 'OPTICAL_SAR_FUSION' ? (imageA?.fileId && imageB?.fileId) : imageA?.fileId) ? 'completed' : 'active' },
+                  { num: 2, title: 'Intent Classifier', sub: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Task: OPTICAL_SAR_FUSION' : `Task: ${selectedMode}`,
                     state: (loading || analysisResult) ? 'completed' : imageA?.fileId ? 'active' : 'idle' },
-                  { num: 3, title: 'Compatibility Engine', sub: 'CRS & Format Check',
+                  { num: 3, title: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Cross-Modal Co-Registration' : 'Compatibility Engine', sub: selectedMode === 'OPTICAL_SAR_FUSION' ? 'CRS, Resolution & Overlap' : 'CRS & Format Check',
                     state: (loading || analysisResult) ? 'completed' : 'idle' },
-                  { num: 4, title: 'Model Router (VLM)', sub: 'Qwen3.8-27B Vision',
+                  { num: 4, title: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Fusion Engine (Python ML/VLM)' : 'Model Router (VLM)', sub: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Dual-Stream Radar + Optical' : (analysisResult?.modelName || 'Qwen3.8-27B Vision'),
                     state: loading ? 'active' : analysisResult ? 'completed' : 'idle' },
-                  { num: 5, title: 'Evidence Synthesis', sub: 'Visual Bounding & Reasoning',
+                  { num: 5, title: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Modality Agreement Synthesis' : 'Evidence Synthesis', sub: selectedMode === 'OPTICAL_SAR_FUSION' ? 'Cross-Modal Grounding & Metrics' : 'Visual Bounding & Reasoning',
                     state: analysisResult ? 'completed' : 'idle' },
                 ].map((step) => (
                   <div key={step.num} className={`sb-pipe-row sb-pipe-${step.state}`}>
@@ -331,7 +401,7 @@ export function AnalysisPage({ backendHealth }) {
               </div>
             </div>
 
-            {/* â”€â”€ CARD 3: TECH SPECS (collapsible) â”€â”€ */}
+            {/* CARD 3: TECH SPECS (collapsible) */}
             <div className="sb-dark-card">
               <button
                 type="button"
@@ -355,21 +425,21 @@ export function AnalysisPage({ backendHealth }) {
                       <span className="sb-tl-bullet sb-bullet-blue" />
                       <div>
                         <p className="sb-spec-label font-mono">Formats</p>
-                        <p className="sb-spec-text">GeoTIFF, PNG, JPEG Â· up to 50MB/scene</p>
+                        <p className="sb-spec-text">GeoTIFF, PNG, JPEG · up to 50MB/scene</p>
                       </div>
                     </div>
                     <div className="sb-tl-row">
                       <span className="sb-tl-bullet sb-bullet-orange" />
                       <div>
                         <p className="sb-spec-label font-mono">Spatial Alignment</p>
-                        <p className="sb-spec-text">Co-registered scenes in EPSG:4326/3857</p>
+                        <p className="sb-spec-text">Co-registered scenes in EPSG:4326/3857/UTM</p>
                       </div>
                     </div>
                     <div className="sb-tl-row">
                       <span className="sb-tl-bullet sb-bullet-muted" />
                       <div>
-                        <p className="sb-spec-label font-mono">Attention Grounding</p>
-                        <p className="sb-spec-text">Relative attention bounding boxes normalized to spatial coords</p>
+                        <p className="sb-spec-label font-mono">Multimodal Fusion</p>
+                        <p className="sb-spec-text">BigEarthNet-MM adapted dual-stream backscatter & reflectance synthesis</p>
                       </div>
                     </div>
                   </div>
@@ -385,6 +455,14 @@ export function AnalysisPage({ backendHealth }) {
 
           </aside>
         </div>
+
+        {/* Multimodal Session History Drawer */}
+        <AnalysisHistoryDrawer
+          isOpen={historyDrawerOpen}
+          onClose={() => setHistoryDrawerOpen(false)}
+          onSelectEntry={restoreAnalysisFromHistory}
+          currentEntryId={analysisResult?.requestId}
+        />
       </main>
 
       <style>{`
@@ -1206,6 +1284,8 @@ export function AnalysisPage({ backendHealth }) {
           flex-shrink: 0;
         }
       `}</style>
+        </>
+      )}
 
     </div>
   );

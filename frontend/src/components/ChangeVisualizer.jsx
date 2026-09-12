@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { GitCompare, Eye, EyeOff, Calendar, ArrowRight, Clock, Target, Layers } from 'lucide-react';
 import { formatDisplayDate, calculateTemporalDelta } from '../utils/dateGenerator.js';
+import { RoiDrawingCanvas } from './roi/RoiDrawingCanvas.jsx';
 
 export function ChangeVisualizer({
   imageAPreviewUrl,
   imageBPreviewUrl,
   imageAMeta,
   imageBMeta,
-  grounding
+  grounding,
+  roiGeometry = null,
+  activeRoiTool = null,
+  onSelectRoiTool = null,
+  onChangeRoi = null
 }) {
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [hoveredIdx, setHoveredIdx] = useState(null);
@@ -114,6 +119,16 @@ export function ChangeVisualizer({
                     ))}
                   </div>
                 )}
+
+                {/* Synchronized Geographic ROI Selection on Image A */}
+                {(activeRoiTool || roiGeometry) && (
+                  <RoiDrawingCanvas
+                    activeTool={activeRoiTool}
+                    roiGeometry={roiGeometry}
+                    onChangeRoi={onChangeRoi}
+                    onSelectTool={onSelectRoiTool}
+                  />
+                )}
               </div>
             ) : (
               <div className="no-image-placeholder font-mono">No Image A loaded</div>
@@ -170,6 +185,16 @@ export function ChangeVisualizer({
                       </div>
                     ))}
                   </div>
+                )}
+
+                {/* Synchronized Geographic ROI Selection on Image B */}
+                {(activeRoiTool || roiGeometry) && (
+                  <RoiDrawingCanvas
+                    activeTool={activeRoiTool}
+                    roiGeometry={roiGeometry}
+                    onChangeRoi={onChangeRoi}
+                    onSelectTool={onSelectRoiTool}
+                  />
                 )}
               </div>
             ) : (
@@ -377,14 +402,17 @@ export function ChangeVisualizer({
         }
         .image-relative-container {
           position: relative;
-          width: 100%;
-          display: block;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          max-width: 100%;
           line-height: 0;
         }
         .comparison-img {
-          width: 100%;
-          height: auto;
+          max-width: 100%;
           max-height: 380px;
+          width: auto;
+          height: auto;
           object-fit: contain;
           display: block;
         }

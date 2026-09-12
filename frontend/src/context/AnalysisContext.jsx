@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { ANALYSIS_MODES } from '../components/ModeSelector.jsx';
-import { analyzeSatelliteImages } from '../services/api.js';
+import { analyzeSatelliteImages, analyzeRoiRegion } from '../services/api.js';
 import { normalizeAnalysisResponse } from '../utils/responseNormalizer.js';
 import { generateBiTemporalDatePair } from '../utils/dateGenerator.js';
+import { computeClientGisMetrics } from '../utils/gisCalculator.js';
 
 const AnalysisContext = createContext(null);
 
@@ -15,6 +16,16 @@ export function AnalysisProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+
+  // ── Universal ROI / Selected Area States ──
+  const [roiGeometry, setRoiGeometry] = useState(null);
+  const [activeRoiTool, setActiveRoiTool] = useState(null);
+  const [activeScope, setActiveScope] = useState('FULL'); // 'FULL' | 'ROI'
+  const [roiAnalysisResult, setRoiAnalysisResult] = useState(null);
+  const [roiLoading, setRoiLoading] = useState(false);
+  const [roiError, setRoiError] = useState(null);
 
   const handleSelectMode = useCallback((newMode) => {
     const currentModeConfig = ANALYSIS_MODES.find(m => m.id === selectedMode);
@@ -53,7 +64,9 @@ export function AnalysisProvider({ children }) {
     }
 
     if (!imageA?.fileId) {
-      setError('Please upload the primary satellite image.');
+      setError(selectedMode === 'OPTICAL_SAR_FUSION'
+        ? 'Please upload the Optical / Multispectral satellite scene.'
+        : 'Please upload the primary satellite image.');
       return null;
     }
 
@@ -62,12 +75,17 @@ export function AnalysisProvider({ children }) {
       return null;
     }
 
-    const isDual = selectedMode === 'CHANGE_ANALYSIS';
+    if (selectedMode === 'OPTICAL_SAR_FUSION' && !imageB?.fileId) {
+      setError('Optical + SAR Fusion requires both Optical (Image A) and SAR (Image B) rasters.');
+      return null;
+    }
+
+    const isDual = selectedMode === 'CHANGE_ANALYSIS' || selectedMode === 'OPTICAL_SAR_FUSION';
     const fileIds = isDual
       ? [imageA.fileId, imageB.fileId]
       : [imageA.fileId];
 
-    const timestamps = isDual
+    const timestamps = selectedMode === 'CHANGE_ANALYSIS'
       ? [
           imageA?.metadata?.timestamp || biTemporalDates.dateA,
           imageB?.metadata?.timestamp || biTemporalDates.dateB
@@ -87,6 +105,19 @@ export function AnalysisProvider({ children }) {
 
       const normalized = normalizeAnalysisResponse(rawResponse);
       setAnalysisResult(normalized);
+
+      // Save to session history
+      const historyEntry = {
+        id: normalized.requestId || `hist_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        mode: selectedMode,
+        query: query.trim(),
+        result: normalized,
+        imageA: imageA ? { ...imageA } : null,
+        imageB: imageB ? { ...imageB } : null
+      };
+      setHistory(prev => [historyEntry, ...prev.filter(h => h.id !== historyEntry.id).slice(0, 19)]);
+
       return normalized;
     } catch (err) {
       console.error('[AnalysisContext Error]:', err);
@@ -98,6 +129,84 @@ export function AnalysisProvider({ children }) {
     }
   }, [query, imageA, imageB, selectedMode, biTemporalDates]);
 
+  const updateRoiGeometry = useCallback((newRoi) => {
+    if (!newRoi || !newRoi.coordinates || newRoi.coordinates.length < 2) {
+      setRoiGeometry(null);
+      setRoiAnalysisResult(null);
+      return;
+    }
+    const meta = imageA?.metadata || {};
+    const enriched = computeClientGisMetrics(newRoi, meta);
+    setRoiGeometry(enriched || newRoi);
+    setRoiAnalysisResult(null);
+    setRoiError(null);
+  }, [imageA]);
+
+  const clearRoi = useCallback(() => {
+    setRoiGeometry(null);
+    setActiveRoiTool(null);
+    setActiveScope('FULL');
+    setRoiAnalysisResult(null);
+    setRoiError(null);
+  }, []);
+
+  const handleAnalyzeRoi = useCallback(async (customQuery) => {
+    if (!roiGeometry || !roiGeometry.coordinates || roiGeometry.coordinates.length < 2) {
+      setRoiError('Please select a region on the satellite image first.');
+      return null;
+    }
+
+    const questionToAsk = customQuery?.trim() || 'Analyze land cover and features within this selected area.';
+    const isDual = selectedMode === 'CHANGE_ANALYSIS' || selectedMode === 'OPTICAL_SAR_FUSION';
+    const fileIds = isDual ? [imageA.fileId, imageB.fileId] : [imageA.fileId];
+
+    const timestamps = selectedMode === 'CHANGE_ANALYSIS'
+      ? [
+          imageA?.metadata?.timestamp || biTemporalDates.dateA,
+          imageB?.metadata?.timestamp || biTemporalDates.dateB
+        ]
+      : (imageA?.metadata?.timestamp ? [imageA.metadata.timestamp] : undefined);
+
+    setRoiLoading(true);
+    setRoiError(null);
+
+    try {
+      const response = await analyzeRoiRegion({
+        query: questionToAsk,
+        fileIds,
+        requestedTask: selectedMode,
+        roi: roiGeometry,
+        timestamps
+      });
+
+      const normalized = normalizeAnalysisResponse(response);
+      const resResult = response.data?.result || {};
+      const roiPayload = {
+        query: questionToAsk,
+        answerText: resResult.answerText || normalized.answerText,
+        dominantClass: resResult.dominantClass || 'Unknown',
+        confidence: resResult.confidence !== undefined ? resResult.confidence : (normalized.confidence || 0.85),
+        statistics: resResult.statistics || null,
+        multimodal: resResult.multimodal,
+        temporal: resResult.temporal,
+        grounding: resResult.grounding,
+        roiDebug: resResult.roiDebug || null,
+        executionTrace: resResult.executionTrace || []
+      };
+
+      setRoiAnalysisResult(roiPayload);
+      setActiveScope('ROI');
+      return roiPayload;
+    } catch (err) {
+      console.error('[AnalysisContext ROI Error]:', err);
+      const errMsg = err.message || 'Failed to analyze selected area.';
+      setRoiError(errMsg);
+      throw err;
+    } finally {
+      setRoiLoading(false);
+    }
+  }, [roiGeometry, selectedMode, imageA, imageB, biTemporalDates]);
+
   const resetWorkspace = useCallback(() => {
     setImageA(null);
     setImageB(null);
@@ -107,9 +216,24 @@ export function AnalysisProvider({ children }) {
     setSelectedMode('VQA');
     setQuery(vqaConfig?.defaultQuery || 'What is visible in this satellite image?');
     setBiTemporalDates(generateBiTemporalDatePair());
+    setRoiGeometry(null);
+    setActiveRoiTool(null);
+    setActiveScope('FULL');
+    setRoiAnalysisResult(null);
+    setRoiError(null);
   }, []);
 
-  const isDualMode = selectedMode === 'CHANGE_ANALYSIS';
+  const restoreAnalysisFromHistory = useCallback((entry) => {
+    if (!entry) return;
+    if (entry.mode) setSelectedMode(entry.mode);
+    if (entry.query) setQuery(entry.query);
+    if (entry.result) setAnalysisResult(entry.result);
+    if (entry.imageA) setImageA(entry.imageA);
+    if (entry.imageB) setImageB(entry.imageB);
+    setHistoryDrawerOpen(false);
+  }, []);
+
+  const isDualMode = selectedMode === 'CHANGE_ANALYSIS' || selectedMode === 'OPTICAL_SAR_FUSION';
   const isAnalyzeDisabled = !imageA?.fileId || (isDualMode && !imageB?.fileId) || !query.trim();
 
   // Create enriched image objects with timestamps for visualizers
@@ -117,7 +241,7 @@ export function AnalysisProvider({ children }) {
     ...imageA,
     metadata: {
       ...(imageA.metadata || {}),
-      timestamp: imageA.metadata?.timestamp || (isDualMode ? biTemporalDates.dateA : null)
+      timestamp: imageA.metadata?.timestamp || (selectedMode === 'CHANGE_ANALYSIS' ? biTemporalDates.dateA : null)
     }
   } : null;
 
@@ -125,7 +249,7 @@ export function AnalysisProvider({ children }) {
     ...imageB,
     metadata: {
       ...(imageB.metadata || {}),
-      timestamp: imageB.metadata?.timestamp || (isDualMode ? biTemporalDates.dateB : null)
+      timestamp: imageB.metadata?.timestamp || (selectedMode === 'CHANGE_ANALYSIS' ? biTemporalDates.dateB : null)
     }
   } : null;
 
@@ -151,8 +275,28 @@ export function AnalysisProvider({ children }) {
     setAnalysisResult,
     handleAnalyze,
     resetWorkspace,
+    history,
+    setHistory,
+    historyDrawerOpen,
+    setHistoryDrawerOpen,
+    restoreAnalysisFromHistory,
     isDualMode,
-    isAnalyzeDisabled
+    isAnalyzeDisabled,
+    // Universal ROI states and methods
+    roiGeometry,
+    setRoiGeometry,
+    activeRoiTool,
+    setActiveRoiTool,
+    activeScope,
+    setActiveScope,
+    roiAnalysisResult,
+    setRoiAnalysisResult,
+    roiLoading,
+    roiError,
+    setRoiError,
+    updateRoiGeometry,
+    clearRoi,
+    handleAnalyzeRoi
   };
 
   return (

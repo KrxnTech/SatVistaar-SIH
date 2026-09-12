@@ -24,6 +24,14 @@ const MODE_PRESETS = {
     'Detect new construction, roads, or facility expansion',
     'Has tree canopy, forest cover, or vegetation decreased?',
     'Identify cleared land, earthworks, or demolished structures'
+  ],
+  OPTICAL_SAR_FUSION: [
+    'Perform joint optical and SAR analysis to describe land cover, structure, and changes.',
+    'Detect urban built-up areas using optical texture and SAR double-bounce backscatter.',
+    'Identify water bodies and wetlands combining optical spectral indices and low SAR backscatter.',
+    'Assess flood inundation and waterlogging through cloud-penetrating SAR and optical imagery.',
+    'Evaluate agricultural crop health and canopy structure using optical NDVI and cross-polarized SAR.',
+    'Detect bridges, ports, and industrial structures with high radar reflectivity and optical verification.'
   ]
 };
 
@@ -57,6 +65,7 @@ export function QueryInput({ selectedMode, query, setQuery, onSubmit, loading })
   const isEmpty = !query || !query.trim();
 
   const modeLabel = {
+    OPTICAL_SAR_FUSION: 'optical + SAR multimodal fusion',
     VQA: 'vqa',
     CAPTIONING: 'scene description',
     FEATURE_IDENTIFICATION: 'visual grounding',

@@ -254,6 +254,171 @@ export async function analyzeSatelliteImages({ query, fileIds, requestedTask = n
   }
 }
 
+/**
+ * Send an ROI Selected Area analysis request to the backend
+ * @param {object} params
+ * @param {string} params.query - ROI specific question
+ * @param {string[]} params.fileIds - Array of 1 or 2 file IDs
+ * @param {string} params.requestedTask - Primary analysis task
+ * @param {object} params.roi - ROI geometry object with coordinates and bounds
+ * @param {string[]} [params.timestamps] - Optional timestamps
+ * @returns {Promise<object>} Full backend JSON response
+ */
+export async function analyzeRoiRegion({ query, fileIds, requestedTask, roi, timestamps = null }) {
+  if (!query || !query.trim()) {
+    throw new Error('Please provide an ROI analysis question.');
+  }
+
+  if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
+    throw new Error('Please upload at least one satellite image.');
+  }
+
+  if (!roi || !roi.coordinates || roi.coordinates.length < 2) {
+    throw new Error('Please select an area on the satellite image first.');
+  }
+
+  const payload = {
+    query: query.trim(),
+    fileIds,
+    requestedTask,
+    scope: 'ROI',
+    roi,
+    ...(timestamps && timestamps.length > 0 && { timestamps })
+  };
+
+  try {
+    const res = await fetch(getUrl('/analysis'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errMsg = data.message || data.error?.message || `ROI analysis failed (${res.status})`;
+      const err = new Error(errMsg);
+      err.statusCode = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('[API analyzeRoiRegion Error]:', err);
+    throw err;
+  }
+}
+
+/**
+ * Run Advanced Geospatial Intelligence Suite analysis
+ * (Time-Series, Flood, Change Matrix, Optical vs SAR Difference, Object Inventory)
+ */
+export async function analyzeGeointSuite({
+  task = 'ALL',
+  fileIds = [],
+  roi = null,
+  query = '',
+  timestamps = [],
+  options = {}
+}) {
+  const payload = {
+    query: query?.trim() || `Advanced Geospatial Suite ${task} analysis`,
+    fileIds,
+    requestedTask: task,
+    scope: roi ? 'ROI' : 'GEOINT',
+    ...(roi && { roi }),
+    ...(timestamps && timestamps.length > 0 && { timestamps }),
+    options
+  };
+
+  try {
+    const res = await fetch(getUrl('/analysis'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errMsg = data.message || data.error?.message || `Geospatial Suite analysis failed (${res.status})`;
+      const err = new Error(errMsg);
+      err.statusCode = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('[API analyzeGeointSuite Error]:', err);
+    throw err;
+  }
+}
+
+/**
+ * Run Dedicated Disaster Response Intelligence Mode analysis
+ * (Flood, Cyclone, Landslide, Wildfire, Earthquake, NISAR SAR analytics)
+ */
+export async function analyzeDisaster({
+  disasterType = 'FLOOD',
+  fileIds = [],
+  roi = null,
+  query = '',
+  timestamps = [],
+  sensorModality = 'AUTO',
+  options = {}
+}) {
+  const isNisar = options.isNisar || sensorModality === 'NISAR';
+  const payload = {
+    query: query?.trim() || `Disaster Response Intelligence: ${disasterType}`,
+    fileIds,
+    requestedTask: isNisar ? 'NISAR_ANALYSIS' : 'DISASTER_RESPONSE',
+    disasterType,
+    sensorModality,
+    scope: 'DISASTER',
+    ...(roi && { roi }),
+    ...(timestamps && timestamps.length > 0 && { timestamps }),
+    options: {
+      ...options,
+      disasterType,
+      sensorModality
+    }
+  };
+
+  try {
+    const res = await fetch(getUrl('/analysis'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errMsg = data.message || data.error?.message || `Disaster Response analysis failed (${res.status})`;
+      const err = new Error(errMsg);
+      err.statusCode = res.status;
+      err.data = data;
+      throw err;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('[API analyzeDisaster Error]:', err);
+    throw err;
+  }
+}
+
 export default {
   checkBackendHealth,
   registerUser,
@@ -263,5 +428,8 @@ export default {
   uploadImageFile,
   getImageMetadata,
   analyzeSatelliteImages,
+  analyzeRoiRegion,
+  analyzeGeointSuite,
+  analyzeDisaster,
   API_BASE_URL
 };

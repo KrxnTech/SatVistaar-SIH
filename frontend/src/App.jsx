@@ -13,6 +13,7 @@ import AboutPage from './pages/AboutPage.jsx';
 import HelpPage from './pages/HelpPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import EmptyState from './components/common/EmptyState.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { checkBackendHealth } from './services/api.js';
 
 function AppContent() {
@@ -55,7 +56,21 @@ function AppContent() {
               />
             }
           >
-            <AnalysisPage backendHealth={backendHealth} />
+            <AnalysisPage backendHealth={backendHealth} defaultOperationalMode="NORMAL" />
+          </ProtectedRoute>
+        );
+
+      case '/disaster':
+        return (
+          <ProtectedRoute
+            fallback={
+              <Login
+                onNavigateToRegister={() => navigateTo('/register')}
+                onSuccess={() => navigateTo('/disaster')}
+              />
+            }
+          >
+            <AnalysisPage backendHealth={backendHealth} defaultOperationalMode="DISASTER" />
           </ProtectedRoute>
         );
 
@@ -139,13 +154,15 @@ function AppContent() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <RouterProvider>
-        <AnalysisProvider>
-          <AppContent />
-        </AnalysisProvider>
-      </RouterProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <RouterProvider>
+          <AnalysisProvider>
+            <AppContent />
+          </AnalysisProvider>
+        </RouterProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

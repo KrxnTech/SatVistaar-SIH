@@ -4,6 +4,7 @@ import { Play, Loader2, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
 export function AnalyzeButton({ loading, onClick, disabled, selectedMode, imageA, imageB, query }) {
   const getModeTitle = () => {
     switch (selectedMode) {
+      case 'OPTICAL_SAR_FUSION': return 'Optical + SAR Fusion';
       case 'CHANGE_ANALYSIS': return 'Bi-Temporal Change';
       case 'FEATURE_IDENTIFICATION': return 'Visual Grounding';
       case 'CAPTIONING': return 'Scene Description';
@@ -11,14 +12,16 @@ export function AnalyzeButton({ loading, onClick, disabled, selectedMode, imageA
     }
   };
 
-  const isDual = selectedMode === 'CHANGE_ANALYSIS';
+  const isDual = selectedMode === 'CHANGE_ANALYSIS' || selectedMode === 'OPTICAL_SAR_FUSION';
 
   // Validation feedback
   const getMissingReason = () => {
     if (!imageA?.fileId) {
+      if (selectedMode === 'OPTICAL_SAR_FUSION') return 'Upload Optical / Multispectral scene (Slot 1) to continue';
       return isDual ? 'Upload Image A (T1 Reference) to continue' : 'Upload a satellite scene to continue';
     }
     if (isDual && !imageB?.fileId) {
+      if (selectedMode === 'OPTICAL_SAR_FUSION') return 'Upload SAR Radar scene (Slot 2) for multimodal fusion';
       return 'Upload Image B (T2 Comparison) for change detection';
     }
     if (!query || !query.trim()) {
