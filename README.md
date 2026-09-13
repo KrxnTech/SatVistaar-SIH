@@ -1,59 +1,64 @@
+
 # SatVistaar 🛰️
 
-**Autonomous Vision-Language Platform for Multimodal Remote-Sensing Intelligence**
+**Agentic Vision-Language Platform for Multimodal Remote-Sensing Intelligence**
 
-[![Backend Build](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express%205-green.svg)](backend)
-[![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite-blue.svg)](frontend)
-[![Preprocessing Service](https://img.shields.io/badge/Preprocessing-Python%20%7C%20Rasterio%20%7C%20Flask-yellow.svg)](backend/services/preprocessing)
-[![Authentication](https://img.shields.io/badge/Auth-JWT%20%7C%20HTTP--Only%20Cookies%20%7C%20Bcrypt-purple.svg)](backend/src/auth)
-[![VLM Providers](https://img.shields.io/badge/VLM%20Engines-Groq%20%7C%20Ollama%20%7C%20Mock-orange.svg)](backend/src/providers)
-[![Tests Passing](https://img.shields.io/badge/Tests-21%2F21%20Auth%20%7C%2028%2F30%20Regression-brightgreen.svg)](backend/tests)
+[![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express%205-green.svg)](https://claude.ai/chat/backend) [![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%7C%20Vite%208-blue.svg)](https://claude.ai/chat/frontend) [![Preprocessing Service](https://img.shields.io/badge/Preprocessing-Python%20%7C%20Rasterio%20%7C%20Flask-yellow.svg)](https://claude.ai/chat/backend/services/preprocessing) [![Authentication](https://img.shields.io/badge/Auth-JWT%20%7C%20HTTP--Only%20Cookies%20%7C%20Bcrypt-purple.svg)](https://claude.ai/chat/backend/src/auth) [![VLM Engines](https://img.shields.io/badge/VLM%20Engines-Groq%20%7C%20Ollama-orange.svg)](https://claude.ai/chat/backend/src/providers) [![Status](https://img.shields.io/badge/Status-MVP%20%7C%20SIH26167-lightgrey.svg)](https://claude.ai/chat/e4ea33f9-a878-4b2a-93fc-018f7bc9d662#)
 
-> **Image(s) + Question → Intent → Mission → Model → Vision Analysis → Structured Result → Visual Dashboard**
+> **Image(s) + Question → Intent → Mission → Model → Vision Analysis → Structured Result → Visual Dashboard / Disaster Response Console**
 
----
 
 ## 📌 Overview
 
-**SatVistaar** (developed under Problem Statement **SIH26167**) is an autonomous, query-driven geospatial intelligence platform designed to make remote-sensing image analysis intuitive and accessible. Traditional satellite image interpretation requires domain-specific software, complex manual band combinations, and specialized analytical workflows. SatVistaar replaces this complexity with a conversational, vision-language interface that analyzes optical and multispectral visual representations using natural language instructions.
+**SatVistaar** (developed for **Problem Statement SIH26167 — "SatQuery AI"**, Team **PRAXIS**, Department of Space / ISRO) is an agentic, query-driven geospatial intelligence platform that lets analysts interrogate satellite imagery in plain language instead of hand-building GIS workflows.
 
-The system features an autonomous **Agentic Pipeline** combining:
-1. **Natural Language Intent Detection**: Automatically determines whether the user wants general Question Answering, Scene Description, Feature Identification / Visual Grounding, or Bi-Temporal Change Analysis.
-2. **Geospatial Metadata Extraction**: A dedicated Python/Rasterio preprocessing microservice that extracts spatial resolution, CRS, bounding boxes, dimensions, and band configurations from GeoTIFF, TIFF, PNG, and JPEG imagery.
-3. **Model Router & Deterministic Fallback**: Provider-agnostic inference orchestration across high-throughput cloud Vision-Language Models (**Groq VLM**) and local self-hosted models (**Ollama**), backed by rate-limit retry mechanics and graceful fallback.
-4. **Interactive Spatial Visualization**: Visual grounding overlays with approximate spatial quadrants and interactive bi-temporal swipe/side-by-side comparison tools.
-5. **Secure Full-Stack Authentication**: Session management using hashed credentials (Bcrypt), JWTs, secure HTTP-only cookies, and route guards.
+The platform now spans two live surfaces:
 
-> [!NOTE]
-> **MVP Scope Boundary**: The current MVP utilizes state-of-the-art multimodal Vision-Language Models for qualitative reasoning, visual feature identification, and comparative change descriptions. It does **not** claim quantitative spectral index calculations (e.g. calibrated NDVI rasters), pixel-level semantic segmentation masks, or raw optical-SAR physical wave fusion, which are designated for future domain-specialized fine-tuning.
+1.  **Analysis Workspace** — the original conversational VQA/grounding/change-detection console.
+2.  **Disaster Mode** — a newly observed operational console for hazard mapping, incident prioritization, and rapid-response decision support (flood response is the concrete example currently in the product).
 
----
+The system's agentic pipeline combines:
+
+1.  **Natural Language Intent Detection** — classifies each query into one of five missions (see below).
+2.  **Geospatial Metadata Extraction** — a Python/Rasterio microservice extracting CRS, bounding boxes, dimensions, and band configuration from GeoTIFF, TIFF, PNG, and JPEG imagery.
+3.  **Model Router & Deterministic Fallback** — routes inference to a cloud VLM (**Groq**, `Qwen3.8-27B Vision`) with automatic fallback to a local model (**Ollama**, `qwen2-vl`) on timeout/rate-limit.
+4.  **Interactive Spatial Visualization** — quadrant-style grounding overlays, bi-temporal swipe/side-by-side comparisons, and (in Disaster Mode) layered hazard/priority-zone maps.
+5.  **Secure Full-Stack Authentication** — bcrypt-hashed credentials, JWTs in HTTP-only cookies, and protected routes.
+
+> [!NOTE] **MVP Scope Boundary** (confirmed by the product's own in-app "Capabilities & Limitations" page): SatVistaar's Vision-Language Models are strong at qualitative reasoning, feature description, and change narration — **not** at calibrated spectral indices (e.g. true NDVI rasters), pixel-level segmentation masks, or physical (tensor-level) optical–SAR wave fusion. Bounding overlays reflect model attention, not survey-grade shapefiles.
+
+> [!IMPORTANT] The **SIH26167 problem statement mandates** remote-sensing-specific fine-tuning/domain adaptation (e.g. on BigEarthNet) and genuine co-registered optical–SAR joint analysis. As of this writing, the observed pipeline uses **general-purpose vision-language models** (Qwen/Llama family via Groq and Ollama) without confirmed domain fine-tuning. This is tracked as an open compliance gap in [Limitations](https://claude.ai/chat/e4ea33f9-a878-4b2a-93fc-018f7bc9d662#%EF%B8%8F-limitations) and [Roadmap](https://claude.ai/chat/e4ea33f9-a878-4b2a-93fc-018f7bc9d662#-roadmap).
+
+----------
 
 ## 💡 What Makes SatVistaar Different?
 
-Traditional remote-sensing tools require analysts to manually choose tools, write scripts, or configure complex GIS layers. SatVistaar takes an **intent-driven, agentic approach**:
+-   **Natural Language Driven** — ask direct questions instead of writing GIS scripts.
+-   **Five-Mission Unified Architecture** — VQA, Scene Description, Visual Grounding, Bi-Temporal Change, and Optical + SAR Fusion in a single interface.
+-   **Automatic Intent Classification** — queries are routed to the correct mission without the user choosing a "tool."
+-   **Compatibility Validation Before Execution** — checks image count, format, and modality before invoking a VLM, avoiding wasted inference calls.
+-   **Provider-Agnostic Model Routing with Graceful Fallback** — Groq Cloud VLM primary, local Ollama daemon as deterministic fallback.
+-   **Structured JSON Contracts** — normalized output, sanitized reasoning, and per-step timing traces for the UI.
+-   **Operational Mode for Disaster Response** — a second console (Disaster Mode) turns the same underlying pipeline into an incident/hazard-prioritization tool, not just a Q&A box.
 
-- **Natural Language Driven**: Ask direct questions in plain English without writing GIS scripts.
-- **Unified Multi-Mission Architecture**: Seamlessly handles VQA, Scene Description, Visual Grounding, and Bi-Temporal Change within a single interface.
-- **Automatic Intent Classification**: Automatically categorizes user questions into the optimal analysis mission.
-- **Compatibility Validation Before Execution**: Evaluates image count, dimensions, and format before invoking VLM inference, preventing wasteful API calls.
-- **Provider-Agnostic Model Routing**: Dynamically routes inference to Groq Cloud VLM (primary high-speed) or local Ollama (offline fallback).
-- **Graceful Provider Fallback**: If the primary cloud VLM times out or fails, requests fall back deterministically to local models.
-- **Structured JSON Contracts**: Returns normalized JSON output alongside sanitized reasoning and timing traces for UI rendering.
-- **Interactive Evidence Rendering**: Accompanies natural language answers with visual quadrant bounding and side-by-side swipe comparisons.
-
----
+----------
 
 ## ⚠️ Problem Statement
 
-Satellite imagery from platforms such as Sentinel, Landsat, and ISRO missions contains immense amounts of strategic and environmental intelligence. However:
-- **High Technical Barrier**: Interpreting remote-sensing data traditionally requires deep GIS expertise and manual analysis workflows.
-- **Workflow Mismatch**: Non-technical analysts, disaster response coordinators, and decision-makers often need immediate answers to simple natural language questions without configuring complex GIS pipelines.
-- **Lack of Unified Query Orchestration**: Existing workflows separate VQA, feature detection, and change monitoring into siloed, inflexible tools.
+**SIH26167 — SatQuery AI: An Interactive Vision-Language Assistant for Multimodal Remote Sensing Image Analysis through Text Queries** (Department of Space / ISRO).
 
-**SatVistaar's Solution**: A unified pipeline where the user provides **Satellite Image(s) + Natural Language Query**. The system inspects image metadata, determines intent, verifies compatibility, routes to the optimal VLM engine, and returns structured JSON responses accompanied by interactive visual evidence.
+The PS requires a system that can:
 
----
+-   Answer natural-language questions about **single** optical/multispectral or SAR images (VQA is mandatory; captioning **or** grounding must also be implemented).
+-   Perform **change description / change-VQA** over **bi-temporal** image pairs (mandatory).
+-   Perform **joint analysis of co-registered optical + SAR pairs** (mandatory).
+-   Use **agentic orchestration** — interpret the query, check input compatibility, select the right specialist model/tool, execute, and return an auditable execution trace.
+-   Include at least one **remote-sensing fine-tuned/adapted** vision component (BigEarthNet or other open RS training data) — a generic, un-adapted LLM/VLM does not satisfy the PS.
+-   Be evaluated against public benchmarks (VRSBench, RSVQA, CDVQA) and an ISRO/SAC Cartosat-2S + RISAT evaluation set.
+
+SatVistaar's current implementation satisfies the **interaction and orchestration shape** of this brief (five missions including Optical+SAR, agentic routing, compatibility checks, execution traces) but has **not yet demonstrated** the mandatory fine-tuning/domain-adaptation requirement — see [Limitations](https://claude.ai/chat/e4ea33f9-a878-4b2a-93fc-018f7bc9d662#%EF%B8%8F-limitations).
+
+----------
 
 ## 🛰️ SatVistaar Intelligence Pipeline
 
@@ -62,20 +67,22 @@ flowchart TD
     User(["User / Analyst"]) --> Input["Satellite Image(s) + Natural Language Query"]
     Input --> Preproc["Input Processing & Metadata Validation"]
     Preproc --> Intent["AI Intent Understanding"]
-    
+
     Intent --> Mission{"Analysis Mission Selection"}
     Mission -->|Query about Image| VQA["Visual Question Answering (VQA)"]
     Mission -->|Locate Objects| Ground["Visual Grounding / Feature Identification"]
     Mission -->|Overview Scene| Caption["Scene Description & Captioning"]
     Mission -->|2 Images Compare| Change["Bi-Temporal Change Analysis"]
+    Mission -->|Optical + SAR Pair| Fusion["Optical + SAR Fusion (Multimodal)"]
 
     VQA --> Compat["Compatibility & Constraint Check"]
     Ground --> Compat
     Caption --> Compat
     Change --> Compat
+    Fusion --> Compat
 
     Compat --> Router["Model Router (Rule-Based Selection)"]
-    
+
     Router --> Primary["Primary Provider (Groq Vision)"]
     Primary -.->|On Failure / Timeout| Fallback["Fallback Provider (Ollama Local)"]
 
@@ -84,10 +91,12 @@ flowchart TD
 
     VLM --> Normalizer["Response Normalization & Trace Logging"]
     Normalizer --> Result["Structured JSON Result"]
-    Result --> Dashboard(["SatVistaar Mission Control Dashboard"])
+    Result --> Dashboard(["Analysis Workspace"])
+    Result --> Disaster(["Disaster Mode Console"])
+
 ```
 
----
+----------
 
 ## 🧠 From Question to Intelligence
 
@@ -100,19 +109,22 @@ flowchart TD
     D -->|Question about image content| E["VQA: Answer specific query about features, infrastructure, water"]
     D -->|Locate features / structures| F["GROUNDING: Identify approximate spatial quadrants & boundaries"]
     D -->|General scene overview| G["DESCRIPTION: Generate comprehensive land-cover & terrain summary"]
-    D -->|2 Images provided| H["BI-TEMPORAL CHANGE: Compare baseline (Image A) vs comparison (Image B)"]
+    D -->|2 Images provided| H["BI-TEMPORAL CHANGE: Compare baseline (T1) vs comparison (T2)"]
+    D -->|Optical + SAR pair provided| I["FUSION: Jointly reason over optical + radar backscatter"]
 
-    E --> I["Model Router"]
-    F --> I
-    G --> I
-    H --> I
+    E --> J["Model Router"]
+    F --> J
+    G --> J
+    H --> J
+    I --> J
 
-    I --> J["Vision-Language Model (VLM) Execution"]
-    J --> K["Structured Answer + Visual Evidence"]
-    K --> L["Interactive User Dashboard"]
+    J --> K["Vision-Language Model (VLM) Execution"]
+    K --> L["Structured Answer + Visual Evidence"]
+    L --> M["Interactive Dashboard / Disaster Console"]
+
 ```
 
----
+----------
 
 ## 🤖 AI Decision Architecture
 
@@ -120,7 +132,7 @@ flowchart TD
 flowchart TD
     subgraph InputLayer ["1. Input & Ingestion"]
         Query["User Query"]
-        Images["1 or 2 Satellite Images"]
+        Images["1 or 2 Satellite Images (Optical / SAR)"]
     end
 
     subgraph AgentLayer ["2. Intent & Compatibility"]
@@ -139,7 +151,8 @@ flowchart TD
         ThinkSanitizer["Reasoning Sanitizer (Strips raw think tags)"]
         TraceLogger["Execution Trace Logger (Per-step latency & tokens)"]
         FinalJSON["Normalized JSON Contract"]
-        FrontendUI["SatVistaar UI Visualizers"]
+        FrontendUI["Analysis Workspace UI"]
+        DisasterUI["Disaster Mode UI"]
     end
 
     Query & Images --> IntentClassifier
@@ -157,11 +170,13 @@ flowchart TD
     ThinkSanitizer --> TraceLogger
     TraceLogger --> FinalJSON
     FinalJSON --> FrontendUI
+    FinalJSON --> DisasterUI
+
 ```
 
----
+----------
 
-## 🎯 Four Analysis Missions
+## 🎯 Five Analysis Missions
 
 ```mermaid
 flowchart TD
@@ -172,49 +187,216 @@ flowchart TD
     Router --> M2["2. Visual Grounding"]
     Router --> M3["3. Scene Description"]
     Router --> M4["4. Bi-Temporal Change"]
+    Router --> M5["5. Optical + SAR Fusion"]
 
     M1 --> VLM["VLM Specialist Inference"]
     M2 --> VLM
     M3 --> VLM
     M4 --> VLM
+    M5 --> VLM
 
     VLM --> Output["Normalized Result & Visual Overlay"]
+
 ```
 
 ### 1. Visual Question Answering (VQA)
-Ask open-ended natural-language questions regarding visible features in optical or multispectral satellite images (*e.g., "Is there an airport runway visible?", "Are there road transportation networks near the river?"*).
+
+Open-ended questions about visible features (_"Is there an airport runway visible?"_). **Status: Implemented.**
 
 ### 2. Visual Grounding / Feature Identification
-Locate requested geographic and man-made features (buildings, water bodies, agricultural parcels) and receive approximate spatial quadrants and relative bounding coordinates for visual overlay.
+
+Approximate spatial quadrants/bounding regions for requested features. **Status: Implemented (Qualitative).**
 
 ### 3. Scene Description & Captioning
-Generate high-level spatial overviews and comprehensive land-cover distribution summaries (*e.g., "Describe this satellite image in detail with dominant terrain and land cover"*).
+
+High-level land-cover and terrain summaries. **Status: Implemented.**
 
 ### 4. Bi-Temporal Change Analysis
-Compare two co-registered satellite images acquired at different timestamps (Image A Baseline vs Image B Comparison) to describe qualitative visual changes, urban growth, deforestation, or water-body shifts.
 
----
+Compares a baseline (T1) and comparison (T2) image pair for qualitative change narration. **Status: Implemented (Qualitative).**
+
+### 5. Optical + SAR Fusion _(New — not in previous README)_
+
+Selectable in the live workspace as a **"Multimodal"** task: jointly reasons over a co-registered optical image and a SAR image to describe built-up/water-covered regions and cross-modal features. **Status: 🚧 Implemented at the UI/task-routing level; the underlying joint optical–SAR reasoning pipeline (vs. general VLM prompting) is not independently verified.**
+
+----------
+
+## 🚨 Disaster Response Console _(New Section — not present in the previous README)_
+
+Alongside the Analysis Workspace, the live application exposes a dedicated **Disaster Mode**, observed in a walkthrough of a flood-response scenario:
+
+-   **Incident setup**: select a target AOI boundary, incident type (e.g. Flood), and baseline/incident timestamps.
+-   **Multi-sensor feed selection** before running disaster analysis.
+-   **Operational dashboard**: rainfall, water level, area/population at risk, and an overall priority/severity score, alongside a ranked list of recommended actions (e.g. prioritized evacuation zones, infrastructure at risk) with confidence framing.
+-   **Layered hazard map** with toggleable layers: Base Imagery, Hazard Footprint, Damage Level, Critical Infrastructure & Roads, Priority Zones (P1–P10), and an Uncertainty/Speckle layer.
+-   **Comparison tooling**: swipe, side-by-side, incident-marker, and draw-AOI modes over the hazard map.
+-   **Forward-looking risk framing** ("What could happen next?") and export/download of the map and report.
+
+> **Verification note:** This module was confirmed via a recorded walkthrough of the live UI, not via source inspection (repository subpaths were not crawlable in this session) or the repository's own README, which does not mention Disaster Mode at all. Backend logic, data sources for hazard/priority-zone layers, and whether outputs are model-generated vs. rule-based were **not verifiable** and should be confirmed with the engineering team before being publicly claimed as "AI-generated hazard intelligence."
+
+----------
 
 ## 🚀 Current MVP Capabilities Matrix
 
-| Capability | Input | Current Implementation | Status |
-|---|---|---|---|
-| **Visual Question Answering (VQA)** | 1 Satellite Image + Question | Natural-language reasoning over visible land cover, infrastructure, water, and terrain features via Vision-Language Models. | **Implemented** |
-| **Scene Description / Captioning** | 1 Satellite Image + Prompt | High-level spatial overview, land-cover distribution summary, and natural language scene description. | **Implemented** |
-| **Visual Grounding / Feature Identification** | 1 Satellite Image + Query | Identifies key structures/features with approximate relative spatial bounding regions and quadrant coordinates. | **Implemented** (Qualitative) |
-| **Bi-Temporal Change Analysis** | 2 Temporal Images + Query | Comparative analysis between baseline (Image A) and comparison (Image B) images with timeline metadata. | **Implemented** (Qualitative) |
-| **Cloud VLM Inference (Groq)** | Image + Prompt | High-speed inference using Qwen / Llama vision models with automatic 429 rate-limit backoff and retry. | **Implemented** |
-| **Local VLM Inference (Ollama)** | Image + Prompt | Provider adapter for local self-hosted `qwen2-vl` daemon. | **Implemented** (Fallback Ready) |
-| **Provider Fallback Engine** | Analysis Request | Deterministic 1-step fallback if primary VLM provider fails or times out. | **Implemented** |
-| **Geospatial Preprocessing Microservice** | GeoTIFF / TIFF / JPEG / PNG | Dedicated Python Flask service using `rasterio` & `PIL` to extract CRS, dimensions, resolution, and band count. | **Implemented** |
-| **Intent Detection & Compatibility Engine** | Query + File Metadata | Classifies task intent and verifies image count (e.g. enforces 2 images for Change Analysis). Returns `READY`, `ABSTAIN`, or `UNKNOWN`. | **Implemented** |
-| **Execution Trace & Normalization** | Analysis Lifecycle | Captures end-to-end execution metadata, latency, token statistics, and strips raw model `<think>` blocks. | **Implemented** |
-| **Authentication & Route Protection** | Credentials / Cookies | JWT stored in secure HTTP-only cookies, Bcrypt password hashing, session hydration (`/api/v1/auth/me`), and protected API endpoints. | **Implemented** |
-| **Interactive Analysis UI** | React 19 Frontend | Dark glassmorphism workspace, side-by-side change visualizer, spatial bounding viewer, and execution trace inspector. | **Implemented** |
-| *Pixel-Level Semantic Segmentation* | Raster | Calibrated pixel segmentation mask generation. | *Planned (Future)* |
-| *Physical Optical-SAR Wave Fusion* | Optical + SAR | Radiometric deep fusion at the tensor level. | *Planned (Future)* |
+Capability
 
----
+Input
+
+Current Implementation
+
+Status
+
+**Visual Question Answering (VQA)**
+
+1 image + question
+
+Natural-language reasoning over visible land cover, infrastructure, water, terrain via VLM.
+
+✅ **Implemented**
+
+**Scene Description / Captioning**
+
+1 image + prompt
+
+High-level spatial overview and land-cover summary.
+
+✅ **Implemented**
+
+**Visual Grounding / Feature ID**
+
+1 image + query
+
+Approximate relative spatial bounding regions/quadrants.
+
+✅ **Implemented** (Qualitative)
+
+**Bi-Temporal Change Analysis**
+
+2 temporal images + query
+
+Comparative T1 vs T2 analysis with timeline metadata.
+
+✅ **Implemented** (Qualitative)
+
+**Optical + SAR Fusion**
+
+Co-registered optical + SAR pair
+
+Selectable "Multimodal" mission in the live workspace.
+
+🚧 **UI-Implemented**, fusion depth unverified
+
+**Disaster Mode / Hazard Console**
+
+AOI + incident params + imagery
+
+Incident dashboard, layered hazard map, priority actions, export.
+
+🚧 **Implemented (UI-confirmed)**, backend logic not yet verified
+
+**Cloud VLM Inference (Groq)**
+
+Image + prompt
+
+`Qwen3.8-27B Vision` with 429 backoff/retry.
+
+✅ **Implemented**
+
+**Local VLM Inference (Ollama)**
+
+Image + prompt
+
+Local `qwen2-vl` daemon adapter.
+
+✅ **Implemented** (Fallback)
+
+**Provider Fallback Engine**
+
+Analysis request
+
+Deterministic fallback on primary failure/timeout.
+
+✅ **Implemented**
+
+**Geospatial Preprocessing Microservice**
+
+GeoTIFF/TIFF/JPEG/PNG
+
+Flask + `rasterio`/`PIL` metadata extraction (CRS, dims, resolution, bands).
+
+✅ **Implemented**
+
+**Intent Detection & Compatibility Engine**
+
+Query + file metadata
+
+Classifies task, enforces image-count rules, returns `READY`/`ABSTAIN`/`UNKNOWN`.
+
+✅ **Implemented**
+
+**Execution Trace & Normalization**
+
+Analysis lifecycle
+
+Latency/token stats, strips raw `<think>` blocks.
+
+✅ **Implemented**
+
+**Authentication & Route Protection**
+
+Credentials / cookies
+
+JWT in HTTP-only cookie, bcrypt hashing, `/auth/me` session hydration.
+
+✅ **Implemented**
+
+**Interactive Analysis UI**
+
+React 19 frontend
+
+Dark glassmorphism workspace, live model-routing sidebar, pipeline-flow tracker.
+
+✅ **Implemented**
+
+**Remote-sensing fine-tuning / domain adaptation**
+
+Training pipeline
+
+PS-mandatory; not evidenced in live product or repo README.
+
+❌ **Not yet verified**
+
+_Pixel-Level Semantic Segmentation_
+
+Raster
+
+Calibrated pixel segmentation masks.
+
+📋 _Planned_
+
+_Physical Optical–SAR Tensor Fusion_
+
+Optical + SAR
+
+Radiometric fusion at tensor level (vs. current prompt-level fusion).
+
+📋 _Planned_
+
+_PostgreSQL / PostGIS metadata store_
+
+Analysis metadata
+
+Referenced only in the presentation deck.
+
+📋  _Planned_
+
+_MinIO  object storage_
+
+Raw imagery / artifacts
+
+Referenced only in the presentation deck.
+
+----------
 
 ## 🔧 Technical Request Flow (Developer Architecture)
 
@@ -247,7 +429,7 @@ sequenceDiagram
         Agent-->>Gateway: Return ABSTAIN status with reason
     else Compatibility Passes (READY)
         Agent->>Agent: routeModel(intent, providerMode)
-        
+
         alt Primary Provider (Groq) Succeeds
             Agent->>Groq: Dispatch prompt & base64 image
             Groq-->>Agent: Raw VLM text response
@@ -262,348 +444,471 @@ sequenceDiagram
     end
 
     Gateway-->>Frontend: 200 OK JSON Contract
-    Frontend->>Analyst: Render real AI answerText, spatial visualizer & trace log
+    Frontend->>Analyst: Render answerText, spatial visualizer & trace log
+
 ```
 
----
+> **Note:** This flow is carried over verbatim from the repository's own documented API contract (unchanged since the previous README). No equivalent documented flow exists yet for Disaster Mode's endpoints — see [API Endpoints](https://claude.ai/chat/e4ea33f9-a878-4b2a-93fc-018f7bc9d662#-api-endpoints--contract-specification).
+
+----------
 
 ## 📡 API Endpoints & Contract Specification
 
-### 1. Public Health Check
-- **`GET /api/v1/health`** (or `/api/health`)
-  ```json
-  {
-    "success": true,
-    "message": "SatQuery AI Backend is healthy",
-    "data": {
-      "status": "ok",
-      "timestamp": "2026-08-31T05:55:21.000Z",
-      "services": {
-        "preprocessing": "ok"
-      }
-    }
-  }
-  ```
+> These endpoints are as documented in the repository. Disaster Mode does not yet have a documented API contract; treat any Disaster Mode network behavior as **Not yet verified**.
 
----
+### 1. Public Health Check
+
+-   **`GET /api/v1/health`** (or `/api/health`)
+    
+    ```json
+    {  "success": true,  "message": "SatQuery AI Backend is healthy",  "data": {    "status": "ok",    "timestamp": "2026-08-31T05:55:21.000Z",    "services": { "preprocessing": "ok" }  }}
+    
+    ```
+    
 
 ### 2. Authentication Endpoints
 
 #### Register User
-- **`POST /api/v1/auth/register`**
-  - **Body**: `{ "name": "Dr. Vikram Sarabhai", "email": "vikram@isro.gov.in", "password": "Password123!" }`
-  - **Response (201 Created)**: Returns sanitized user object and sets secure HTTP-only `satvistaar_token` cookie.
+
+-   **`POST /api/v1/auth/register`**
+    -   **Body**: `{ "name": "Dr. Vikram Sarabhai", "email": "vikram@isro.gov.in", "password": "Password123!" }`
+    -   **Response (201 Created)**: Sanitized user object; sets secure HTTP-only `satvistaar_token` cookie.
 
 #### Login User
-- **`POST /api/v1/auth/login`**
-  - **Body**: `{ "email": "vikram@isro.gov.in", "password": "Password123!" }`
-  - **Response (200 OK)**: Returns sanitized user object and sets secure HTTP-only `satvistaar_token` cookie.
+
+-   **`POST /api/v1/auth/login`**
+    -   **Body**: `{ "email": "vikram@isro.gov.in", "password": "Password123!" }`
+    -   **Response (200 OK)**: Sanitized user object; sets secure HTTP-only `satvistaar_token` cookie.
 
 #### Current User Session
-- **`GET /api/v1/auth/me`** *(Protected)*
-  - **Cookie**: `satvistaar_token=<jwt>`
-  - **Response (200 OK)**: `{ "success": true, "data": { "user": { "id": "...", "name": "...", "email": "...", "role": "USER" } } }`
+
+-   **`GET /api/v1/auth/me`** _(Protected)_
+    -   **Cookie**: `satvistaar_token=<jwt>`
+    -   **Response (200 OK)**: `{ "success": true, "data": { "user": { "id": "...", "name": "...", "email": "...", "role": "USER" } } }`
 
 #### Logout
-- **`POST /api/v1/auth/logout`**
-  - **Response (200 OK)**: Clears `satvistaar_token` cookie matching origin parameters.
 
----
+-   **`POST /api/v1/auth/logout`**
+    -   **Response (200 OK)**: Clears the `satvistaar_token` cookie.
 
-### 3. Image Upload Endpoint *(Protected)*
-- **`POST /api/v1/uploads`**
-  - **Payload**: `multipart/form-data` with `images` field (1 to 2 files, max 50MB each; JPEG, PNG, TIFF, GeoTIFF).
-  - **Response (200 OK)**:
-    ```json
-    {
-      "success": true,
-      "message": "Images uploaded successfully",
-      "data": {
-        "files": [
-          {
-            "id": "c05cba0f-fc9f-4602-acb3-27dd6cdc0418",
-            "originalName": "Sentinel2_Urban.tif",
-            "storedName": "c05cba0f-fc9f-4602-acb3-27dd6cdc0418.tif",
-            "size": 169642,
-            "mimeType": "image/tiff"
-          }
-        ]
-      }
-    }
-    ```
+### 3. Image Upload Endpoint _(Protected)_
 
----
+-   **`POST /api/v1/uploads`**
+    -   **Payload**: `multipart/form-data`, `images` field (1–2 files, ≤50MB each; JPEG, PNG, TIFF, GeoTIFF).
+    -   **Response (200 OK)**:
+        
+        ```json
+        {  "success": true,  "message": "Images uploaded successfully",  "data": {    "files": [      {        "id": "c05cba0f-fc9f-4602-acb3-27dd6cdc0418",        "originalName": "Sentinel2_Urban.tif",        "storedName": "c05cba0f-fc9f-4602-acb3-27dd6cdc0418.tif",        "size": 169642,        "mimeType": "image/tiff"      }    ]  }}
+        
+        ```
+        
 
-### 4. Core Analysis Endpoint *(Protected)*
-- **`POST /api/v1/analysis`**
-  - **Payload**:
-    ```json
-    {
-      "query": "What changed between these two satellite images?",
-      "fileIds": [
-        "00953864-bbdf-4ff4-be93-3a42bbf943be",
-        "05226c0e-dc3a-4cb9-8607-9e4166b55f45"
-      ],
-      "requestedTask": "CHANGE_ANALYSIS",
-      "timestamps": ["2021-06-26", "2026-02-05"]
-    }
-    ```
-  - **Standardized Response Structure (200 OK)**:
-    ```json
-    {
-      "success": true,
-      "message": "Analysis completed",
-      "data": {
-        "analysisRequest": {
-          "query": "What changed between these two satellite images?",
-          "fileIds": ["00953864-bbdf-4ff4-be93-3a42bbf943be", "05226c0e-dc3a-4cb9-8607-9e4166b55f45"],
-          "requestedTask": "CHANGE_ANALYSIS"
-        },
-        "intent": {
-          "task": "CHANGE_ANALYSIS",
-          "confidence": 1.0,
-          "isOverridden": true
-        },
-        "compatibility": {
-          "status": "READY",
-          "reason": "Image count (2) is compatible with task CHANGE_ANALYSIS",
-          "minImages": 2,
-          "maxImages": 2
-        },
-        "executionPlan": {
-          "model": "qwen/qwen3.8-27b",
-          "provider": "groq",
-          "fallbackModel": "qwen2-vl",
-          "fallbackProvider": "ollama"
-        },
-        "result": {
-          "task": "CHANGE_ANALYSIS",
-          "answerText": "Between the 2021 baseline and 2026 comparison imagery, significant urban expansion is visible in the northeast quadrant...",
-          "confidence": null,
-          "grounding": null,
-          "evidence": [],
-          "modelName": "qwen/qwen3.8-27b",
-          "modelVersion": "1.0.0",
-          "provider": "groq",
-          "warnings": [],
-          "status": "success"
-        },
-        "trace": {
-          "requestId": "543409cd-f847-4352-a525-1de4e2f3dcf8",
-          "totalDurationMs": 1622,
-          "steps": [
-            { "step": "INTENT_DETECTION", "durationMs": 2 },
-            { "step": "COMPATIBILITY_CHECK", "durationMs": 1 },
-            { "step": "MODEL_ROUTING", "durationMs": 1 },
-            { "step": "VLM_INFERENCE", "durationMs": 1618, "provider": "groq" }
-          ]
-        }
-      },
-      "requestId": "543409cd-f847-4352-a525-1de4e2f3dcf8"
-    }
-    ```
+### 4. Core Analysis Endpoint _(Protected)_
 
----
+-   **`POST /api/v1/analysis`**
+    -   **Payload**:
+        
+        ```json
+        {  "query": "What changed between these two satellite images?",  "fileIds": ["00953864-bbdf-4ff4-be93-3a42bbf943be", "05226c0e-dc3a-4cb9-8607-9e4166b55f45"],  "requestedTask": "CHANGE_ANALYSIS",  "timestamps": ["2021-06-26", "2026-02-05"]}
+        
+        ```
+        
+    -   **Response (200 OK)**:
+        
+        ```json
+        {  "success": true,  "message": "Analysis completed",  "data": {    "analysisRequest": { "query": "...", "fileIds": ["...", "..."], "requestedTask": "CHANGE_ANALYSIS" },    "intent": { "task": "CHANGE_ANALYSIS", "confidence": 1.0, "isOverridden": true },    "compatibility": { "status": "READY", "reason": "Image count (2) is compatible with task CHANGE_ANALYSIS", "minImages": 2, "maxImages": 2 },    "executionPlan": { "model": "qwen/qwen3.8-27b", "provider": "groq", "fallbackModel": "qwen2-vl", "fallbackProvider": "ollama" },    "result": {      "task": "CHANGE_ANALYSIS",      "answerText": "Between the 2021 baseline and 2026 comparison imagery, significant urban expansion is visible in the northeast quadrant...",      "confidence": null,      "grounding": null,      "evidence": [],      "modelName": "qwen/qwen3.8-27b",      "modelVersion": "1.0.0",      "provider": "groq",      "warnings": [],      "status": "success"    },    "trace": {      "requestId": "543409cd-f847-4352-a525-1de4e2f3dcf8",      "totalDurationMs": 1622,      "steps": [        { "step": "INTENT_DETECTION", "durationMs": 2 },        { "step": "COMPATIBILITY_CHECK", "durationMs": 1 },        { "step": "MODEL_ROUTING", "durationMs": 1 },        { "step": "VLM_INFERENCE", "durationMs": 1618, "provider": "groq" }      ]    }  },  "requestId": "543409cd-f847-4352-a525-1de4e2f3dcf8"}
+        
+        ```
+        
 
-## 🛠️ Complete Technology Stack
+### 5. Disaster Mode Endpoints — _Undocumented_
 
-### 1. Technology Matrix & Frameworks
+No public API contract for Disaster Mode (AOI ingestion, hazard-layer generation, priority scoring, report export) exists in the repository yet. **This should be documented by the team before the next README revision** — do not assume it mirrors `/api/v1/analysis`.
 
-| Layer | Technologies & Badges | Purpose & Responsibilities |
-|---|---|---|
-| **Frontend Client** | [![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/) [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/) [![Lucide](https://img.shields.io/badge/Lucide-React%20Icons-F56565?logo=lucide&logoColor=white)](https://lucide.dev/) [![CSS3](https://img.shields.io/badge/CSS3-Modern%20Glassmorphism-1572B6?logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS) | Single-page reactive mission control UI, real-time dual-image temporal upload slots, bounding quadrant overlays, side-by-side swipe comparator, and live execution trace viewer. |
-| **Backend API Gateway** | [![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/) [![Express](https://img.shields.io/badge/Express-5.2.1-000000?logo=express&logoColor=white)](https://expressjs.com/) [![Multer](https://img.shields.io/badge/Multer-Uploads-FF6F00)](https://github.com/expressjs/multer) [![Helmet](https://img.shields.io/badge/Helmet-Security-FF6600)](https://helmetjs.github.io/) | Asynchronous ES-module API gateway, multipart upload pipeline (up to 50MB per file), request validation, and orchestrator lifecycle management. |
-| **Authentication & Security** | [![JWT](https://img.shields.io/badge/JWT-Tokens-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/) [![Bcrypt](https://img.shields.io/badge/Bcrypt.js-10%20Rounds-4A154B)](https://www.npmjs.com/package/bcryptjs) [![Cookies](https://img.shields.io/badge/Cookie--Parser-HTTP--Only-green)](https://www.npmjs.com/package/cookie-parser) [![CORS](https://img.shields.io/badge/CORS-Credentialed-blue)](https://www.npmjs.com/package/cors) | Salted password hashing (Bcrypt 10 rounds), signed JSON Web Tokens issued via secure HTTP-only cookies (`satvistaar_token`), SameSite protection, and granular middleware guards. |
-| **Geospatial Preprocessing** | [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://python.org/) [![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/) [![Rasterio](https://img.shields.io/badge/Rasterio-Geospatial-239120)](https://rasterio.readthedocs.io/) [![Pillow](https://img.shields.io/badge/Pillow-PIL-blue)](https://python-pillow.org/) [![NumPy](https://img.shields.io/badge/NumPy-Arrays-013243?logo=numpy&logoColor=white)](https://numpy.org/) | Independent microservice parsing GeoTIFF, TIFF, PNG, and JPEG metadata, extracting spatial resolution, CRS, bounding boxes, affine transforms, and band configurations. |
-| **Vision-Language Inference** | [![Groq](https://img.shields.io/badge/Groq-Cloud%20VLM-F55036)](https://groq.com/) [![Qwen](https://img.shields.io/badge/Qwen-3.8--27B%20Vision-purple)](https://huggingface.co/Qwen) [![Llama](https://img.shields.io/badge/Llama-3.2--11B%20Vision-0467DF?logo=meta&logoColor=white)](https://ai.meta.com/llama/) [![Ollama](https://img.shields.io/badge/Ollama-Local%20Daemon-black)](https://ollama.ai/) | High-speed cloud Vision-Language Models with automatic 429 rate-limit backoff, coupled with local self-hosted multimodal Ollama daemon for offline fallback. |
-| **Data & Resilience Layer** | [![Data](https://img.shields.io/badge/Pattern-Atomic%20Repository-brightgreen)](#) [![Tests](https://img.shields.io/badge/Tests-Node%20Native%20Harness-yellow)](#) | File-backed atomic JSON storage (`backend/data/users.json`) with in-memory caching (seamlessly swappable with MongoDB/PostgreSQL) and automated regression test harnesses. |
+----------
 
----
+## 🛠️ Technology Stack
 
-### 2. Architecture & Layer Integration
+### Implemented (verified via the live application's own "About & Architecture" page and the repository README)
 
-```mermaid
-flowchart LR
-    subgraph UI_Layer ["1. UI & Visual Layer"]
-        R19["React 19 (Hooks & Context)"]
-        Vite["Vite 8 Build Engine"]
-        Lucide["Lucide React Icons"]
-        GlassCSS["Modern Glassmorphism CSS"]
-    end
+Layer
 
-    subgraph Server_Layer ["2. Gateway & Security"]
-        Exp["Express 5.2.1 (ESM)"]
-        JWT["jsonwebtoken + HttpOnly Cookies"]
-        Bcrypt["bcryptjs (10 Salt Rounds)"]
-        Multer["Multer (50MB GeoTIFF Buffer)"]
-    end
+Technologies
 
-    subgraph Preproc_Layer ["3. Geospatial Microservice"]
-        Flask["Flask 3.0 Microservice"]
-        Raster["rasterio (CRS, GeoTIFF, Transform)"]
-        PIL["Pillow / PIL Image Reader"]
-        NumPy["NumPy Multi-Band Arrays"]
-    end
+Purpose
 
-    subgraph AI_Layer ["4. Agentic VLM Routing"]
-        IntentClass["Regex / Keyword Intent Classifier"]
-        CompEngine["Multi-Input Compatibility Engine"]
-        GroqAPI["Groq Cloud VLM Adapter"]
-        OllamaLocal["Ollama Local Adapter"]
-    end
+**Frontend Client**
 
-    UI_Layer --> Server_Layer
-    Server_Layer --> Preproc_Layer
-    Server_Layer --> AI_Layer
-```
+React 19 · Vite 8 · Lucide Icons · CSS glassmorphism
 
----
+Reactive workspace UI, dual-image upload slots, bounding overlays, swipe comparator, live pipeline-flow viewer.
+
+**Backend API Gateway**
+
+Node.js (v18+) · Express 5 (ESM) · Multer
+
+Multipart upload pipeline (≤50MB/file), request validation, orchestrator lifecycle.
+
+**Authentication & Security**
+
+JWT · HTTP-only cookies · bcrypt.js (10 rounds) · cookie-parser · CORS
+
+Salted password hashing, signed JWTs in `satvistaar_token` cookie, SameSite protection.
+
+**Geospatial Preprocessing**
+
+Python 3.10+ · Flask 3.0 · rasterio · Pillow · NumPy
+
+Independent microservice extracting CRS, resolution, bounding boxes, band configuration from GeoTIFF/TIFF/PNG/JPEG.
+
+**Vision-Language Inference**
+
+Groq Cloud API (`Qwen3.8-27B Vision`, Llama-3.2-11B Vision) · Ollama local daemon (`qwen2-vl`)
+
+Cloud-first inference with 429 backoff, deterministic local fallback.
+
+**Data & Resilience Layer**
+
+File-backed atomic JSON storage (`backend/data/users.json`) with in-memory caching
+
+Documented as "seamlessly swappable with MongoDB/PostgreSQL" — this swap has **not** happened yet.
+
+### Proposed / Roadmap Architecture (per presentation deck only — not present in the live app or repo README)
+
+Layer
+
+Proposed Technology
+
+Status
+
+Relational + spatial database
+
+PostgreSQL + PostGIS
+
+📋 Proposed
+
+Object storage
+
+MinIO (local dev) → AWS S3 (production)
+
+📋 Proposed
+
+Geospatial libraries
+
+GDAL, GeoPandas
+
+📋 Proposed
+
+Model fine-tuning
+
+PyTorch, Hugging Face, LoRA/QLoRA on pre-trained "GeoRS" foundation models
+
+📋 Proposed — needed to satisfy the PS's mandatory fine-tuning requirement
+
+Alternate backend runtime
+
+FastAPI (Python) alongside/instead of Express
+
+📋 Proposed
+
+Frontend typing
+
+TypeScript, Tailwind CSS
+
+📋 Proposed
+
+Deployment
+
+Docker, cloud/on-prem GPU workers
+
+📋 Proposed
+
+**Do not present the "Proposed" table as shipped functionality** — it reflects the team's stated direction in the SIH pitch deck, not verified code.
+
+----------
+
+## 🗄️ Data & Storage Architecture
+
+**Current (verified):** SatVistaar uses **file-backed JSON storage** for user records and relies on the local filesystem for uploaded imagery during a session. There is no database or object-storage service confirmed in the live stack.
+
+**Proposed (per deck, not implemented):** A future architecture separating **PostgreSQL/PostGIS** (relational + spatial metadata — file records, analysis history, AOI geometries, spatial indexing/queries) from **MinIO (dev) / AWS S3 (prod)** (raw raster files, processed outputs, exported reports). No table names, bucket names, or schemas are documented anywhere in the available sources, so none are invented here — this section should be filled in once the team implements it.
+
+----------
+
+## 🔐 Security Architecture
+
+**Implemented:**
+
+-   Bcrypt password hashing (10 rounds).
+-   JWT session tokens issued via secure, HTTP-only cookies (`satvistaar_token`).
+-   Session hydration via `/api/v1/auth/me` and logout via cookie clearing.
+-   Route guards on upload/analysis endpoints.
+-   CORS configuration (credentialed).
+
+**Documented in the original repository table but not independently re-verified this pass:** Helmet security headers.
+
+**Production Hardening / Not Yet Verified:**
+
+-   Rate limiting beyond the VLM provider's own 429 backoff.
+-   Secrets management beyond `.env` files.
+-   HTTPS termination / TLS configuration.
+-   Per-user data isolation guarantees at the storage layer (relevant once file-backed storage is replaced).
+
+----------
 
 ## 💻 Setup & Installation Guide
 
-### Prerequisites
-- **Node.js**: v18+ (v20+ recommended)
-- **Python**: v3.10+ (for geospatial preprocessing)
-- **Groq API Key**: Optional for live cloud inference (system supports mock mode)
-- **Ollama**: Optional for local inference
+_(Carried over from the repository's current README — unchanged since the last update, and not independently re-run in this session.)_
 
----
+### Prerequisites
+
+-   **Node.js**: v18+ (v20+ recommended)
+-   **Python**: v3.10+ (for geospatial preprocessing)
+-   **Groq API Key**: optional for live cloud inference (mock mode supported)
+-   **Ollama**: optional for local inference
 
 ### Step 1: Clone Repository
+
 ```bash
 git clone https://github.com/KrxnTech/SatVistaar-SIH.git
-cd SatVistaar
+cd SatVistaar-SIH
+
 ```
 
----
-
 ### Step 2: Configure Backend Environment
-Navigate to `backend/` and initialize `.env`:
+
 ```bash
 cd backend
 cp .env.example .env
+
 ```
 
-Edit `backend/.env` with your settings:
 ```env
 PORT=5000
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
 API_PREFIX=/api/v1
 
-# Preprocessing Service URL
 PREPROCESSING_SERVICE_URL=http://localhost:5001
 PREPROCESSING_TIMEOUT_MS=5000
 
-# VLM Inference Mode ('live' or 'mock')
 ML_MODE=live
 MODEL_PROVIDER=groq
 MODEL_ROUTER_MODE=priority
 VLM_TIMEOUT_MS=30000
 
-# Groq Cloud API Key
 GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=qwen/qwen3.8-27b
 
-# Ollama Local Daemon
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2-vl
 
-# Authentication Secrets
 JWT_SECRET=your_jwt_secret_key_change_in_production
 JWT_EXPIRES_IN=7d
+
 ```
 
-Install backend dependencies:
 ```bash
 npm install
+
 ```
 
----
-
 ### Step 3: Set Up Python Preprocessing Microservice
-In a separate terminal:
+
 ```bash
 cd backend/services/preprocessing
 python -m venv venv
-
-# Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-
-# Linux / macOS:
-# source venv/bin/activate
-
+# Windows: .\venv\Scripts\Activate.ps1
+# Linux/macOS: source venv/bin/activate
 pip install -r requirements.txt
 python app.py
-```
-*The preprocessing service will listen on `http://localhost:5001`.*
 
----
+```
+
+_Listens on `http://localhost:5001`._
 
 ### Step 4: Start Express Backend
-In the `backend/` directory:
+
 ```bash
 npm run dev
-```
-*The backend API will listen on `http://localhost:5000`.*
 
----
+```
+
+_Listens on `http://localhost:5000`._
 
 ### Step 5: Start React Frontend
-In a new terminal:
+
 ```bash
 cd frontend
 npm install
 npm run dev
-```
-*The web interface will open at `http://localhost:5173`.*
 
----
+```
+
+_Opens at `http://localhost:5173`._
+
+> ⚠️ The repository also contains a **`frontend_deep`** folder whose purpose/setup steps are **not documented** anywhere available to this README's authors. If this is the codebase behind the richer live UI and Disaster Mode shown in current demos, it needs its own setup section — please confirm and add it.
+
+### Docker
+
+No Dockerfiles or `docker-compose` configuration were found or confirmed in the available sources. **Not documented — do not assume Docker support** until verified.
+
+----------
 
 ## 🧪 Testing & Quality Assurance
 
-SatVistaar includes rigorous automated test suites verifying security, auth barriers, and all remote-sensing analysis modes:
+_(As documented in the repository; not independently re-run in this session — treat pass counts as last-known, not current-guaranteed.)_
 
 ### 1. Authentication & Security Test Suite
-Verifies registration validation, duplicate email rejection (409), password hashing, JWT HTTP-only cookie issuance, `/auth/me` session hydration, logout cookie clearance, and endpoint protection:
+
 ```bash
 cd backend
 node tests/auth.test.js
+
 ```
-*Output: `21/21 Tests Passed (100%)`*
+
+_Last documented output: `21/21 Tests Passed (100%)`_
 
 ### 2. Comprehensive Analysis Regression Suite
-Verifies VQA query differentiation, Scene Description, Visual Grounding, Bi-Temporal Change Detection, Groq live inference, rate-limit backoff, and response schema contracts:
+
 ```bash
 cd backend
 node tests/final-backend-validation.test.js
+
 ```
-*Output: `28/30 Tests Passed (93%)` (excluding unstarted optional services)*
+
+_Last documented output: `28/30 Tests Passed (93%)` (excluding unstarted optional services)_
 
 ### 3. Frontend Production Build Validation
+
 ```bash
 cd frontend
 npm run build
+
 ```
-*Output: Production bundle compiled with `0 errors`.*
 
----
+_Last documented output: production bundle compiled with `0 errors`._
 
-## 🚀 Evolution Toward Remote-Sensing Intelligence
+**Not yet verified:** any equivalent test coverage for Optical+SAR Fusion or Disaster Mode.
 
-The following capabilities represent future engineering milestones beyond the current MVP and are designated as **Planned / Future**:
+----------
 
-- [ ] **Pixel-Level Semantic Segmentation**: Integration of specialized foundation segmentation models (SAM-Geo / SegFormer) for calibrated raster land-cover masks.
-- [ ] **Physical Optical-SAR Tensor Fusion**: Deep multimodal feature fusion combining phase and amplitude data from SAR sensors with optical multispectral bands.
-- [ ] **High-Resolution Tile Pyramid Rendering**: Slippy map integration (Leaflet/MapLibre) supporting deep zooming on multi-gigabyte GeoTIFF tiles via COG (Cloud-Optimized GeoTIFFs).
-- [ ] **Quantitative Spectral Analysis**: Server-side NDVI, NDWI, EVI, and NBR calibrated raster calculation engines.
-- [ ] **Fine-Tuned Domain Specialist VLM**: Domain adaptation of open-source vision backbones specifically on Sentinel-2 and Landsat-8 labeled benchmarks.
+## 📈 Scalability
 
----
+The documented architecture is already stateless at the API gateway level, which is a reasonable foundation for horizontal scaling. Beyond that, no load-balancing, caching, queueing, or GPU-worker scaling strategy is confirmed in any source — these remain **recommendations**, not current capabilities:
+
+-   Move file-backed JSON storage to PostgreSQL for concurrent-write safety.
+-   Introduce a job queue for long-running VLM inference instead of synchronous request/response.
+-   Add object storage (S3/MinIO) so the API gateway doesn't hold large rasters in-process.
+-   Add a CDN in front of the static frontend build.
+
+----------
+
+## 🛡️ Production Readiness
+
+Area
+
+Assessment
+
+Reliability
+
+Provider fallback (Groq → Ollama) is a real strength; no broader retry/circuit-breaker strategy confirmed.
+
+Auth/Authz
+
+Solid baseline (JWT + bcrypt + HTTP-only cookies); no role-based authorization beyond a single `USER` role confirmed.
+
+Storage
+
+File-backed JSON is not production-grade for concurrent multi-user load.
+
+Observability
+
+Execution traces exist per-request; no aggregated logging/metrics/alerting confirmed.
+
+Secrets
+
+`.env`-based; no secrets manager confirmed.
+
+Backups/DR
+
+Not documented.
+
+Scalability
+
+Stateless gateway is a good start; storage and inference layers are the current bottlenecks.
+
+**Overall: this is a functioning MVP, not yet a production-hardened system** — which is consistent with its own SIH hackathon context.
+
+----------
+
+## ⚠️ Limitations
+
+-   **Qualitative, not quantitative**: no calibrated NDVI/NDWI/EVI/NBR rasters; VLM outputs are descriptive text, not measured indices.
+-   **Grounding is approximate**: bounding overlays reflect model attention, not survey-grade shapefiles (stated directly in the product's own About page).
+-   **No confirmed domain fine-tuning**: the PS requires remote-sensing-adapted models; the observed stack uses general-purpose Groq/Ollama vision models.
+-   **Optical+SAR Fusion depth unverified**: selectable in the UI, but whether it performs genuine cross-modal radar/optical reasoning versus prompting a general VLM with both images is unconfirmed.
+-   **Disaster Mode data provenance unverified**: hazard layers, priority scores, and recommended actions were observed in the UI; whether they are model-generated, rule-based, or partly mocked was not verifiable from available sources.
+-   **No pixel-level segmentation**: land-cover masks are not generated today.
+-   **Single-instance storage**: file-backed JSON does not scale to concurrent multi-tenant production use.
+
+----------
+
+## 🧭 Roadmap
+
+-   ✅ Five-mission agentic routing (VQA, Scene Description, Grounding, Bi-Temporal Change, Optical+SAR Fusion) — **Implemented**
+-   ✅ Disaster Mode console (UI) — **Implemented**
+-   🚧 Document and harden Disaster Mode's backend API contract
+-   📋 Remote-sensing fine-tuning / domain adaptation (BigEarthNet or equivalent) — **required to satisfy SIH26167**
+-   📋 Genuine co-registered optical–SAR tensor-level fusion (beyond prompt-level multimodal input)
+-   📋 PostgreSQL/PostGIS metadata + spatial store
+-   📋 MinIO (dev) / S3 (prod) object storage for raw and processed imagery
+-   📋 Pixel-level semantic segmentation (SAM-Geo / SegFormer style)
+-   📋 High-resolution tile-pyramid rendering (Leaflet/MapLibre, Cloud-Optimized GeoTIFFs)
+-   📋 Quantitative spectral index engine (NDVI, NDWI, EVI, NBR)
+-   📋 Containerized deployment (Docker) and defined production infrastructure
+
+----------
+
+## 🖼️ Demo / Screenshots
+
+No screenshot assets currently exist in the repository. Recommended structure once captured:
+
+```text
+docs/
+└── screenshots/
+    ├── landing-page.png
+    ├── authentication.png
+    ├── analysis-workspace.png
+    ├── optical-sar-fusion.png
+    ├── disaster-mode-dashboard.png
+    └── disaster-mode-hazard-map.png
+
+```
+
+----------
 
 ## 👥 Contributors & Acknowledgements
 
-Developed for the **Smart India Hackathon (SIH 2026)** under Problem Statement **SIH26167**.
+Developed for the **Smart India Hackathon 2026** under Problem Statement **SIH26167**, by Team **PRAXIS**.
 
-- **Organization**: Ministry / Agency Partner (SIH 2026)
-- **License**: ISC License
+-   **Theme**: Department of Space / Indian Space Research Organisation (ISRO)
+-   **PS Category**: Software
+-   **License**: ISC License
+
+Research references informing the approach (per team materials): GeoChat (CVPR 2024), VRSBench (NeurIPS 2024), RSVQA (IEEE TGRS 2020), ChangeChat (2024), CDVQA (IEEE TGRS 2022), BigEarthNet v2 / reBEN (2024).
+
+----------
+
+## 🔎 Contradictions & Verification Notes
+
+For transparency, this section lists everything in this README that rests on a single, imperfectly-verifiable source rather than corroborated code:
+
+1.  Disaster Mode's backend logic, data sources, and API contract — **UI-observed only**.
+2.  Optical+SAR Fusion's actual fusion mechanism — **UI-observed only**; task is selectable, internals unconfirmed.
+3.  The purpose of the `frontend_deep` folder — **unresolved**; repository subpaths were not crawlable in this session.
+4.  The presentation deck's PostgreSQL/MinIO/PyTorch/LoRA/FastAPI/Docker stack — **treated as proposed, not shipped**, since it does not appear in the live app's own "About & Architecture" page or the repository README.
+5.  Test pass counts (21/21, 28/30) — **carried over from the existing repository README**, not re-executed.
+6.  Website URL — not provided in the materials supplied for this update; add it once available.
+
+**Before publishing this README, the team should confirm (or correct) items 1–4 with whoever owns the current codebase.**
