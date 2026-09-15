@@ -88,7 +88,7 @@ export function Register({ onNavigateToLogin, onSuccess }) {
                 id="register-name"
                 type="text"
                 className="gov-dark-input"
-                placeholder="Dr. Rajesh Kumar"
+                placeholder="Enter you Full Name"
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -113,7 +113,7 @@ export function Register({ onNavigateToLogin, onSuccess }) {
                 id="register-email"
                 type="email"
                 className="gov-dark-input"
-                placeholder="rajesh@isro.gov.in"
+                placeholder="enter your mail"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -138,7 +138,7 @@ export function Register({ onNavigateToLogin, onSuccess }) {
                 id="register-password"
                 type={showPassword ? 'text' : 'password'}
                 className="gov-dark-input"
-                placeholder="••••••••"
+                placeholder="enter password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -172,7 +172,7 @@ export function Register({ onNavigateToLogin, onSuccess }) {
                 id="register-confirm"
                 type={showPassword ? 'text' : 'password'}
                 className="gov-dark-input"
-                placeholder="••••••••"
+                placeholder="enter password"
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);

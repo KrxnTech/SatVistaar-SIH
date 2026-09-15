@@ -139,7 +139,7 @@ export function AuthPage({
                   id="user-email"
                   type="email"
                   className="auth-text-input"
-                  placeholder="name@organization.gov.in"
+                  placeholder="enter your mail"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -163,7 +163,7 @@ export function AuthPage({
                   id="user-password"
                   type={showPassword ? 'text' : 'password'}
                   className="auth-text-input has-trailing-btn"
-                  placeholder="Password"
+                  placeholder="enter password"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
